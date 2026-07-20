@@ -499,113 +499,71 @@
             transform: translate(-50%, -50%) scale(1.6) rotate(-15deg);
             color: var(--accent-color);
         }
-    /* --- التنسيق النهائي الشامل للموبايل (استبدل به كل الأكواد القديمة) --- */
-@media (max-width: 768px) {
-    body, html {
-        overflow-x: hidden !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* 1. الناف بار العلوي والشعار */
+    @media (max-width: 768px) {
+    /* 1. تصغير الناف بار بالكامل ليصبح رفيعاً وصغيراً وليس عملاقاً */
     nav, .navbar, header {
+        padding: 5px 8px !important;
+        min-height: unset !important;
+        height: auto !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        padding: 10px !important;
-        width: 100% !important;
-        gap: 8px !important;
     }
 
+    /* تصغير خط روابط الناف بار واللogo */
     .logo, .navbar-brand, nav h1, header h1 {
-        font-size: 1.4rem !important;
-        text-align: center !important;
-        white-space: nowrap !important;
+        font-size: 1rem !important;
         margin: 0 !important;
+        padding: 0 !important;
     }
 
     .nav-links, .navbar-nav, nav ul {
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
-        gap: 15px !important;
-        margin: 0 !important;
+        gap: 10px !important;
+        margin: 4px 0 0 0 !important;
         padding: 0 !important;
         list-style: none !important;
-        width: 100% !important;
     }
 
     .nav-links a, .navbar-nav a, nav a {
-        font-size: 0.9rem !important;
-        padding: 4px 8px !important;
+        font-size: 0.75rem !important;
+        padding: 2px 5px !important;
     }
 
-    /* 2. قسم الهيرو، النصوص، الصورة، والأزرار */
-    .hero, .main-section, div[class*="hero"], section {
+    /* 2. ترتيب قسم الهيرو بحيث تأتي الصورة دائرية وتحت الاسم مباشرة */
+    .hero, .main-section, section {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
-        width: 100% !important;
         padding: 10px !important;
-        margin: 0 !important;
     }
 
     .hero-text {
         order: 1 !important;
         width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 10px !important;
     }
 
-    .hero-text h1, h1 {
-        font-size: 2rem !important;
-        line-height: 1.2 !important;
-    }
-
-    .hero-text h2, h2 {
-        font-size: 1.1rem !important;
-    }
-
-    .hero-text p, p {
-        font-size: 0.95rem !important;
-    }
-
-    .hero-image, img, .profile-img {
+    /* 3. جعل الصورة دائرية 100% وبحجم مناسب تحت الاسم */
+    .hero-image img, img, .profile-img {
         order: 2 !important;
-        width: 75% !important;
-        max-width: 240px !important;
-        height: auto !important;
-        margin: 20px auto !important;
+        width: 150px !important;
+        height: 150px !important;
+        border-radius: 50% !important;
+        object-fit: cover !important;
+        margin: 15px auto !important;
+        display: block !important;
     }
 
-    .hero-buttons, .buttons-container, div[style*="display: flex"] {
+    .hero-buttons {
         order: 3 !important;
         display: flex !important;
-        flex-direction: row !important;
         justify-content: center !important;
         gap: 10px !important;
-        width: 100% !important;
         margin-top: 10px !important;
-    }
-
-    .hero-buttons a, .buttons-container a, .btn {
-        padding: 10px 14px !important;
-        font-size: 0.85rem !important;
-        flex: 1 !important;
-        max-width: 140px !important;
-        text-align: center !important;
-    }
-
-    /* 3. حشرة البق الخلفية */
-    .giant-cyber-beast {
-        font-size: 8rem !important;
-        left: 50% !important;
-        top: 30% !important;
-        transform: translate(-50%, -50%) !important;
-        opacity: 0.08 !important;
     }
 }
     </style>
