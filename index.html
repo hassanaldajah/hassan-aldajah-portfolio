@@ -499,10 +499,8 @@
             transform: translate(-50%, -50%) scale(1.6) rotate(-15deg);
             color: var(--accent-color);
         }
-     /* --- حل نهائي وجذري للتجاوب على الموبايل (الشاشات أقل من 768 بكسل) --- */
+    /* --- التنسيق النهائي الشامل للموبايل (استبدل به كل الأكواد القديمة) --- */
 @media (max-width: 768px) {
-
-    /* 1. منع أي سحب أفقي بالشاشة */
     body, html {
         overflow-x: hidden !important;
         width: 100% !important;
@@ -510,42 +508,98 @@
         padding: 0 !important;
     }
 
-    /* 2. تحويل أي عنصر بجانب بعضه (Flex) ليصبح تحت بعضه عمودياً */
-    section, .hero, div[style*="display: flex"], .container, header {
+    /* 1. الناف بار العلوي والشعار */
+    nav, .navbar, header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 10px !important;
+        width: 100% !important;
+        gap: 8px !important;
+    }
+
+    .logo, .navbar-brand, nav h1, header h1 {
+        font-size: 1.4rem !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        margin: 0 !important;
+    }
+
+    .nav-links, .navbar-nav, nav ul {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 15px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+        width: 100% !important;
+    }
+
+    .nav-links a, .navbar-nav a, nav a {
+        font-size: 0.9rem !important;
+        padding: 4px 8px !important;
+    }
+
+    /* 2. قسم الهيرو، النصوص، الصورة، والأزرار */
+    .hero, .main-section, div[class*="hero"], section {
+        display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
         width: 100% !important;
-    }
-
-    /* 3.جعل صندوق النصوص يغطي عرض الشاشة كاملاً وبدون قيود عرض قديم */
-    .hero-text {
-        max-width: 100% !important;
-        width: 90% !important;
-        flex: unset !important;
-        margin: 0 auto !important;
         padding: 10px !important;
+        margin: 0 !important;
     }
 
-    /* 4. تصغير حجم الخط الرئيسي ليتناسب مع شاشة الهاتف بدقة */
+    .hero-text {
+        order: 1 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 10px !important;
+    }
+
     .hero-text h1, h1 {
-        font-size: 2.2rem !important;
+        font-size: 2rem !important;
         line-height: 1.2 !important;
     }
 
-    .hero-text h2, h2, p {
+    .hero-text h2, h2 {
         font-size: 1.1rem !important;
     }
 
-    /* 5. ضبط حجم صورة الشخصية وتوسيطها */
-    .hero-image, img, .profile-pic {
-        max-width: 260px !important;
-        width: 80% !important;
+    .hero-text p, p {
+        font-size: 0.95rem !important;
+    }
+
+    .hero-image, img, .profile-img {
+        order: 2 !important;
+        width: 75% !important;
+        max-width: 240px !important;
         height: auto !important;
         margin: 20px auto !important;
     }
 
-    /* 6. تصغير حشرة البق الخلفية عشان ما تغطي على الكلام وتصير مزعجة */
+    .hero-buttons, .buttons-container, div[style*="display: flex"] {
+        order: 3 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        width: 100% !important;
+        margin-top: 10px !important;
+    }
+
+    .hero-buttons a, .buttons-container a, .btn {
+        padding: 10px 14px !important;
+        font-size: 0.85rem !important;
+        flex: 1 !important;
+        max-width: 140px !important;
+        text-align: center !important;
+    }
+
+    /* 3. حشرة البق الخلفية */
     .giant-cyber-beast {
         font-size: 8rem !important;
         left: 50% !important;
