@@ -499,71 +499,125 @@
             transform: translate(-50%, -50%) scale(1.6) rotate(-15deg);
             color: var(--accent-color);
         }
-    @media (max-width: 768px) {
-    /* 1. تصغير الناف بار بالكامل ليصبح رفيعاً وصغيراً وليس عملاقاً */
+    /* --- تنسيق صارم وجذري مخصص لشاشة iPhone 12 Pro Max والشاشات الصغيرة (430 بكسل أو أقل) --- */
+@media screen and (max-width: 430px) {
+    /* 1. منع أي سحب أفقي وتثبيت حدود الصفحة بالكامل */
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    * {
+        box-sizing: border-box !important;
+    }
+
+    /* 2. تصغير الناف بار العلوي تماماً ليكون رفيعاً ومرتباً */
     nav, .navbar, header {
-        padding: 5px 8px !important;
+        width: 100% !important;
         min-height: unset !important;
         height: auto !important;
+        padding: 6px 10px !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
+        position: relative !important;
     }
 
-    /* تصغير خط روابط الناف بار واللogo */
+    /* اسمك / الشعار في الناف بار */
     .logo, .navbar-brand, nav h1, header h1 {
         font-size: 1rem !important;
-        margin: 0 !important;
+        text-align: center !important;
+        margin: 0 auto !important;
         padding: 0 !important;
+        white-space: nowrap !important;
     }
 
+    /* روابط التنقل (Home, Skills) تحت الشعار بشكل مصغر وأيقوني */
     .nav-links, .navbar-nav, nav ul {
         display: flex !important;
         flex-direction: row !important;
         justify-content: center !important;
-        gap: 10px !important;
+        align-items: center !important;
+        gap: 12px !important;
         margin: 4px 0 0 0 !important;
         padding: 0 !important;
         list-style: none !important;
+        width: 100% !important;
     }
 
     .nav-links a, .navbar-nav a, nav a {
         font-size: 0.75rem !important;
-        padding: 2px 5px !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
     }
 
-    /* 2. ترتيب قسم الهيرو بحيث تأتي الصورة دائرية وتحت الاسم مباشرة */
-    .hero, .main-section, section {
+    /* 3. ترتيب قسم الهيرو (النص، الصورة، الأزرار) عمودياً بدقة */
+    .hero, .main-section, section:first-of-type, div[class*="hero"] {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         text-align: center !important;
+        width: 100% !important;
         padding: 10px !important;
+        margin: 0 !important;
     }
 
+    /* صندوق النصوص والنبذة التعريفية يظهر بالبداية */
     .hero-text {
         order: 1 !important;
         width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 5px !important;
+        margin: 0 !important;
     }
 
-    /* 3. جعل الصورة دائرية 100% وبحجم مناسب تحت الاسم */
-    .hero-image img, img, .profile-img {
+    .hero-text h1, h1 {
+        font-size: 1.7rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-text h2, h2 {
+        font-size: 0.95rem !important;
+    }
+
+    .hero-text p, p {
+        font-size: 0.85rem !important;
+    }
+
+    /* 4. الصورة الشخصية: دائرية تماماً (100%) وتحت الاسم مباشرة */
+    .hero-image, img, .profile-img {
         order: 2 !important;
-        width: 150px !important;
-        height: 150px !important;
+        width: 130px !important;
+        height: 130px !important;
         border-radius: 50% !important;
         object-fit: cover !important;
-        margin: 15px auto !important;
+        margin: 12px auto !important;
         display: block !important;
+        float: none !important;
     }
 
-    .hero-buttons {
+    /* 5. الأزرار تحت الصورة */
+    .hero-buttons, .buttons-container, div[style*="display: flex"] {
         order: 3 !important;
         display: flex !important;
+        flex-direction: row !important;
         justify-content: center !important;
-        gap: 10px !important;
-        margin-top: 10px !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-top: 5px !important;
+    }
+
+    .hero-buttons a, .btn, .buttons-container a {
+        padding: 8px 10px !important;
+        font-size: 0.75rem !important;
+        flex: 1 !important;
+        max-width: 120px !important;
+        text-align: center !important;
     }
 }
     </style>
