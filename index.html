@@ -499,51 +499,59 @@
             transform: translate(-50%, -50%) scale(1.6) rotate(-15deg);
             color: var(--accent-color);
         }
-        /* --- حل مشاكل التجاوب والتفاصيل على الهواتف المحمولة (الشاشات أقل من 768 بكسل) --- */
+     /* --- حل نهائي وجذري للتجاوب على الموبايل (الشاشات أقل من 768 بكسل) --- */
 @media (max-width: 768px) {
 
-    /* 1. تصغير حشرة البق العملاقة بالخلفية عشان ما تخرب العرض أو تغطي الكلام */
-    .giant-cyber-beast {
-        font-size: 9rem !important;
-        left: 5% !important;
-        top: 15% !important;
-        opacity: 0.1 !important;
-    }
-
-    /* 2. جعل أقسام الصفحة الرئيسية (Hero Section) تترتب عمودياً بدل جنب بعض */
+    /* 1. منع أي سحب أفقي بالشاشة */
     body, html {
-        overflow-x: hidden; /* لمنع أي سحب أفقي مزعج للشاشة */
-    }
-
-    .hero-section, .main-container {
-        flex-direction: column !important;
-        text-align: center;
-        padding: 10px;
-    }
-
-    /* 3. ترتيب كروت التواصل الأربعة (Get in Touch) لتنزل تحت بعضها بمسافات مرتبة */
-    .contact-container, .cards-grid, .row {
-        display: flex;
-        flex-direction: column !important;
+        overflow-x: hidden !important;
         width: 100% !important;
-        gap: 15px !important;
-        padding: 0 10px !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
-    /* 4. جعل كل كرت أخذ عرض الشاشة بالكامل على الموبايل */
-    .contact-card, .info-card, .contact-box {
+    /* 2. تحويل أي عنصر بجانب بعضه (Flex) ليصبح تحت بعضه عمودياً */
+    section, .hero, div[style*="display: flex"], .container, header {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
         width: 100% !important;
+    }
+
+    /* 3.جعل صندوق النصوص يغطي عرض الشاشة كاملاً وبدون قيود عرض قديم */
+    .hero-text {
         max-width: 100% !important;
-        margin: 0 auto 15px auto !important;
+        width: 90% !important;
+        flex: unset !important;
+        margin: 0 auto !important;
+        padding: 10px !important;
     }
 
-    /* 5. ضبط أحجام النصوص الكبيرة لتناسب شاشات الموبايل الصغيرة */
-    h1 {
-        font-size: 1.8rem !important;
+    /* 4. تصغير حجم الخط الرئيسي ليتناسب مع شاشة الهاتف بدقة */
+    .hero-text h1, h1 {
+        font-size: 2.2rem !important;
+        line-height: 1.2 !important;
     }
-    
-    h2 {
-        font-size: 1.5rem !important;
+
+    .hero-text h2, h2, p {
+        font-size: 1.1rem !important;
+    }
+
+    /* 5. ضبط حجم صورة الشخصية وتوسيطها */
+    .hero-image, img, .profile-pic {
+        max-width: 260px !important;
+        width: 80% !important;
+        height: auto !important;
+        margin: 20px auto !important;
+    }
+
+    /* 6. تصغير حشرة البق الخلفية عشان ما تغطي على الكلام وتصير مزعجة */
+    .giant-cyber-beast {
+        font-size: 8rem !important;
+        left: 50% !important;
+        top: 30% !important;
+        transform: translate(-50%, -50%) !important;
+        opacity: 0.08 !important;
     }
 }
     </style>
