@@ -6,66 +6,6 @@
     <title>Hasan Khaled | Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        
-      /* --- الوحش بلون البار تماماً مع حركة واقعية --- */
-        .giant-cyber-beast {
-            position: fixed;
-            left: 15%;
-            top: 25%;
-            font-size: 20rem; /* حجم عملاق فخم */
-            color: var(--secondary-color); /* بيوخذ نفس لون البار والأزرار بدقة */
-            opacity: 0.16; /* شفافيه هادية وواضحة بالخلفية */
-            z-index: -1; /* خلف النصوص والصور */
-            pointer-events: none; /* عشان الماوس يمر من خلاله عادي */
-            animation: spiderCrawl 16s ease-in-out infinite;
-            user-select: none;
-        }
-
-        /* --- حركة العنكبوت الواقعية --- */
-        @keyframes spiderCrawl {
-            0% {
-                transform: translate(0px, 0px) rotate(0deg);
-            }
-            10% {
-                transform: translate(220px, -50px) rotate(20deg);
-            }
-            13% {
-                transform: translate(220px, -50px) rotate(15deg);
-            }
-            35% {
-                transform: translate(420px, 180px) rotate(55deg);
-            }
-            38% {
-                transform: translate(420px, 180px) rotate(50deg);
-            }
-            65% {
-                transform: translate(-120px, 220px) rotate(-35deg);
-            }
-            70% {
-                transform: translate(-120px, 220px) rotate(-40deg);
-            }
-            88% {
-                transform: translate(60px, -80px) rotate(10deg);
-            }
-            100% {
-                transform: translate(0px, 0px) rotate(0deg);
-            }
-        }
-        .hero-text {
-            max-width: 28%; /* صغرنا العرض زيادة عشان تبعد عن الصورة بكل مساحة أمان ممكنة */
-            flex: 1;
-        }
-        /* --- خلفية السقوط المتحركة --- */
-        #cyber-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1; /* بتنزل خلف كل عناصر الموقع عشان ما تتعارض مع إشي */
-            pointer-events: none; /* عشان الماوس يمر من خلالها وكأنها مش موجودة */
-            opacity: 0.4; /* ألوان خفيفة وهادية جداً غير مزعجة للعين */
-        }
         :root {
             --primary-color: #1e293b;
             --secondary-color: #9f1239;
@@ -94,9 +34,49 @@
             background-attachment: fixed;
             color: var(--text-main);
             line-height: 1.6;
+            overflow-x: hidden;
+            cursor: none; /* Hide default cursor */
         }
 
-       /* --- تصميم البار العلوي (Navbar) --- */
+        /* --- Giant Cyber Beast --- */
+        .giant-cyber-beast {
+            position: fixed;
+            left: 15%;
+            top: 25%;
+            font-size: 20rem;
+            color: var(--secondary-color);
+            opacity: 0.16;
+            z-index: -1;
+            pointer-events: none;
+            animation: spiderCrawl 16s ease-in-out infinite;
+            user-select: none;
+        }
+
+        @keyframes spiderCrawl {
+            0% { transform: translate(0px, 0px) rotate(0deg); }
+            10% { transform: translate(220px, -50px) rotate(20deg); }
+            13% { transform: translate(220px, -50px) rotate(15deg); }
+            35% { transform: translate(420px, 180px) rotate(55deg); }
+            38% { transform: translate(420px, 180px) rotate(50deg); }
+            65% { transform: translate(-120px, 220px) rotate(-35deg); }
+            70% { transform: translate(-120px, 220px) rotate(-40deg); }
+            88% { transform: translate(60px, -80px) rotate(10deg); }
+            100% { transform: translate(0px, 0px) rotate(0deg); }
+        }
+
+        /* --- Cyber Canvas --- */
+        #cyber-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        /* --- Navbar --- */
         nav {
             display: flex;
             justify-content: space-between;
@@ -109,35 +89,10 @@
             z-index: 1000;
             border-bottom: 1px solid var(--border-color);
             box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
+            flex-wrap: wrap;
             gap: 15px;
         }
 
-        nav ul li a {
-            text-decoration: none;
-            color: var(--primary-color);
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px; /* مسافة بين الأيقونة والكلمة */
-            padding: 8px 16px;
-            border-radius: 20px; /* شكل بيضاوي لطيف */
-        }
-
-        /* تأثير الـ Hover على البار */
-        nav ul li a:hover {
-            color: white;
-            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-            box-shadow: 0 4px 12px rgba(159, 18, 57, 0.25);
-            transform: translateY(-2px);
-        }
-        
         .logo {
             font-size: 26px;
             font-weight: 800;
@@ -150,42 +105,56 @@
         nav ul {
             display: flex;
             list-style: none;
-            gap: 25px;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         nav ul li a {
             text-decoration: none;
             color: var(--primary-color);
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
             font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
         }
 
         nav ul li a:hover {
-            color: var(--secondary-color);
+            color: white;
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            box-shadow: 0 4px 12px rgba(159, 18, 57, 0.25);
+            transform: translateY(-2px);
         }
 
+        /* --- Hero Section --- */
         .hero {
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 80px 5%;
             min-height: 80vh;
+            gap: 40px;
         }
 
         .hero-text {
             max-width: 55%;
+            flex: 1;
         }
 
         .hero-text h1 {
-            font-size: 3.8rem;
+            font-size: clamp(2.5rem, 5vw, 3.8rem);
             color: var(--primary-color);
             margin-bottom: 10px;
             line-height: 1.1;
+            word-wrap: break-word;
         }
 
         .hero-text h2 {
-            font-size: 2rem;
+            font-size: clamp(1.4rem, 3vw, 2rem);
             background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -202,6 +171,7 @@
         .btn-group {
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -212,6 +182,9 @@
             text-decoration: none;
             transition: all 0.3s ease;
             text-align: center;
+            flex: 1;
+            min-width: 150px;
+            max-width: max-content;
         }
 
         .btn-primary {
@@ -238,34 +211,31 @@
             transform: translateY(-3px);
         }
 
-       /* 1. هذا الكود عشان يخليها دائرة بيرفكت زي البنت */
         .hero-image {
-            width: 450px;
-            height: 450px;
+            width: clamp(250px, 40vw, 450px);
+            height: clamp(250px, 40vw, 450px);
             border-radius: 50%; 
             overflow: hidden;
-            box-shadow: none; 
-            border: none; 
-            margin-left: 60px;
+            flex-shrink: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
         }
 
-        /* 2. هذا الكود عشان ينزل الصورة (تبين البدلة) ويصفي الجودة */
         .hero-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center 45%; /* هاي اللي بتنزل الصورة لتحت عشان الخصر يبين */
-            
-            /* الكود السحري لمنع التغبيش وتحسين الجودة */
+            object-position: center 45%; 
             image-rendering: high-quality;
             image-rendering: -webkit-optimize-contrast;
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
             backface-visibility: hidden;
         }
+
+        /* --- Sections & Components --- */
         .section-title {
             text-align: center;
-            font-size: 2.5rem;
+            font-size: clamp(2rem, 4vw, 2.5rem);
             margin-bottom: 50px;
             color: var(--primary-color);
             position: relative;
@@ -337,9 +307,9 @@
             box-shadow: 0 8px 20px rgba(0,0,0,0.08);
         }
 
-        .tool-item img {
+        .tool-item img, .tool-item svg {
             width: auto;
-            height: 50px;
+            height: 45px;
             margin-bottom: 15px;
             object-fit: contain;
         }
@@ -372,6 +342,7 @@
             align-items: center;
             transition: transform 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            gap: 20px;
         }
 
         .timeline-card:hover {
@@ -394,6 +365,7 @@
             box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
             text-align: center;
             min-width: 120px;
+            flex-shrink: 0;
         }
 
         .project-card {
@@ -406,6 +378,7 @@
             flex-direction: column;
             border-top: 5px solid var(--secondary-color);
             box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            height: 100%;
         }
 
         .project-card:hover {
@@ -435,6 +408,9 @@
 
         .tags {
             margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .tags span {
@@ -444,8 +420,6 @@
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 0.85rem;
-            margin-right: 8px;
-            margin-bottom: 8px;
             font-weight: 700;
         }
 
@@ -470,22 +444,19 @@
             color: var(--text-muted);
             font-size: 1rem;
             font-weight: 500;
+            word-break: break-word;
         }
 
         .contact-card:hover h4 {
             color: var(--secondary-color);
         }
-      /* --- إخفاء الماوس العادي --- */
-        body {
-            cursor: none; 
-        }
-        
-        /* --- تصميم الماوس (البغ) --- */
+
+        /* --- Custom Cursor --- */
         .custom-cursor {
             position: fixed;
             top: 0;
             left: 0;
-            font-size: 22px; /* حجم أيقونة البغ */
+            font-size: 22px;
             color: var(--secondary-color);
             pointer-events: none;
             z-index: 10000;
@@ -494,142 +465,119 @@
             text-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
         
-        /* --- تأثير الماوس لما يمر فوق زر --- */
         .custom-cursor.hovering {
             transform: translate(-50%, -50%) scale(1.6) rotate(-15deg);
             color: var(--accent-color);
         }
-    /* --- تنسيق صارم وجذري مخصص لشاشة iPhone 12 Pro Max والشاشات الصغيرة (430 بكسل أو أقل) --- */
-@media screen and (max-width: 430px) {
-    /* 1. منع أي سحب أفقي وتثبيت حدود الصفحة بالكامل */
-    html, body {
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-    }
 
-    * {
-        box-sizing: border-box !important;
-    }
+        /* --- RESPONSIVE MEDIA QUERIES --- */
 
-    /* 2. تصغير الناف بار العلوي تماماً ليكون رفيعاً ومرتباً */
-    nav, .navbar, header {
-        width: 100% !important;
-        min-height: unset !important;
-        height: auto !important;
-        padding: 6px 10px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        position: relative !important;
-    }
+        /* Tablets & Smaller Desktops */
+        @media screen and (max-width: 992px) {
+            .hero {
+                flex-direction: column-reverse;
+                text-align: center;
+                padding: 40px 5%;
+            }
 
-    /* اسمك / الشعار في الناف بار */
-    .logo, .navbar-brand, nav h1, header h1 {
-        font-size: 1rem !important;
-        text-align: center !important;
-        margin: 0 auto !important;
-        padding: 0 !important;
-        white-space: nowrap !important;
-    }
+            .hero-text {
+                max-width: 100%;
+            }
 
-    /* روابط التنقل (Home, Skills) تحت الشعار بشكل مصغر وأيقوني */
-    .nav-links, .navbar-nav, nav ul {
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: center !important;
-        align-items: center !important;
-        gap: 12px !important;
-        margin: 4px 0 0 0 !important;
-        padding: 0 !important;
-        list-style: none !important;
-        width: 100% !important;
-    }
+            .btn-group {
+                justify-content: center;
+            }
 
-    .nav-links a, .navbar-nav a, nav a {
-        font-size: 0.75rem !important;
-        padding: 2px 6px !important;
-        margin: 0 !important;
-    }
+            .hero-image {
+                margin: 0 auto 30px;
+            }
 
-    /* 3. ترتيب قسم الهيرو (النص، الصورة، الأزرار) عمودياً بدقة */
-    .hero, .main-section, section:first-of-type, div[class*="hero"] {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        text-align: center !important;
-        width: 100% !important;
-        padding: 10px !important;
-        margin: 0 !important;
-    }
+            .giant-cyber-beast {
+                font-size: 15rem;
+                left: 5%;
+                top: 10%;
+            }
+        }
 
-    /* صندوق النصوص والنبذة التعريفية يظهر بالبداية */
-    .hero-text {
-        order: 1 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 5px !important;
-        margin: 0 !important;
-    }
+        /* Mobile Devices */
+        @media screen and (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 15px;
+            }
 
-    .hero-text h1, h1 {
-        font-size: 1.7rem !important;
-        line-height: 1.2 !important;
-    }
+            nav ul {
+                gap: 10px;
+                margin-top: 10px;
+            }
 
-    .hero-text h2, h2 {
-        font-size: 0.95rem !important;
-    }
+            nav ul li a {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
 
-    .hero-text p, p {
-        font-size: 0.85rem !important;
-    }
+            .timeline-card {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
 
-    /* 4. الصورة الشخصية: دائرية تماماً (100%) وتحت الاسم مباشرة */
-    .hero-image, img, .profile-img {
-        order: 2 !important;
-        width: 130px !important;
-        height: 130px !important;
-        border-radius: 50% !important;
-        object-fit: cover !important;
-        margin: 12px auto !important;
-        display: block !important;
-        float: none !important;
-    }
+            .timeline-card .date {
+                margin-top: 15px;
+            }
 
-    /* 5. الأزرار تحت الصورة */
-    .hero-buttons, .buttons-container, div[style*="display: flex"] {
-        order: 3 !important;
-        display: flex !important;
-        flex-direction: row !important;
-        justify-content: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-        margin-top: 5px !important;
-    }
+            .giant-cyber-beast {
+                font-size: 10rem;
+                opacity: 0.1;
+            }
+        }
 
-    .hero-buttons a, .btn, .buttons-container a {
-        padding: 8px 10px !important;
-        font-size: 0.75rem !important;
-        flex: 1 !important;
-        max-width: 120px !important;
-        text-align: center !important;
-    }
-}
+        /* Small Mobile Devices */
+        @media screen and (max-width: 480px) {
+            .hero {
+                padding: 20px 5%;
+            }
+
+            .hero-text h1 {
+                font-size: 2rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: none;
+            }
+
+            .tools-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+            
+            .project-info {
+                padding: 20px;
+            }
+        }
+
+        /* Disable custom cursor on touch devices to restore natural touch behavior */
+        @media (hover: none) and (pointer: coarse) {
+            .custom-cursor {
+                display: none !important;
+            }
+            body {
+                cursor: auto;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- الوحش العملاق المتحركة بالخلفية -->
     <div class="giant-cyber-beast"><i class="fa-solid fa-spider"></i></div>
-    <!-- عنصر خلفية السقوط -->
     <canvas id="cyber-canvas"></canvas>
-<!-- الماوس الجديد الـ Bug -->
+    
     <div class="custom-cursor"><i class="fa-solid fa-bug"></i></div>
-   <!-- Navbar بالاضافات والأيقونات الجديدة -->
+   
     <nav>
         <div class="logo">Hassan Khaled</div>
         <ul>
@@ -641,11 +589,11 @@
             <li><a href="#contact"><i class="fa-solid fa-paper-plane"></i> Contact</a></li>
         </ul>
     </nav>
-    <!-- Hero Section -->
+    
     <section class="hero">
         <div class="hero-text">
             <h1 data-value="Hi, I'm Hassan Aldajah">Hi, I'm Hasan Aldajah</h1>
-            <h2>Cyber Security Eng  & SOC Analyst</h2>
+            <h2>Cyber Security Eng & SOC Analyst</h2>
             <p>Fourth-year Cybersecurity student at the University of Jordan targeting SOC Analyst and Incident Response roles. Passionate about defending digital environments, analyzing network traffic, and building robust security architectures.</p>
             <div class="btn-group">
                 <a href="Hassan_Aldajah_cv.pdf" target="_blank" rel="noopener" class="btn btn-primary"><i class="fa-solid fa-eye"></i> View CV</a>
@@ -657,40 +605,35 @@
         </div>
     </section>
 
-    <!-- Skills & Tools Section -->
     <section id="skills">
         <h2 class="section-title">Tools & Technology </h2>
         <div class="tools-grid">
             
-            <!-- Splunk -->
             <div class="tool-item">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" style="height: 45px; margin-bottom: 15px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
                     <text x="5" y="45" font-family="Arial, sans-serif" font-weight="900" font-size="40" fill="#222">splunk</text>
                     <text x="135" y="45" font-family="monospace" font-weight="900" font-size="45" fill="#4CAF50">&gt;_</text>
                 </svg>
                 <span>Splunk</span>
             </div>
 
-            <!-- Autopsy (أيقونة الكلب البوليسي من GitHub Avatars) -->
             <div class="tool-item">
-                <img src="https://avatars.githubusercontent.com/sleuthkit" alt="Autopsy" style="height: 45px; object-fit: contain; border-radius: 8px;">
+                <img src="https://avatars.githubusercontent.com/sleuthkit" alt="Autopsy" style="border-radius: 8px;">
                 <span>Autopsy</span>
             </div>
 
-          <!-- FTK Imager -->
             <div class="tool-item">
-                <img src="https://www.google.com/s2/favicons?domain=exterro.com&sz=128" alt="FTK Imager" style="height: 75px; object-fit: contain; border-radius: 8px;">
+                <img src="https://www.google.com/s2/favicons?domain=exterro.com&sz=128" alt="FTK Imager" style="height: 75px; border-radius: 8px;">
                 <span>FTK Imager</span>
             </div>
-            <!-- Wireshark -->
+            
             <div class="tool-item">
-                <img src="https://www.vectorlogo.zone/logos/wireshark/wireshark-icon.svg" alt="Wireshark" style="height: 45px;">
+                <img src="https://www.vectorlogo.zone/logos/wireshark/wireshark-icon.svg" alt="Wireshark">
                 <span>Wireshark</span>
             </div>
 
-           <!-- IDA Pro 8 -->
             <div class="tool-item">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" style="height: 45px; margin-bottom: 15px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                     <rect width="100" height="100" rx="22" fill="#111"/>
                     <polygon points="40,28 75,50 40,72" fill="#666"/>
                     <polygon points="60,28 25,50 60,72" fill="#fff"/>
@@ -700,48 +643,20 @@
 
         </div>
 
-        <!-- Soft Skills Section -->
         <h2 class="section-title" style="margin-top: 80px;">Soft Skills</h2>
         <div class="tools-grid">
-            
-            <div class="tool-item">
-                <i class="fa-solid fa-brain" style="color: var(--accent-color);"></i>
-                <span>Analytical Thinking</span>
-            </div>
-
-            <div class="tool-item">
-                <i class="fa-solid fa-file-signature" style="color: #10b981;"></i>
-                <span>Report Writing</span>
-            </div>
-
-            <div class="tool-item">
-                <i class="fa-solid fa-people-group" style="color: #8b5cf6;"></i>
-                <span>Team Collaboration</span>
-            </div>
-
-            <div class="tool-item">
-                <i class="fa-solid fa-comments" style="color: #f59e0b;"></i>
-                <span>Communication</span>
-            </div>
-
-            <div class="tool-item">
-                <i class="fa-solid fa-stopwatch" style="color: #ef4444;"></i>
-                <span>Time Management</span>
-            </div>
-
-            <div class="tool-item">
-                <i class="fa-solid fa-arrows-rotate" style="color: var(--secondary-color);"></i>
-                <span>Adaptability</span>
-            </div>
-
+            <div class="tool-item"><i class="fa-solid fa-brain" style="color: var(--accent-color);"></i><span>Analytical Thinking</span></div>
+            <div class="tool-item"><i class="fa-solid fa-file-signature" style="color: #10b981;"></i><span>Report Writing</span></div>
+            <div class="tool-item"><i class="fa-solid fa-people-group" style="color: #8b5cf6;"></i><span>Team Collaboration</span></div>
+            <div class="tool-item"><i class="fa-solid fa-comments" style="color: #f59e0b;"></i><span>Communication</span></div>
+            <div class="tool-item"><i class="fa-solid fa-stopwatch" style="color: #ef4444;"></i><span>Time Management</span></div>
+            <div class="tool-item"><i class="fa-solid fa-arrows-rotate" style="color: var(--secondary-color);"></i><span>Adaptability</span></div>
         </div>
     </section>
 
-    <!-- Experience Section -->
     <section id="experience">
         <h2 class="section-title">Practical Experience</h2>
         <div class="timeline-container">
-            
             <div class="timeline-card">
                 <div>
                     <h3>Network Technician Trainee</h3>
@@ -749,7 +664,6 @@
                 </div>
                 <div class="date">Completed</div>
             </div>
-
             <div class="timeline-card">
                 <div>
                     <h3>Hands-on Technical Training</h3>
@@ -757,15 +671,12 @@
                 </div>
                 <div class="date">Completed</div>
             </div>
-
         </div>
     </section>
 
-    <!-- Certifications Section -->
     <section id="certifications">
         <h2 class="section-title">Certifications</h2>
         <div class="timeline-container">
-
             <div class="timeline-card">
                 <div>
                     <h3>AWS Academy Graduate - Cloud Foundations</h3>
@@ -773,7 +684,6 @@
                 </div>
                 <div class="date">Apr 2026</div>
             </div>
-
             <div class="timeline-card">
                 <div>
                     <h3>AWS Academy Graduate - Cloud Security Foundations</h3>
@@ -781,7 +691,6 @@
                 </div>
                 <div class="date">Apr 2026</div>
             </div>
-            
             <div class="timeline-card">
                 <div>
                     <h3>Cyber Warriors Competition Training</h3>
@@ -789,55 +698,41 @@
                 </div>
                 <div class="date">Mar 2023</div>
             </div>
-
         </div>
     </section>
 
-    <!-- Projects -->
     <section id="projects">
         <h2 class="section-title">Case Files & Projects</h2>
         <div class="grid-container">
             
-            <!-- Safe Share -->
             <div class="project-card">
                 <div class="project-info">
                     <h3>Graduation Project: Safe Share</h3>
                     <p>A zero-knowledge, AI-powered secure platform for file sharing. Architected with End-to-End Encryption (E2EE), deployed on AWS, and strictly preserving an isolated security perimeter using JWT authentication.</p>
                     <div class="tags">
-                        <span>React</span>
-                        <span>Spring Boot</span>
-                        <span>PostgreSQL</span>
-                        <span>AWS</span>
-                        <span>AES/RSA</span>
+                        <span>React</span><span>Spring Boot</span><span>PostgreSQL</span><span>AWS</span><span>AES/RSA</span>
                     </div>
-                    <a href="https://github.com/hassanaldajah/SafeShare" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block;"><i class="fa-brands fa-github"></i> GitHub Repository</a>
+                    <a href="https://github.com/hassanaldajah/SafeShare" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: auto;"><i class="fa-brands fa-github"></i> GitHub Repository</a>
                 </div>
             </div>
 
-            <!-- Threat Eye -->
             <div class="project-card">
                 <div class="project-info">
                     <h3>Threat Eye SOC Detection</h3>
                     <p>Threat Intelligence-Driven SOC Detection System. Engineered a full pipeline in Splunk Enterprise, ingesting 957,674+ network-flow events, and trained a Random Forest classifier for AI-based threat correlation.</p>
                     <div class="tags">
-                        <span>Splunk</span>
-                        <span>Python</span>
-                        <span>scikit-learn</span>
-                        <span>REST API</span>
+                        <span>Splunk</span><span>Python</span><span>scikit-learn</span><span>REST API</span>
                     </div>
                     <a href="Soc Ope Final Report.pdf" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: auto;"><i class="fa-solid fa-file-pdf"></i> View Project Report (PDF)</a>
                 </div>
             </div>
 
-            <!-- MedCare Horizon -->
             <div class="project-card">
                 <div class="project-info">
                     <h3>MedCare Horizon Strategy</h3>
                     <p>Information Security Strategy Project. Assessed the security posture of a 350-bed hospital and designed a 5-goal enterprise strategy including RBAC, IoT segmentation, and an ISO/IEC 27001 gap assessment.</p>
                     <div class="tags">
-                        <span>Security Strategy</span>
-                        <span>ISO/IEC 27001</span>
-                        <span>Risk Assessment</span>
+                        <span>Security Strategy</span><span>ISO/IEC 27001</span><span>Risk Assessment</span>
                     </div>
                     <a href="information sec.pdf" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: auto;"><i class="fa-solid fa-file-pdf"></i> View Case Study (PDF)</a>
                 </div>
@@ -846,7 +741,6 @@
         </div>
     </section>
 
-    <!-- Contact -->
     <section id="contact">
         <h2 class="section-title">Get In Touch</h2>
         <div class="grid-container" style="max-width: 800px; margin: 0 auto;">
@@ -873,27 +767,29 @@
             
         </div>
     </section>
-<!-- كود الجافاسكربت لتشغيل الماوس الـ Bug -->
+
     <script>
         const cursor = document.querySelector('.custom-cursor');
         
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
+        // Only run custom cursor logic if the device supports hover
+        if (window.matchMedia("(hover: hover)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+            });
 
-        // تأثير التكبير لما تمرر الماوس على الأزرار أو الكروت أو الروابط
-        const interactives = document.querySelectorAll('a, .btn, .card, .tool-item, .project-card');
-        interactives.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.classList.add('hovering');
+            const interactives = document.querySelectorAll('a, .btn, .card, .tool-item, .project-card');
+            interactives.forEach(el => {
+                el.addEventListener('mouseenter', () => {
+                    cursor.classList.add('hovering');
+                });
+                el.addEventListener('mouseleave', () => {
+                    cursor.classList.remove('hovering');
+                });
             });
-            el.addEventListener('mouseleave', () => {
-                cursor.classList.remove('hovering');
-            });
-        });
+        }
     </script>
- <!-- كود خلفية السقوط المحدث والواضح -->
+ 
     <script>
         const canvas = document.getElementById('cyber-canvas');
         const ctx = canvas.getContext('2d');
@@ -905,7 +801,6 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
 
-        // رموز وأرقام السايبر سيكيوريتي
         const chars = '01HSN01SOC01SEC99';
         const fontSize = 15;
         let columns = Math.floor(canvas.width / fontSize);
@@ -916,7 +811,6 @@
         }
 
         function drawCyberRain() {
-            // تأثير التلاشي الخلفي
             ctx.fillStyle = 'rgba(248, 250, 252, 0.25)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -925,9 +819,7 @@
             for (let i = 0; i < drops.length; i++) {
                 const text = chars.charAt(Math.floor(Math.random() * chars.length));
                 
-                // رفعنا الشفافية وغامقنا الألوان (أحمر داكن وأزرق واضح) عشان تبين عالبدء تماماً
                 ctx.fillStyle = i % 2 === 0 ? 'rgba(159, 18, 57, 0.75)' : 'rgba(14, 165, 233, 0.85)';
-                
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
                 if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
@@ -939,35 +831,34 @@
 
         setInterval(drawCyberRain, 50);
     </script>
-<script>
-    const h1 = document.querySelector('.hero-text h1');
-    const targetText = h1.getAttribute('data-value');
-    const hackerChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*-_<>[]{}//\\<>?!";
+    <script>
+        const h1 = document.querySelector('.hero-text h1');
+        const targetText = h1.getAttribute('data-value');
+        const hackerChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*-_<>[]{}//\\<>?!";
 
-    let iteration = 0;
-    
-    function startDecryption() {
-        let interval = setInterval(() => {
-            h1.innerText = targetText
-                .split("")
-                .map((char, index) => {
-                    if (index < iteration) {
-                        return targetText[index];
-                    }
-                    return hackerChars[Math.floor(Math.random() * hackerChars.length)];
-                })
-                .join("");
-            
-            if (iteration >= targetText.length) {
-                clearInterval(interval);
-            }
-            
-            iteration += 1 /2; // سرعة فك التشفير (كل ما قللت الرقم بتصير أبطأ وأرتب)
-        }, 50);
-    }
+        let iteration = 0;
+        
+        function startDecryption() {
+            let interval = setInterval(() => {
+                h1.innerText = targetText
+                    .split("")
+                    .map((char, index) => {
+                        if (index < iteration) {
+                            return targetText[index];
+                        }
+                        return hackerChars[Math.floor(Math.random() * hackerChars.length)];
+                    })
+                    .join("");
+                
+                if (iteration >= targetText.length) {
+                    clearInterval(interval);
+                }
+                
+                iteration += 1 /2; 
+            }, 50);
+        }
 
-    // تشغيل الحركة أول ما تنفتح الصفحة
-    window.addEventListener('DOMContentLoaded', startDecryption);
-</script>
+        window.addEventListener('DOMContentLoaded', startDecryption);
+    </script>
 </body>
 </html>
