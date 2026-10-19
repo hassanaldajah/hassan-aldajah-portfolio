@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hasan Khaled | Portfolio</title>
+    <title>Hassan Aldajah | Cybersecurity &amp; SOC Analyst Portfolio</title>
+    <meta name="description" content="Portfolio of Hassan Aldajah, a fourth-year Cybersecurity student at the University of Jordan targeting SOC Analyst and Incident Response roles.">
+    <meta name="theme-color" content="#f8fafc">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Hassan Aldajah | Cybersecurity &amp; SOC Analyst">
+    <meta property="og:description" content="Splunk SOC projects, digital forensics, and secure systems. Fourth-year Cybersecurity student at the University of Jordan.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239f1239'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='900' font-size='34' text-anchor='middle' fill='white'%3EHA%3C/text%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -20,8 +26,12 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             scroll-behavior: smooth;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
@@ -69,8 +79,9 @@
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
+            width: 100%;
             height: 100vh;
+            height: 100dvh;
             z-index: -1;
             pointer-events: none;
             opacity: 0.4;
@@ -137,6 +148,7 @@
             justify-content: space-between;
             padding: 80px 5%;
             min-height: 80vh;
+            min-height: 80dvh;
             gap: 40px;
         }
 
@@ -503,17 +515,42 @@
         @media screen and (max-width: 768px) {
             nav {
                 flex-direction: column;
-                padding: 15px;
+                align-items: stretch;
+                flex-wrap: nowrap;
+                padding: 10px 15px;
+                gap: 6px;
             }
 
+            .logo {
+                text-align: center;
+                font-size: 22px;
+            }
+
+            /* One compact, swipeable row instead of a tall wrapped block */
             nav ul {
-                gap: 10px;
-                margin-top: 10px;
+                gap: 6px;
+                min-width: 0;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding-bottom: 2px;
+            }
+
+            nav ul::-webkit-scrollbar {
+                display: none;
+            }
+
+            nav ul li {
+                flex-shrink: 0;
             }
 
             nav ul li a {
-                padding: 6px 12px;
+                padding: 8px 12px;
+                min-height: 38px;
                 font-size: 0.85rem;
+                white-space: nowrap;
             }
 
             .timeline-card {
@@ -568,6 +605,33 @@
             }
             body {
                 cursor: auto;
+                background-attachment: scroll; /* fixed backgrounds stutter on iOS Safari */
+            }
+
+            /* Hover lifts stick after a tap on touch screens */
+            .card:hover,
+            .project-card:hover,
+            .tool-item:hover,
+            .timeline-card:hover,
+            .btn-primary:hover,
+            .btn-outline:hover,
+            nav ul li a:hover {
+                transform: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .giant-cyber-beast {
+                animation: none;
+            }
+
+            #cyber-canvas {
+                display: none;
+            }
+
+            * {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
             }
         }
     </style>
@@ -592,7 +656,7 @@
     
     <section class="hero">
         <div class="hero-text">
-            <h1 data-value="Hi, I'm Hassan Aldajah">Hi, I'm Hasan Aldajah</h1>
+            <h1 data-value="Hi, I'm Hassan Aldajah">Hi, I'm Hassan Aldajah</h1>
             <h2>Cyber Security Eng & SOC Analyst</h2>
             <p>Fourth-year Cybersecurity student at the University of Jordan targeting SOC Analyst and Incident Response roles. Passionate about defending digital environments, analyzing network traffic, and building robust security architectures.</p>
             <div class="btn-group">
@@ -601,7 +665,7 @@
             </div>
         </div>
         <div class="hero-image">
-            <img src="profile.jpg" alt="Hasan Khaled Profile Photo">
+            <img src="profile.jpg" alt="Hassan Khaled Aldajah profile photo">
         </div>
     </section>
 
@@ -695,10 +759,9 @@
             <div class="date">Mar 2023</div>
         </div>
 
-        <!-- الشهادة الجديدة بعد التعديل -->
         <div class="timeline-card">
             <div>
-                <h3>Cybersecurity Practical Training With (JODDB)</h3>
+                <h3>Cybersecurity Practical Training With (JODBE)</h3>
                 <p style="color: var(--text-muted);">40 hours of intensive technical training.</p>
             </div>
             <div class="date">July 2026</div>
@@ -747,9 +810,9 @@
             <div class="project-card">
                 <div class="project-info">
                     <h3>Nashmi Agent</h3>
-                    <p>A multi-provider AI assistant built with Streamlit, supporting Gemini, Groq, OpenAI and Claude with bring-your-own-key access. Includes Google sign-in, per-user encrypted chat storage in PostgreSQL, and a practice-exam generator.</p>
+                    <p>An AI agent built exclusively for cybersecurity: a SOC analyzer, a CTF coach, a security toolbox and practice exams. Includes Google sign-in with two-step verification, per-user encrypted storage in PostgreSQL, and an Arabic and English interface.</p>
                     <div class="tags">
-                        <span>Python</span><span>Streamlit</span><span>PostgreSQL</span><span>OAuth 2.0</span><span>Encryption</span>
+                        <span>Python</span><span>Streamlit</span><span>PostgreSQL</span><span>OAuth 2.0</span><span>2FA</span><span>Three.js</span>
                     </div>
                     <a href="https://nashmiagent-hassan-aldajah.streamlit.app/" target="_blank" rel="noopener" class="btn btn-primary" style="text-align: center; display: block; margin-top: auto; max-width: none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
                     <a href="https://github.com/hassanaldajah/NashmiAgent" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: 10px; max-width: none;"><i class="fa-brands fa-github"></i> GitHub Repository</a>
@@ -812,21 +875,27 @@
         const canvas = document.getElementById('cyber-canvas');
         const ctx = canvas.getContext('2d');
 
+        const chars = '01HSN01SOC01SEC99';
+        const fontSize = 15;
+        let drops = [];
+
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            const columns = Math.floor(canvas.width / fontSize);
+            while (drops.length < columns) drops.push(1);
+            drops.length = columns;
         }
         resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
 
-        const chars = '01HSN01SOC01SEC99';
-        const fontSize = 15;
-        let columns = Math.floor(canvas.width / fontSize);
-        let drops = [];
-        
-        for (let i = 0; i < columns; i++) {
-            drops[i] = 1;
-        }
+        // iOS fires resize whenever the address bar collapses; only react to real width changes
+        let lastWidth = window.innerWidth;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth !== lastWidth) {
+                lastWidth = window.innerWidth;
+                resizeCanvas();
+            }
+        });
 
         function drawCyberRain() {
             ctx.fillStyle = 'rgba(248, 250, 252, 0.25)';
@@ -847,7 +916,13 @@
             }
         }
 
-        setInterval(drawCyberRain, 50);
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+        // Slower frame rate on phones to save battery; skipped entirely if motion is reduced
+        if (!reduceMotion) {
+            setInterval(drawCyberRain, isTouch ? 90 : 50);
+        }
     </script>
     <script>
         const h1 = document.querySelector('.hero-text h1');
@@ -876,7 +951,11 @@
             }, 50);
         }
 
-        window.addEventListener('DOMContentLoaded', startDecryption);
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            h1.innerText = targetText;
+        } else {
+            window.addEventListener('DOMContentLoaded', startDecryption);
+        }
     </script>
 </body>
 </html>
