@@ -1,961 +1,1263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hassan Aldajah | Cybersecurity &amp; SOC Analyst Portfolio</title>
-    <meta name="description" content="Portfolio of Hassan Aldajah, a fourth-year Cybersecurity student at the University of Jordan targeting SOC Analyst and Incident Response roles.">
-    <meta name="theme-color" content="#f8fafc">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Hassan Aldajah | Cybersecurity &amp; SOC Analyst">
-    <meta property="og:description" content="Splunk SOC projects, digital forensics, and secure systems. Fourth-year Cybersecurity student at the University of Jordan.">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%239f1239'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='900' font-size='34' text-anchor='middle' fill='white'%3EHA%3C/text%3E%3C/svg%3E">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #1e293b;
-            --secondary-color: #9f1239;
-            --accent-color: #0ea5e9;
-            --text-main: #334155;
-            --text-muted: #64748b;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --border-color: rgba(226, 232, 240, 0.8);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            scroll-behavior: smooth;
-        }
-
-        html {
-            -webkit-text-size-adjust: 100%;
-        }
-
-        body {
-            background-color: #f8fafc;
-            background-image: 
-                radial-gradient(at 0% 0%, hsla(343, 100%, 85%, 0.4) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(200, 100%, 80%, 0.4) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, hsla(250, 100%, 85%, 0.4) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, hsla(40, 100%, 80%, 0.4) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden;
-            cursor: none; /* Hide default cursor */
-        }
-
-        /* --- Giant Cyber Beast --- */
-        .giant-cyber-beast {
-            position: fixed;
-            left: 15%;
-            top: 25%;
-            font-size: 20rem;
-            color: var(--secondary-color);
-            opacity: 0.16;
-            z-index: -1;
-            pointer-events: none;
-            animation: spiderCrawl 16s ease-in-out infinite;
-            user-select: none;
-        }
-
-        @keyframes spiderCrawl {
-            0% { transform: translate(0px, 0px) rotate(0deg); }
-            10% { transform: translate(220px, -50px) rotate(20deg); }
-            13% { transform: translate(220px, -50px) rotate(15deg); }
-            35% { transform: translate(420px, 180px) rotate(55deg); }
-            38% { transform: translate(420px, 180px) rotate(50deg); }
-            65% { transform: translate(-120px, 220px) rotate(-35deg); }
-            70% { transform: translate(-120px, 220px) rotate(-40deg); }
-            88% { transform: translate(60px, -80px) rotate(10deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
-        }
-
-        /* --- Cyber Canvas --- */
-        #cyber-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            height: 100dvh;
-            z-index: -1;
-            pointer-events: none;
-            opacity: 0.4;
-        }
-
-        /* --- Navbar --- */
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 5%;
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--secondary-color), #e11d48);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 1px;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        nav ul li a {
-            text-decoration: none;
-            color: var(--primary-color);
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-        }
-
-        nav ul li a:hover {
-            color: white;
-            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-            box-shadow: 0 4px 12px rgba(159, 18, 57, 0.25);
-            transform: translateY(-2px);
-        }
-
-        /* --- Hero Section --- */
-        .hero {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 80px 5%;
-            min-height: 80vh;
-            min-height: 80dvh;
-            gap: 40px;
-        }
-
-        .hero-text {
-            max-width: 55%;
-            flex: 1;
-        }
-
-        .hero-text h1 {
-            font-size: clamp(2.5rem, 5vw, 3.8rem);
-            color: var(--primary-color);
-            margin-bottom: 10px;
-            line-height: 1.1;
-            word-wrap: break-word;
-        }
-
-        .hero-text h2 {
-            font-size: clamp(1.4rem, 3vw, 2rem);
-            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .hero-text p {
-            color: var(--text-main);
-            font-size: 1.15rem;
-            margin-bottom: 30px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            text-align: center;
-            flex: 1;
-            min-width: 150px;
-            max-width: max-content;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--secondary-color), #e11d48);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(159, 18, 57, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(159, 18, 57, 0.4);
-        }
-
-        .btn-outline {
-            background-color: white;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .btn-outline:hover {
-            background-color: var(--primary-color);
-            color: white;
-            transform: translateY(-3px);
-        }
-
-        .hero-image {
-            width: clamp(250px, 40vw, 450px);
-            height: clamp(250px, 40vw, 450px);
-            border-radius: 50%; 
-            overflow: hidden;
-            flex-shrink: 0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-        }
-
-        .hero-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center 45%; 
-            image-rendering: high-quality;
-            image-rendering: -webkit-optimize-contrast;
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-            backface-visibility: hidden;
-        }
-
-        /* --- Sections & Components --- */
-        .section-title {
-            text-align: center;
-            font-size: clamp(2rem, 4vw, 2.5rem);
-            margin-bottom: 50px;
-            color: var(--primary-color);
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            width: 80px;
-            height: 5px;
-            background: linear-gradient(90deg, var(--secondary-color), var(--accent-color));
-            display: block;
-            margin: 15px auto 0;
-            border-radius: 5px;
-        }
-
-        section {
-            padding: 80px 5%;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-        }
-
-        .card h4 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .tool-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.04);
-            transition: transform 0.3s ease;
-        }
-
-        .tool-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-
-        .tool-item img, .tool-item svg {
-            width: auto;
-            height: 45px;
-            margin-bottom: 15px;
-            object-fit: contain;
-        }
-
-        .tool-item i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .tool-item span {
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 0.95rem;
-            text-align: center;
-        }
-
-        .timeline-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .timeline-card {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            border-left: 5px solid var(--accent-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            gap: 20px;
-        }
-
-        .timeline-card:hover {
-            transform: translateX(10px);
-        }
-
-        .timeline-card h3 {
-            color: var(--primary-color);
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-        }
-
-        .timeline-card .date {
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(135deg, var(--accent-color), #3b82f6);
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
-            text-align: center;
-            min-width: 120px;
-            flex-shrink: 0;
-        }
-
-        .project-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            border-top: 5px solid var(--secondary-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            height: 100%;
-        }
-
-        .project-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-        }
-
-        .project-info {
-            padding: 30px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .project-info h3 {
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-        }
-
-        .project-info p {
-            color: var(--text-main);
-            font-size: 0.95rem;
-            margin-bottom: 20px;
-            flex-grow: 1;
-        }
-
-        .tags {
-            margin-bottom: 25px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .tags span {
-            display: inline-block;
-            background: #f1f5f9;
-            color: var(--secondary-color);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 700;
-        }
-
-        .contact-card {
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            cursor: pointer;
-        }
-        
-        .contact-card h4 {
-            margin-bottom: 10px;
-            font-size: 1.5rem;
-            transition: color 0.3s ease;
-            color: var(--primary-color);
-        }
-
-        .contact-card span {
-            color: var(--text-muted);
-            font-size: 1rem;
-            font-weight: 500;
-            word-break: break-word;
-        }
-
-        .contact-card:hover h4 {
-            color: var(--secondary-color);
-        }
-
-        /* --- Custom Cursor --- */
-        .custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            font-size: 22px;
-            color: var(--secondary-color);
-            pointer-events: none;
-            z-index: 10000;
-            transform: translate(-50%, -50%);
-            transition: transform 0.2s ease, color 0.2s ease;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .custom-cursor.hovering {
-            transform: translate(-50%, -50%) scale(1.6) rotate(-15deg);
-            color: var(--accent-color);
-        }
-
-        /* --- RESPONSIVE MEDIA QUERIES --- */
-
-        /* Tablets & Smaller Desktops */
-        @media screen and (max-width: 992px) {
-            .hero {
-                flex-direction: column-reverse;
-                text-align: center;
-                padding: 40px 5%;
-            }
-
-            .hero-text {
-                max-width: 100%;
-            }
-
-            .btn-group {
-                justify-content: center;
-            }
-
-            .hero-image {
-                margin: 0 auto 30px;
-            }
-
-            .giant-cyber-beast {
-                font-size: 15rem;
-                left: 5%;
-                top: 10%;
-            }
-        }
-
-        /* Mobile Devices */
-        @media screen and (max-width: 768px) {
-            nav {
-                flex-direction: column;
-                align-items: stretch;
-                flex-wrap: nowrap;
-                padding: 10px 15px;
-                gap: 6px;
-            }
-
-            .logo {
-                text-align: center;
-                font-size: 22px;
-            }
-
-            /* One compact, swipeable row instead of a tall wrapped block */
-            nav ul {
-                gap: 6px;
-                min-width: 0;
-                flex-wrap: nowrap;
-                justify-content: flex-start;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                padding-bottom: 2px;
-            }
-
-            nav ul::-webkit-scrollbar {
-                display: none;
-            }
-
-            nav ul li {
-                flex-shrink: 0;
-            }
-
-            nav ul li a {
-                padding: 8px 12px;
-                min-height: 38px;
-                font-size: 0.85rem;
-                white-space: nowrap;
-            }
-
-            .timeline-card {
-                flex-direction: column;
-                align-items: flex-start;
-                text-align: left;
-            }
-
-            .timeline-card .date {
-                margin-top: 15px;
-            }
-
-            .giant-cyber-beast {
-                font-size: 10rem;
-                opacity: 0.1;
-            }
-        }
-
-        /* Small Mobile Devices */
-        @media screen and (max-width: 480px) {
-            .hero {
-                padding: 20px 5%;
-            }
-
-            .hero-text h1 {
-                font-size: 2rem;
-            }
-
-            .btn-group {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: none;
-            }
-
-            .tools-grid {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            }
-            
-            .project-info {
-                padding: 20px;
-            }
-        }
-
-        /* Disable custom cursor on touch devices to restore natural touch behavior */
-        @media (hover: none) and (pointer: coarse) {
-            .custom-cursor {
-                display: none !important;
-            }
-            body {
-                cursor: auto;
-                background-attachment: scroll; /* fixed backgrounds stutter on iOS Safari */
-            }
-
-            /* Hover lifts stick after a tap on touch screens */
-            .card:hover,
-            .project-card:hover,
-            .tool-item:hover,
-            .timeline-card:hover,
-            .btn-primary:hover,
-            .btn-outline:hover,
-            nav ul li a:hover {
-                transform: none;
-            }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .giant-cyber-beast {
-                animation: none;
-            }
-
-            #cyber-canvas {
-                display: none;
-            }
-
-            * {
-                scroll-behavior: auto !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Hassan Aldajah | Cybersecurity &amp; SOC Analyst Portfolio</title>
+<meta name="description" content="Hassan Aldajah: cybersecurity student and SOC analyst. Projects: Nashmi AI security agent, Pixel image studio, FC file converter, SafeShare.">
+<meta name="theme-color" content="#06070d">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06070d; --panel:rgba(14,16,30,.82); --line:rgba(255,255,255,.1);
+  --text:#e9ebf5; --muted:#9097b3;
+  --violet:#7c5cff; --pink:#ff4d8d; --cyan:#22d3ee; --lime:#a3ff6b;
+  --grad:linear-gradient(120deg,#8b6bff,#d65cff 50%,#ff5fa2);
+  --gutter:clamp(16px,5vw,64px);
+  --display:'Space Grotesk',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:#333a57 var(--bg)}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{background:var(--bg);color:var(--text);font:400 16px/1.65 var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img,video{display:block;max-width:100%}
+main,footer{position:relative;z-index:2}
+.wrap{max-width:1240px;margin:0 auto;padding:0 max(var(--gutter),env(safe-area-inset-right)) 0 max(var(--gutter),env(safe-area-inset-left))}
+section{padding:clamp(72px,12vw,150px) 0}
+
+/* ---------- background layers: WebGL canvas, a dark veil for readability, two soft colour glows ---------- */
+#stage{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(5,6,11,.6) 0%,rgba(5,6,11,.42) 38%,rgba(5,6,11,.2) 68%,rgba(5,6,11,.12) 100%),rgba(5,6,11,.1)}
+.glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(110px);opacity:.22}
+.glow.a{width:46vmax;height:46vmax;left:-14vmax;top:-10vmax;background:var(--violet)}
+.glow.b{width:40vmax;height:40vmax;right:-12vmax;bottom:-12vmax;background:var(--pink)}
+html.grabbing,html.grabbing *{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important}
+
+/* ---------- nav: glass pill, spinning rainbow ring, a spotlight that follows the cursor, gradient active link, scroll-progress line ---------- */
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes ring{to{--a:360deg}}
+@keyframes navIn{from{opacity:0;transform:translate(-50%,-40px) scale(.94)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+nav{--mx:50%;--my:50%;--spot:0;position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(10,12,22,.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);max-width:calc(100vw - 24px);overflow:visible;animation:navIn 1s cubic-bezier(.2,.8,.2,1) both .2s;transition:padding .4s,background .4s,box-shadow .4s}
+nav.scrolled{padding-top:5px;padding-bottom:5px;background:rgba(8,10,20,.85);box-shadow:0 14px 40px -12px rgba(0,0,0,.8)}
+nav::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),#7c5cff,#d65cff,#ff4d8d,#ffb3d9,#22d3ee,#5b7cff,#7c5cff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.85;animation:ring 5s linear infinite;pointer-events:none}
+nav:hover::before{animation-duration:2.2s;opacity:1;filter:drop-shadow(0 0 6px rgba(214,92,255,.8))}
+nav::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:var(--spot);transition:opacity .35s;background:radial-gradient(180px circle at var(--mx) var(--my),rgba(214,92,255,.32),rgba(34,211,238,.16) 40%,transparent 70%)}
+@media(hover:none){nav::after{display:none}}
+.brand{display:flex;align-items:center;gap:8px;padding:7px 15px 7px 12px;margin-right:4px;border-radius:999px;font:600 14px var(--body);color:var(--muted);white-space:nowrap;transition:color .25s,background .35s,transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.brand .logo{flex:none;width:18px;height:18px;fill:url(#logoGrad);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.brand:hover .logo{transform:rotate(90deg) scale(1.15)}
+.brand.on .logo{fill:#fff}
+.brand:hover{color:#fff;background:linear-gradient(120deg,rgba(124,92,255,.35),rgba(255,77,141,.28));box-shadow:0 0 18px -4px rgba(214,92,255,.7)}
+.brand.on{color:#fff;background:linear-gradient(120deg,#7c5cff,#d65cff 55%,#ff4d8d);box-shadow:0 6px 22px -6px rgba(214,92,255,.9)}
+nav ul{display:flex;list-style:none;gap:2px}
+nav ul a{position:relative;display:block;padding:7px 13px;border-radius:999px;font-size:14px;color:var(--muted);transition:color .25s,background .35s,transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+nav ul a::after{content:"";position:absolute;left:50%;bottom:3px;width:0;height:2px;border-radius:2px;background:var(--grad);transition:.35s;transform:translateX(-50%)}
+nav ul a:hover::after{width:46%}
+nav ul a:hover{color:#fff;background:linear-gradient(120deg,rgba(124,92,255,.35),rgba(255,77,141,.28));box-shadow:0 0 18px -4px rgba(214,92,255,.7)}
+nav ul a.on{color:#fff;background:linear-gradient(120deg,#7c5cff,#d65cff 55%,#ff4d8d);box-shadow:0 6px 22px -6px rgba(214,92,255,.9)}
+nav ul a.on::after{display:none}
+nav .progress{position:absolute;left:18px;right:18px;bottom:-1px;height:2px;border-radius:2px;overflow:hidden;pointer-events:none}
+nav .progress i{display:block;height:100%;width:100%;transform-origin:0 50%;transform:scaleX(var(--p,0));background:linear-gradient(90deg,#22d3ee,#7c5cff,#d65cff,#ff4d8d)}
+.burger{display:none;background:none;border:0;color:#fff;width:40px;height:40px;cursor:pointer;margin-left:auto}
+.burger span{display:block;width:20px;height:2px;background:#fff;margin:5px auto;transition:.3s}
+.burger[aria-expanded=true] span:first-child{transform:translateY(3.5px) rotate(45deg)}
+.burger[aria-expanded=true] span:last-child{transform:translateY(-3.5px) rotate(-45deg)}
+@media(max-width:820px){
+  nav{width:calc(100vw - 24px);justify-content:space-between;border-radius:22px;flex-wrap:wrap}
+  .burger{display:block}
+  nav ul{display:none;flex-direction:column;width:100%;padding:6px 0 8px}
+  nav ul.open{display:flex}
+  nav ul a{font-size:16px;padding:12px 14px}
+}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:999px;font:600 15px var(--body);border:1px solid var(--line);color:#fff;background:var(--panel);cursor:pointer;transition:transform .25s,box-shadow .25s,background .25s;position:relative}
+.btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+.btn.primary{border:0;background:var(--grad);box-shadow:0 8px 30px -8px rgba(255,77,141,.6)}
+.btn.primary:hover{box-shadow:0 12px 40px -6px rgba(255,77,141,.8)}
+.btn.sm{padding:9px 18px;font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:12px}
+
+/* ---------- gradient text ---------- */
+.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.g-green{background:linear-gradient(120deg,#34d399,#10b981 50%,#22d3ee);-webkit-background-clip:text;background-clip:text}
+
+/* ---------- hero ---------- */
+@keyframes pulse{50%{opacity:.35}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes wheel{0%{opacity:0;transform:translateY(0)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+.hero{position:relative;overflow-x:clip;min-height:100vh;min-height:100svh;display:flex;align-items:center;padding-top:110px;padding-bottom:70px}
+.hero .wrap{display:grid;grid-template-columns:1.5fr .7fr;gap:40px;align-items:center;width:100%}
+.hero .role,.hero p.lead,.hero .eyebrow{text-shadow:0 2px 22px rgba(5,6,11,.85),0 0 2px rgba(5,6,11,.6)}
+.hero h1{filter:drop-shadow(0 3px 16px rgba(5,6,11,.7))}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font:500 13px var(--mono);color:var(--cyan);padding:7px 14px;border:1px solid rgba(34,211,238,.3);border-radius:999px;background:rgba(34,211,238,.07);margin-bottom:26px}
+.eyebrow b{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 12px var(--lime);animation:pulse 2s infinite}
+h1{font:700 clamp(40px,6vw,82px)/1.02 var(--display);letter-spacing:-.035em}
+.role{font:500 clamp(15px,2vw,19px) var(--mono);color:var(--muted);margin-top:18px;min-height:1.6em}
+.role em{font-style:normal;color:var(--lime)}
+.role .caret{display:inline-block;width:9px;height:1.05em;background:var(--lime);vertical-align:-3px;margin-left:3px;animation:pulse 1s steps(2) infinite}
+.hero p.lead{margin:26px 0 34px;max-width:560px;color:var(--muted);font-size:clamp(16px,1.6vw,19px)}
+.avatar{position:relative;justify-self:end;width:min(300px,70vw);aspect-ratio:1}
+.avatar::before{content:"";position:absolute;inset:-8px;opacity:.9;border-radius:50%;background:conic-gradient(from 0deg,var(--violet),var(--pink),var(--cyan),var(--violet));animation:spin 9s linear infinite;filter:blur(2px)}
+.avatar::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--bg)}
+.avatar img{position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);border-radius:50%;object-fit:cover;z-index:2}
+.orbit{position:absolute;left:-17%;top:-17%;width:134%;height:134%;z-index:3;overflow:visible;pointer-events:none;animation:spin 40s linear infinite}
+.orbit text{font:600 15px var(--mono);letter-spacing:.04em;fill:url(#orbitGrad)}
+.scroll-cue{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);width:24px;height:40px;border:2px solid var(--line);border-radius:14px}
+.scroll-cue::after{content:"";position:absolute;left:50%;top:7px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:#fff;animation:wheel 1.8s infinite}
+@media(max-width:1100px) and (min-width:861px){.hero .wrap{grid-template-columns:1.3fr .8fr}}
+@media(max-width:860px){
+  .veil{background:rgba(5,6,11,.55)}
+  /* phones and tablets: the name sits next to the photo; the rest of the intro runs full width underneath */
+  .hero .wrap{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"eye eye" "name photo" "role role" "lead lead" "btns btns";gap:0 clamp(10px,3vw,24px);text-align:left}
+  .intro{display:contents}
+  .eyebrow{grid-area:eye;justify-self:start;margin-bottom:12px}
+  .hero h1{grid-area:name;font-size:clamp(30px,8.8vw,58px)}
+  .role{grid-area:role}
+  .hero p.lead{grid-area:lead}
+  .hero .btns{grid-area:btns}
+  .avatar{--av:clamp(104px,31vw,210px);grid-area:photo;width:var(--av);margin:calc(var(--av)*.17)}   /* the margin leaves room for the text ring */
+  .orbit text{font-size:19px}
+  .scroll-cue{display:none}
+}
+
+/* ---------- track-names strip: drifts on its own; grab it (finger or mouse) to drag it back and forth ---------- */
+@keyframes slide{to{transform:translateX(-50%)}}
+.marquee{overflow:hidden;border-block:1px solid var(--line);background:rgba(255,255,255,.02);padding:18px 0;position:relative;z-index:2;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.marquee div{display:flex;width:max-content;animation:slide 32s linear infinite;font:700 clamp(20px,3vw,30px) var(--display);white-space:nowrap;will-change:transform}
+.marquee span{padding-right:46px;background:linear-gradient(90deg,#4b39b5,#7f2d86 50%,#1b6a8a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.marquee span::after{content:"";display:inline-block;width:.62em;height:.62em;margin-left:46px;vertical-align:.04em;background:var(--grad);-webkit-mask:url(assets/img/logo.svg) center/contain no-repeat;mask:url(assets/img/logo.svg) center/contain no-repeat}
+
+/* ---------- section titles: each sits in its own glowing card, in its section's two colours ---------- */
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 var(--bob,-4px)}}
+@keyframes flowg{to{background-position:200% 0}}
+@keyframes glowdrift{from{background-position:0% 0%}to{background-position:100% 100%}}
+main section{--c1:#8b6bff;--c2:#ff4d8d}
+#skills{--c1:#22d3ee;--c2:#8b6bff}
+#experience{--c1:#10b981;--c2:#22d3ee}
+#certifications{--c1:#ff4d8d;--c2:#d65cff}
+#contact{--c1:#d65cff;--c2:#5b7cff}
+.kicker{font:500 13px var(--mono);color:var(--violet);letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px}
+h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max-width:880px}
+.sub{color:var(--muted);max-width:620px;margin-top:16px}
+.head{--bob:-7px;position:relative;width:fit-content;max-width:100%;margin-bottom:clamp(36px,6vw,72px);padding:clamp(22px,3.2vw,38px) clamp(22px,3.6vw,46px);border-radius:28px;background:linear-gradient(160deg,rgba(18,20,36,.84),rgba(9,10,20,.84));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 0 0 1px rgba(255,255,255,.06),0 0 60px -28px var(--c1),0 0 90px -42px var(--c2);animation:bob 6.5s ease-in-out infinite;transition:box-shadow .6s,transform .35s}
+.head::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),transparent 0 52%,var(--c1),var(--c2),transparent 88%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ring 7s linear infinite;opacity:.7;pointer-events:none;transition:opacity .6s}
+.head::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.6;transition:opacity .6s;background:radial-gradient(60% 90% at 0% 0%,color-mix(in srgb,var(--c1) 22%,transparent),transparent 70%),radial-gradient(60% 90% at 100% 100%,color-mix(in srgb,var(--c2) 18%,transparent),transparent 70%);background-size:170% 170%;animation:glowdrift 9s ease-in-out infinite alternate}
+.head>*{position:relative;z-index:1}
+.head.lit,.head:hover{box-shadow:0 0 0 1px rgba(255,255,255,.09),0 0 80px -16px var(--c1),0 0 130px -28px var(--c2)}
+.head.lit::before,.head:hover::before{opacity:1;animation-duration:3.5s}
+.head.lit::after,.head:hover::after{opacity:1}
+.head .kicker{color:var(--c1)}
+.head .g{background:linear-gradient(90deg,var(--c1),var(--c2),var(--c1)) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flowg 5s linear infinite}
+
+/* ---------- every card floats on its own beat (the separate `translate` property leaves `transform` free for hover and tilt) ---------- */
+.tool,.contact a,.tl article,.mini,.proj{animation:bob var(--bd,7s) ease-in-out infinite;animation-delay:var(--bdl,0s)}
+
+/* ---------- projects ---------- */
+@keyframes float{50%{transform:translateY(-12px)}}
+@keyframes tagwave{0%,100%{translate:0 0}40%{translate:0 -5px;color:#fff;border-color:var(--c);box-shadow:0 0 14px -5px var(--c)}}
+.proj{--bob:-3px;--c:var(--violet);position:relative;display:grid;grid-template-columns:1fr 1.1fr;gap:clamp(24px,4vw,60px);align-items:center;padding:clamp(18px,3vw,36px);margin-bottom:clamp(28px,5vw,56px);border-radius:32px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(18,20,36,.9),rgba(9,10,20,.9));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);overflow:hidden;transition:border-color .5s,box-shadow .5s}
+.proj::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:var(--c);filter:blur(120px);opacity:.28;top:-200px;right:-160px;pointer-events:none}
+.proj:hover,.proj.lit{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 60px -10px var(--c),inset 0 0 80px -40px var(--c)}
+.proj.multi{--c:#a855f7}
+.proj.multi:hover,.proj.multi.lit{border-color:transparent;box-shadow:0 0 60px -12px #c04cff,0 0 80px -20px #4cc9ff,0 0 90px -30px #3be07a}
+.proj.multi::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),#c04cff,#4cc9ff,#3be07a,#c04cff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .5s;animation:ring 6s linear infinite;pointer-events:none}
+.proj.multi:hover::after,.proj.multi.lit::after{opacity:1}
+.proj.alt{grid-template-columns:1.1fr 1fr}
+.proj.alt .info{order:2}
+.proj.compact{grid-template-columns:.8fr 1.2fr;gap:clamp(20px,3vw,40px);padding:clamp(16px,2.4vw,26px) clamp(18px,3vw,34px)}
+.proj.compact h3{font-size:clamp(26px,3vw,38px)}
+.proj.compact .pico{width:52px;height:52px;margin-bottom:10px}
+.proj.compact p{margin-bottom:14px}
+.proj.compact .tags{margin-bottom:16px}
+.proj.nashmi{grid-template-columns:.85fr 1.15fr}
+.proj.nashmi .screen{aspect-ratio:1730/1675}
+.proj.nashmi .screen img{inset:5% 12%;width:76%;height:90%}
+.proj.pixel{align-items:start}
+.proj.pixel .media{display:grid;grid-template-rows:1fr 1fr;gap:18px}
+.proj.safe{grid-template-columns:.8fr 1.2fr;align-items:stretch}
+.proj.safe .media{display:flex;align-self:stretch;min-height:420px}
+.proj.safe .device{flex:1;display:flex;flex-direction:column}
+.proj.safe .screen{flex:1;aspect-ratio:auto;min-height:0}
+.proj.safe .screen img{object-fit:cover;object-position:50% 40%}
+.pico{display:block;width:64px;height:64px;border-radius:16px;object-fit:cover;margin-bottom:14px;box-shadow:0 12px 34px -10px var(--c)}
+.pico.fox{width:84px;height:84px;object-fit:contain;background:none;border-radius:0;box-shadow:none;padding:0;filter:drop-shadow(0 8px 24px rgba(229,72,77,.45))}
+.pico.mark{width:70px;height:88px;object-fit:contain;border-radius:0;box-shadow:none;background:none;filter:drop-shadow(0 6px 20px rgba(16,185,129,.45))}
+.proj .num{font:600 13px var(--mono);color:var(--c);letter-spacing:.1em}
+.proj h3{font:700 clamp(30px,4.2vw,52px)/1.05 var(--display);letter-spacing:-.03em;margin:8px 0 6px}
+.proj .tagline{color:#fff;font-weight:500;margin-bottom:12px}
+.proj p{color:var(--muted);margin-bottom:18px}
+.feat{list-style:none;display:grid;gap:7px;margin:0 0 20px}
+.feat li{display:flex;gap:10px;font-size:14.5px;color:#cfd3e6}
+.feat li::before{content:"";flex:none;width:7px;height:7px;margin-top:9px;border-radius:2px;background:var(--c);transform:rotate(45deg)}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.tags span{font:500 13px var(--mono);padding:7px 13px;border-radius:9px;border:1px solid var(--line);color:var(--muted);background:rgba(255,255,255,.03);transition:color .3s,background .3s,border-color .3s,box-shadow .3s,translate .3s,scale .3s}
+.tags span:hover{color:#fff;background:color-mix(in srgb,var(--c) 26%,transparent);border-color:var(--c);box-shadow:0 0 18px -4px var(--c);translate:0 -3px;scale:1.06}
+.proj:hover .tags span,.mini:hover .tags span,.proj.lit .tags span,.mini.lit .tags span{animation:tagwave .8s ease;animation-delay:calc(var(--i,0)*55ms)}
+.media{position:relative;perspective:1200px}
+.device{position:relative;border-radius:16px;border:1px solid rgba(255,255,255,.16);background:#0a0c16;box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4),0 0 80px -20px var(--c);transform-style:preserve-3d;transition:transform .25s ease-out;will-change:transform}
+.device .bar{display:flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.04);border-radius:16px 16px 0 0}
+.device .bar i{width:10px;height:10px;border-radius:50%;background:#ff5f57}
+.device .bar i:nth-child(2){background:#febc2e}
+.device .bar i:nth-child(3){background:#28c840}
+.device .bar span{margin-left:10px;font:12px var(--mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.screen{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:0 0 16px 16px;background:#05060b}
+.screen video,.screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.logo-banner{position:relative;min-height:0;border-radius:16px;overflow:hidden;border:1px solid rgba(30,144,255,.35);box-shadow:0 0 60px -20px #1e90ff;background:#020b20}
+.logo-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.devwrap{position:relative}
+.float-card{position:absolute;z-index:4;padding:10px 14px;border-radius:14px;background:rgba(12,14,26,.85);border:1px solid var(--line);backdrop-filter:blur(10px);font:500 12.5px var(--mono);animation:float 6s ease-in-out infinite;pointer-events:none}
+.float-card b{color:var(--c);font-weight:500}
+.fc1{left:-14px;top:14%}
+.fc2{right:-12px;bottom:12%;animation-delay:-3s}
+.devwrap .fc1{left:-14px;top:auto;bottom:18%}
+.devwrap .fc2{right:-14px;top:22%;bottom:auto}
+.mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.mini{--c:var(--cyan);padding:28px;border-radius:24px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(18,20,36,.88),rgba(9,10,20,.88));backdrop-filter:blur(12px);display:flex;flex-direction:column;transition:transform .35s,border-color .35s}
+.mini:hover,.mini.lit{transform:translateY(-6px);border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 50px -12px var(--c)}
+.mini h3{font:700 22px/1.2 var(--display);margin-bottom:10px}
+.mini .mini-g{background:linear-gradient(120deg,var(--g1),var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.mini p{color:var(--muted);font-size:15px;margin-bottom:16px}
+.mini .tags{margin-bottom:20px}
+.mini .btn{margin-top:auto;align-self:flex-start}
+@media(max-width:600px){.float-card{display:none}}
+@media(max-width:900px){
+  .proj,.proj.alt,.proj.nashmi,.proj.compact,.proj.safe{grid-template-columns:1fr}
+  .proj.alt .info{order:0}
+  .proj.safe .media{min-height:0}
+  .proj.safe .screen{aspect-ratio:4/3;flex:none}
+  .fc1{left:4px}
+  .fc2{right:4px}
+}
+
+/* ---------- cards in skills / timeline / contact: a spotlight in the section's colours follows the cursor ---------- */
+.tool,.contact a,.tl article,.soft span{backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tool,.tl article,.contact a{isolation:isolate}
+.tool::after,.tl article::after,.contact a::after{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:0;transition:opacity .45s;background:radial-gradient(130% 130% at var(--hx,50%) var(--hy,0%),color-mix(in srgb,var(--c1) 34%,transparent),color-mix(in srgb,var(--c2) 18%,transparent) 45%,transparent 78%)}
+.tool:hover::after,.tl article:hover::after,.contact a:hover::after,.tool.lit::after,.tl article.lit::after,.contact a.lit::after{opacity:1}
+.tool:hover,.tl article:hover,.contact a:hover,.tool.lit,.tl article.lit,.contact a.lit{border-color:color-mix(in srgb,var(--c1) 65%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--c1) 35%,transparent),0 16px 44px -16px var(--c1),0 0 70px -26px var(--c2)}
+
+/* skills */
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.tool{position:relative;overflow:hidden;padding:22px 18px;border-radius:20px;border:1px solid var(--line);background:var(--panel);text-align:center;transition:transform .35s,border-color .45s,box-shadow .45s}
+.tool:hover{transform:translateY(-6px) rotate(-1deg)}
+.tool b{display:grid;place-items:center;width:60px;height:60px;margin:0 auto 12px;border-radius:18px;box-shadow:0 10px 30px -12px rgba(124,92,255,.8);border:1px solid var(--line)}
+.tool b img{width:34px;height:34px;object-fit:contain}
+.tool span{font-weight:500;font-size:15px}
+.tool:hover span,.contact a:hover strong{color:#fff}
+.soft-title{font:600 24px var(--display);margin-top:56px}
+.soft{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.soft span{padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:14.5px;transition:background .35s,border-color .35s,box-shadow .35s,transform .35s}
+.soft span:hover{background:linear-gradient(120deg,var(--c1),var(--c2));border-color:transparent;box-shadow:0 10px 30px -10px var(--c1);transform:translateY(-3px)}
+@media(max-width:520px){.tools{grid-template-columns:repeat(3,1fr);gap:10px}.tool{padding:16px 8px}.tool span{font-size:13px}}
+
+/* timeline */
+.tl{position:relative;display:grid;gap:16px;padding-left:28px}
+.tl::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--c1),var(--c2))}
+.tl article{position:relative;display:flex;justify-content:space-between;gap:20px;align-items:center;padding:22px 26px;border-radius:20px;border:1px solid var(--line);background:var(--panel);transition:transform .35s,border-color .45s,box-shadow .45s}
+.tl article:hover{transform:translateX(6px)}
+.tl article::before{content:"";position:absolute;left:-30px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:var(--bg);border:2px solid var(--c2);box-shadow:0 0 14px var(--c2);transition:border-color .35s,box-shadow .35s,transform .35s}
+.tl article:hover::before,.tl article.lit::before{border-color:var(--c1);box-shadow:0 0 18px var(--c1);transform:scale(1.25)}
+.tl h4{font:600 18px/1.3 var(--display)}
+.tl p{color:var(--muted);font-size:14.5px}
+.tl time{flex:none;font:500 13px var(--mono);color:var(--c1);padding:6px 12px;border-radius:8px;background:color-mix(in srgb,var(--c1) 12%,transparent)}
+.tl time.prog{color:var(--lime);background:rgba(163,255,107,.1)}
+@media(max-width:600px){.tl article{flex-direction:column;align-items:flex-start;gap:10px}}
+
+/* contact */
+.contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.contact a{position:relative;padding:26px;border-radius:22px;border:1px solid var(--line);background:var(--panel);transition:transform .35s,border-color .45s,box-shadow .45s;overflow-wrap:anywhere}
+.contact a:hover{transform:translateY(-6px)}
+.ci{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.07);margin-bottom:14px}
+.ci svg,.ci img{width:24px;height:24px}
+.contact small{display:block;font:500 12px var(--mono);color:var(--c1);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.contact strong{font:600 18px var(--display)}
+.big-cta{margin-top:clamp(60px,9vw,110px);text-align:center}
+.big-cta h2{margin:0 auto 28px;max-width:900px}
+.big-cta .btns{justify-content:center}
+@media(hover:none){.tool:hover,.mini:hover,.contact a:hover,.tl article:hover{transform:none}}
+
+/* contact form */
+.cform{position:relative;display:grid;gap:8px;max-width:640px;margin:8px auto 0;padding:clamp(20px,3vw,32px);text-align:left;border-radius:26px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(18,20,36,.92),rgba(9,10,20,.92));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 0 70px -30px #8b6bff,0 0 90px -40px #ff4d8d}
+.cform[hidden],.cf-done[hidden],.btns[hidden]{display:none!important}
+.cf-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.cf-head strong{font:600 clamp(18px,2.2vw,22px) var(--display)}
+.cf-x{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#fff;font-size:22px;line-height:1;cursor:pointer;transition:background .25s}
+.cf-x:hover{background:rgba(255,255,255,.12)}
+.fld{display:grid;gap:7px;margin-top:8px}
+.fld span{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--cyan)}
+.fld input,.fld textarea{width:100%;font:500 16px/1.5 var(--body);color:#fff;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:13px 15px;outline:none;transition:border-color .25s,box-shadow .25s,background .25s}
+.fld textarea{min-height:150px;resize:vertical}
+.fld input:focus,.fld textarea:focus{border-color:#a78bfa;background:rgba(255,255,255,.06);box-shadow:0 0 0 4px rgba(139,107,255,.18),0 0 30px -8px rgba(214,92,255,.6)}
+.fld [aria-invalid=true]{border-color:#ff5c7a;box-shadow:0 0 0 4px rgba(255,92,122,.14)}
+.err{color:#ff8fa3;font-size:13px}
+.err:empty{display:none}
+.cf-meta{display:flex;justify-content:space-between;gap:12px}
+.count{margin-left:auto;color:var(--muted);font:500 12px var(--mono)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.cf-send{justify-self:start;margin-top:12px}
+.cf-send:disabled{opacity:.6;cursor:wait;transform:none}
+.cf-status{font-size:14px;color:var(--muted)}
+.cf-status:empty{display:none}
+.cf-status.bad{color:#ff8fa3}
+.cf-done{display:grid;justify-items:center;gap:10px;max-width:640px;margin:8px auto 0;padding:32px 24px;border-radius:26px;border:1px solid rgba(16,185,129,.35);background:linear-gradient(160deg,rgba(18,20,36,.92),rgba(9,10,20,.92));box-shadow:0 0 70px -28px #10b981;outline:none}
+.cf-done strong{font:600 22px var(--display);color:#34d399}
+.cf-done p{color:var(--muted)}
+
+/* ---------- finale: an empty stretch of space where the black hole swallows the planets ---------- */
+.void{min-height:110vh;min-height:110svh}
+
+/* ---------- footer ---------- */
+footer{background:linear-gradient(180deg,rgba(5,6,11,.55),rgba(5,6,11,.92) 45%);padding:36px 0 calc(46px + env(safe-area-inset-bottom));text-align:center;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+.credit{display:block;margin-top:8px;font-size:12px;opacity:.7}
+
+/* ---------- sound on/off, same button as the links page ---------- */
+.sound{position:fixed;right:16px;bottom:max(16px,env(safe-area-inset-bottom));z-index:60;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:rgba(10,12,22,.7);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--muted);cursor:pointer;transition:border-color .25s,color .25s,box-shadow .25s}
+.sound svg{width:20px;height:20px;fill:currentColor}
+.sound:hover,.sound:focus-visible{border-color:#d65cff;color:#fff;box-shadow:0 0 16px rgba(214,92,255,.45);outline:none}
+.sound[aria-pressed=true]{color:#d65cff;border-color:rgba(214,92,255,.5)}
+.sound .waves{display:none}
+.sound[aria-pressed=true] .waves{display:inline}
+.sound[aria-pressed=true] .slash{display:none}
+
+/* ---------- video dialog ---------- */
+dialog{margin:auto;width:min(1000px,94vw);padding:0;border:1px solid var(--line);border-radius:22px;background:#0a0c16;color:#fff;overflow:hidden}
+dialog::backdrop{background:rgba(3,4,10,.82);backdrop-filter:blur(6px)}
+dialog header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font:600 16px var(--display)}
+dialog button.x{background:none;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:2px 8px}
+dialog video{width:100%;max-height:78vh;background:#000}
+dialog .empty{padding:56px 24px;text-align:center;color:var(--muted)}
+
+/* ---------- reveal on scroll (shown at once without JS or with reduced motion) ---------- */
+.rv{opacity:0;transform:translateY(34px)}
+.no-js .rv,.reduced .rv{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.rv{opacity:1;transform:none}}
+
+/* ---------- paint-dot cursor: a white dot with mix-blend-mode:difference, so it always takes the opposite colour of what is under it ---------- */
+.cdot{position:fixed;left:0;top:0;z-index:9999;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;mix-blend-mode:difference;opacity:0;pointer-events:none;will-change:transform;transition:opacity .3s,width .25s,height .25s,margin .25s}
+html.dot-cursor,html.dot-cursor *{cursor:none!important}
+html.dot-cursor input,html.dot-cursor textarea,html.dot-cursor select{cursor:text!important}
+html.dot-on .cdot{opacity:1}
+html.dot-down .cdot{width:22px;height:22px;margin:-11px 0 0 -11px}
+html.grabbing .cdot{width:30px;height:30px;margin:-15px 0 0 -15px}
+html.dot-field .cdot{opacity:0}
+</style>
 </head>
-<body>
-    <div class="giant-cyber-beast"><i class="fa-solid fa-spider"></i></div>
-    <canvas id="cyber-canvas"></canvas>
-    
-    <div class="custom-cursor"><i class="fa-solid fa-bug"></i></div>
-   
-    <nav>
-        <div class="logo">Hassan Khaled</div>
-        <ul>
-            <li><a href="#"><i class="fa-solid fa-house"></i> Home</a></li>
-            <li><a href="#skills"><i class="fa-solid fa-screwdriver-wrench"></i> Skills</a></li>
-            <li><a href="#experience"><i class="fa-solid fa-network-wired"></i> Experience</a></li>
-            <li><a href="#certifications"><i class="fa-solid fa-award"></i> Certifications</a></li>
-            <li><a href="#projects"><i class="fa-solid fa-shield-halved"></i> Projects</a></li>
-            <li><a href="#contact"><i class="fa-solid fa-paper-plane"></i> Contact</a></li>
-        </ul>
-    </nav>
-    
-    <section class="hero">
-        <div class="hero-text">
-            <h1 data-value="Hi, I'm Hassan Aldajah">Hi, I'm Hassan Aldajah</h1>
-            <h2>Cyber Security Eng & SOC Analyst</h2>
-            <p>Fourth-year Cybersecurity student at the University of Jordan targeting SOC Analyst and Incident Response roles. Passionate about defending digital environments, analyzing network traffic, and building robust security architectures.</p>
-            <div class="btn-group">
-                <a href="Hassan_Aldajah_cv.pdf" target="_blank" rel="noopener" class="btn btn-primary"><i class="fa-solid fa-eye"></i> View CV</a>
-                <a href="#projects" class="btn btn-outline">View My Work</a>
-            </div>
-        </div>
-        <div class="hero-image">
-            <img src="profile.jpg" alt="Hassan Khaled Aldajah profile photo">
-        </div>
-    </section>
+<body class="no-js">
+<canvas id="stage" aria-hidden="true"></canvas>
+<div class="veil" aria-hidden="true"></div>
+<div class="glow a"></div><div class="glow b"></div>
 
-    <section id="skills">
-        <h2 class="section-title">Tools & Technology </h2>
-        <div class="tools-grid">
-            
-            <div class="tool-item">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60">
-                    <text x="5" y="45" font-family="Arial, sans-serif" font-weight="900" font-size="35" fill="#222">splunk</text>
-                    <text x="135" y="45" font-family="monospace" font-weight="900" font-size="45" fill="#4CAF50">&gt;_</text>
-                </svg>
-                <span>Splunk</span>
-            </div>
+<nav>
+  <a href="#home" class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6bff"/><stop offset=".5" stop-color="#d65cff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient></defs><path d="M32 1C33.6 22 42 30.4 63 32 42 33.6 33.6 42 32 63 30.4 42 22 33.6 1 32 22 30.4 30.4 22 32 1Z"/></svg><span>Home</span></a>
+  <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+  <span class="progress" aria-hidden="true"><i></i></span>
+  <ul id="menu">
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#certifications">Certifications</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
 
-            <div class="tool-item">
-                <img src="https://avatars.githubusercontent.com/sleuthkit" alt="Autopsy" style="border-radius: 8px;">
-                <span>Autopsy</span>
-            </div>
-
-            <div class="tool-item">
-                <img src="https://www.google.com/s2/favicons?domain=exterro.com&sz=128" alt="FTK Imager" style="height: 75px; border-radius: 8px;">
-                <span>FTK Imager</span>
-            </div>
-            
-            <div class="tool-item">
-                <img src="https://www.vectorlogo.zone/logos/wireshark/wireshark-icon.svg" alt="Wireshark">
-                <span>Wireshark</span>
-            </div>
-
-            <div class="tool-item">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <rect width="100" height="100" rx="22" fill="#111"/>
-                    <polygon points="40,28 75,50 40,72" fill="#666"/>
-                    <polygon points="60,28 25,50 60,72" fill="#fff"/>
-                </svg>
-                <span>IDA Pro</span>
-            </div>
-
-        </div>
-
-        <h2 class="section-title" style="margin-top: 80px;">Soft Skills</h2>
-        <div class="tools-grid">
-            <div class="tool-item"><i class="fa-solid fa-brain" style="color: var(--accent-color);"></i><span>Analytical Thinking</span></div>
-            <div class="tool-item"><i class="fa-solid fa-file-signature" style="color: #10b981;"></i><span>Report Writing</span></div>
-            <div class="tool-item"><i class="fa-solid fa-people-group" style="color: #8b5cf6;"></i><span>Team Collaboration</span></div>
-            <div class="tool-item"><i class="fa-solid fa-comments" style="color: #f59e0b;"></i><span>Communication</span></div>
-            <div class="tool-item"><i class="fa-solid fa-stopwatch" style="color: #ef4444;"></i><span>Time Management</span></div>
-            <div class="tool-item"><i class="fa-solid fa-arrows-rotate" style="color: var(--secondary-color);"></i><span>Adaptability</span></div>
-        </div>
-    </section>
-
-    <section id="experience">
-        <h2 class="section-title">Practical Experience</h2>
-        <div class="timeline-container">
-            <div class="timeline-card">
-                <div>
-                    <h3>Hands-on Technical Training</h3>
-                    <p style="color: var(--text-muted);">JODBE | 40 hours of intensive technical training.</p>
-                </div>
-                <div class="date">Completed</div>
-            </div>
-        </div>
-    </section>
-
-   <section id="certifications">
-    <h2 class="section-title">Certifications</h2>
-    <div class="timeline-container">
-        
-        <div class="timeline-card">
-            <div>
-                <h3>AWS Academy Graduate - Cloud Foundations</h3>
-                <p style="color: var(--text-muted);">20 hours of comprehensive cloud foundation training.</p>
-            </div>
-            <div class="date">Apr 2026</div>
-        </div>
-        
-        <div class="timeline-card">
-            <div>
-                <h3>AWS Academy Graduate - Cloud Security Foundations</h3>
-                <p style="color: var(--text-muted);">20 hours of specialized cloud security training.</p>
-            </div>
-            <div class="date">Apr 2026</div>
-        </div>
-        
-        <div class="timeline-card">
-            <div>
-                <h3>Cyber Warriors Competition Training</h3>
-                <p style="color: var(--text-muted);">National Cyber Security Center (NCSC) | 25 hours.</p>
-            </div>
-            <div class="date">Mar 2023</div>
-        </div>
-
-        <div class="timeline-card">
-            <div>
-                <h3>Cybersecurity Practical Training With (JODBE)</h3>
-                <p style="color: var(--text-muted);">40 hours of intensive technical training.</p>
-            </div>
-            <div class="date">July 2026</div>
-        </div>
-        
+<main>
+<section class="hero" id="home">
+  <div class="wrap">
+    <div class="intro">
+      <div class="eyebrow rv"><b></b> Open to SOC Analyst &amp; Incident Response roles</div>
+      <h1 class="rv">Hi, I'm <span class="g">Hassan Aldajah</span></h1>
+      <div class="role rv" aria-live="off"><em>&gt;</em> <span id="typed">Cyber Security Eng &amp; SOC Analyst</span><span class="caret"></span></div>
+      <p class="lead rv">Fourth-year Cybersecurity student at the University of Jordan. Interested in SOC operations and digital forensics: detecting threats, analyzing network traffic and investigating incidents.</p>
+      <div class="btns rv">
+        <a class="btn primary" href="#projects">View my work</a>
+        <a class="btn" href="Hassan_Aldajah_cv.pdf" target="_blank" rel="noopener">View CV</a>
+        <a class="btn" href="https://github.com/hassanaldajah" target="_blank" rel="noopener">GitHub</a>
+      </div>
     </div>
+    <div class="avatar rv">
+      <img src="assets/img/me-hero.jpg" alt="Hassan Aldajah" width="720" height="720" fetchpriority="high">
+      <svg class="orbit" viewBox="0 0 400 400" aria-hidden="true"><defs><path id="orbitPath" d="M28,200a172,172 0 1,1 344,0a172,172 0 1,1 -344,0"/><linearGradient id="orbitGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="400" y2="400"><stop offset="0" stop-color="#22d3ee"/><stop offset=".5" stop-color="#d65cff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient></defs><text><textPath href="#orbitPath" textLength="1078" lengthAdjust="spacing">splunk &gt; _ ✦ wireshark.pcap ✦ IR · SOC · DFIR ✦ splunk &gt; _ ✦ wireshark.pcap ✦ IR · SOC · DFIR ✦</textPath></text></svg>
+    </div>
+  </div>
+  <div class="scroll-cue" aria-hidden="true"></div>
 </section>
 
-    <section id="projects">
-        <h2 class="section-title">Case Files & Projects</h2>
-        <div class="grid-container">
-            
-            <div class="project-card">
-                <div class="project-info">
-                    <h3>Graduation Project: Safe Share</h3>
-                    <p>A zero-knowledge, AI-powered secure platform for file sharing. Architected with End-to-End Encryption (E2EE), deployed on AWS, and strictly preserving an isolated security perimeter using JWT authentication.</p>
-                    <div class="tags">
-                        <span>React</span><span>Spring Boot</span><span>PostgreSQL</span><span>AWS</span><span>AES/RSA</span>
-                    </div>
-                    <a href="https://github.com/hassanaldajah/SafeShare" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: auto;"><i class="fa-brands fa-github"></i> GitHub Repository</a>
-                </div>
-            </div>
+<div class="marquee" aria-hidden="true"><div>
+  <span>Incident Response</span><span>Threat Detection</span><span>Digital Forensics</span><span>Network Analysis</span><span>Cloud Security</span><span>Secure Software</span>
+  <span>Incident Response</span><span>Threat Detection</span><span>Digital Forensics</span><span>Network Analysis</span><span>Cloud Security</span><span>Secure Software</span>
+</div></div>
 
-            <div class="project-card">
-                <div class="project-info">
-                    <h3>Threat Eye SOC Detection</h3>
-                    <p>Threat Intelligence-Driven SOC Detection System. Engineered a full pipeline in Splunk Enterprise, ingesting 957,674+ network-flow events, and trained a Random Forest classifier for AI-based threat correlation.</p>
-                    <div class="tags">
-                        <span>Splunk</span><span>Python</span><span>scikit-learn</span><span>REST API</span>
-                    </div>
-                    <a href="Soc Ope Final Report.pdf" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: auto;"><i class="fa-solid fa-file-pdf"></i> View Project Report (PDF)</a>
-                </div>
-            </div>
+<section id="projects">
+<div class="wrap">
+  <div class="head rv"><div class="kicker">Case files &amp; projects</div><h2>Things I built, <span class="g">end to end.</span></h2><p class="sub">Security tools, desktop apps and research. Each one is public, with real code behind it.</p></div>
 
-            <div class="project-card">
-                <div class="project-info">
-                    <h3>MedCare Horizon Strategy</h3>
-                    <p>Information Security Strategy Project. Assessed the security posture of a 350-bed hospital and designed a 5-goal enterprise strategy including RBAC, IoT segmentation, and an ISO/IEC 27001 gap assessment.</p>
-                    <div class="tags">
-                        <span>Security Strategy</span><span>ISO/IEC 27001</span><span>Risk Assessment</span>
-                    </div>
-                    <a href="information sec.pdf" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: auto;"><i class="fa-solid fa-file-pdf"></i> View Case Study (PDF)</a>
-                </div>
-            </div>
+  <!-- NASHMI -->
+  <article class="proj nashmi rv" style="--c:#e5484d" data-video="nashmi">
+    <div class="info">
+      <img class="pico fox" src="assets/img/icon-nashmi.png" alt="Nashmi logo" width="64" height="64"><div class="num">01 · AI SECURITY AGENT</div>
+      <h3>Nashmi <span class="g">نشمي</span></h3>
+      <div class="tagline">An AI agent built exclusively for cybersecurity.</div>
+      <p>A SOC analyzer, CTF coach, security toolbox and practice exams in one app, with an Arabic and English interface.</p>
+      <ul class="feat">
+        <li>Log Analysis (Linux / Windows) and Wireshark analysis (pcap, pcapng, CSV) that work without an API key</li>
+        <li>"+ Dashboard" with KPIs, timeline, ATT&amp;CK chips and a 3D evidence graph</li>
+        <li>Google sign-in with two-step verification and per-user encrypted PostgreSQL storage</li>
+      </ul>
+      <div class="tags"><span>Python</span><span>Streamlit</span><span>PostgreSQL</span><span>OAuth 2.0</span><span>2FA</span><span>Three.js</span><span>Plotly</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://nashmiagent-hassan-aldajah.streamlit.app/" target="_blank" rel="noopener">Open live site ↗</a>
+        <button class="btn sm" data-open="nashmi">▶ Watch live demo</button>
+        <a class="btn sm" href="https://github.com/hassanaldajah/NashmiAgent" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="media">
+      <span class="float-card fc1">threat score <b>87</b></span><span class="float-card fc2">events <b>12,480</b></span>
+      <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nashmiagent.streamlit.app</span></div>
+        <div class="screen"><img src="assets/img/nashmi.jpg" alt="Nashmi, the pixel-art fox with the red shemagh" loading="lazy" style="object-fit:contain;background:#12090f"><video muted loop playsinline preload="none" poster="assets/img/nashmi.jpg" data-src="assets/video/nashmi.mp4"></video></div></div>
+    </div>
+  </article>
 
-            <div class="project-card">
-                <div class="project-info">
-                    <h3>Nashmi Agent</h3>
-                    <p>An AI agent built exclusively for cybersecurity: a SOC analyzer, a CTF coach, a security toolbox and practice exams. Includes Google sign-in with two-step verification, per-user encrypted storage in PostgreSQL, and an Arabic and English interface.</p>
-                    <div class="tags">
-                        <span>Python</span><span>Streamlit</span><span>PostgreSQL</span><span>OAuth 2.0</span><span>2FA</span><span>Three.js</span>
-                    </div>
-                    <a href="https://nashmiagent-hassan-aldajah.streamlit.app/" target="_blank" rel="noopener" class="btn btn-primary" style="text-align: center; display: block; margin-top: auto; max-width: none;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
-                    <a href="https://github.com/hassanaldajah/NashmiAgent" target="_blank" rel="noopener" class="btn btn-outline" style="text-align: center; display: block; margin-top: 10px; max-width: none;"><i class="fa-brands fa-github"></i> GitHub Repository</a>
-                </div>
-            </div>
+  <!-- PIXEL -->
+  <article class="proj alt pixel rv" style="--c:#1e90ff" data-video="pixel">
+    <div class="info">
+      <div class="num">02 · DESKTOP APP</div>
+      <h3>Pixel <span class="g">image studio</span></h3>
+      <div class="tagline">A photo editor that treats every image as untrusted.</div>
+      <p>Local-first and offline: no accounts, no cloud, no telemetry. Every file passes a security gate before it is ever opened.</p>
+      <ul class="feat">
+        <li>Security Gate: real-byte type check, YARA malware rules, hidden-payload scan, sandboxed decode, clean re-encode</li>
+        <li>GPU-accelerated WebGL 2 editor with non-destructive edits, curves, HSL, layers and masks</li>
+        <li>Pixel Art, object Eraser (PatchMatch), Retouch and Upscale, all with ordinary algorithms and no AI models</li>
+      </ul>
+      <div class="tags"><span>Tauri 2</span><span>React</span><span>TypeScript</span><span>WebGL 2</span><span>FastAPI</span><span>YARA</span><span>NumPy</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://github.com/hassanaldajah/pixels" target="_blank" rel="noopener">GitHub repo ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/pixels/releases/latest" target="_blank" rel="noopener">Download</a>
+        <button class="btn sm" data-open="pixel">▶ Promo video</button>
+      </div>
+    </div>
+    <div class="media">
+      <div class="logo-banner"><img src="assets/img/pixels-banner.jpg?v=4" alt="pixels" width="1600" height="1000" loading="lazy"></div>
+      <div class="devwrap">
+        <span class="float-card fc1">security gate <b>passed</b></span><span class="float-card fc2">VirusTotal <b>0 / 69</b></span>
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>pixels — Windows · Linux</span></div>
+          <div class="screen"><img src="assets/img/pixel-ui.jpg" alt="The Pixels editor: tools, canvas and inspector" loading="lazy" style="object-fit:contain;background:#05070c"><video muted loop playsinline preload="none" poster="assets/img/pixel-ui.jpg" data-src="assets/video/pixel.mp4"></video></div></div>
+      </div>
+    </div>
+  </article>
 
-        </div>
-    </section>
+  <!-- SAFE SHARE -->
+  <article class="proj safe rv" style="--c:#10b981">
+    <div class="info">
+      <img class="pico mark" src="assets/img/icon-safeshare.svg?v=2" alt="Safe Share logo" width="70" height="88"><div class="num">03 · GRADUATION PROJECT</div>
+      <h3>Safe <span class="g g-green">Share</span></h3>
+      <div class="tagline">End-to-end encrypted file sharing. Even admins can't read your files.</div>
+      <p>A zero-knowledge, AI-powered platform for sharing sensitive files, deployed on AWS and isolated behind JWT authentication.</p>
+      <ul class="feat">
+        <li>End-to-end encryption (AES / RSA): files are encrypted on your device before they leave it</li>
+        <li>Client-side key generation: the keys never reach the server</li>
+        <li>Zero-knowledge architecture: no server-side access to your data</li>
+      </ul>
+      <div class="tags"><span>React</span><span>Spring Boot</span><span>PostgreSQL</span><span>AWS</span><span>AES/RSA</span><span>JWT</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://safe-share-gold.vercel.app" target="_blank" rel="noopener">Open live site ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/Safe-Share" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="media">
+      <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>safe-share-gold.vercel.app</span></div>
+        <div class="screen"><img src="assets/img/safeshare.jpg" alt="Safe Share landing page: End-to-End Encrypted File Sharing" loading="lazy"></div></div>
+    </div>
+  </article>
 
-    <section id="contact">
-        <h2 class="section-title">Get In Touch</h2>
-        <div class="grid-container" style="max-width: 800px; margin: 0 auto;">
-            
-            <a href="mailto:hassanaldajah2004@gmail.com" class="card contact-card">
-                <h4><i class="fa-solid fa-envelope" style="color: var(--secondary-color);"></i> Email</h4>
-                <span>hassanaldajah2004@gmail.com</span>
-            </a>
-            
-            <a href="tel:+962778721521" class="card contact-card">
-                <h4><i class="fa-solid fa-phone" style="color: var(--secondary-color);"></i> Phone</h4>
-                <span>+962 778721521</span>
-            </a>
-            
-            <a href="https://www.linkedin.com/in/hassan-aldajah04" target="_blank" rel="noopener" class="card contact-card">
-                <h4><i class="fa-brands fa-linkedin" style="color: #0077b5;"></i> LinkedIn</h4>
-                <span>Hassan Khaled Aldajah</span>
-            </a>
-            
-            <a href="https://github.com/hassanaldajah" target="_blank" rel="noopener" class="card contact-card">
-                <h4><i class="fa-brands fa-github" style="color: #333;"></i> GitHub</h4>
-                <span>Hassan Khaled Aldajah</span>
-            </a>
-            
-        </div>
-    </section>
+  <!-- FC -->
+  <article class="proj multi compact alt rv" data-video="fc">
+    <div class="info">
+      <img class="pico" style="box-shadow:none" src="assets/img/icon-fc.png" alt="FC logo" width="64" height="64"><div class="num">04 · FILE CONVERTER</div>
+      <h3>FC <span class="g">File Converter</span></h3>
+      <div class="tagline">Every file tool, one glass octagon on your screen.</div>
+      <p>Drop files on it, or select them in File Explorer and press Ctrl+Alt+C. The octagon turns into the right tools for those files. Originals are never overwritten.</p>
+      <div class="tags"><span>Python</span><span>PyQt6</span><span>PyMuPDF</span><span>Pillow</span><span>FFmpeg</span><span>GitHub Actions</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://github.com/hassanaldajah/FC" target="_blank" rel="noopener">GitHub repo ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/FC/releases/latest" target="_blank" rel="noopener">Download</a>
+        <button class="btn sm" data-open="fc">▶ Promo video</button>
+      </div>
+    </div>
+    <div class="media">
+      <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>FC — Ctrl+Alt+C</span></div>
+        <div class="screen"><img src="assets/img/fc.png" alt="FC octagon menu" loading="lazy" style="object-fit:contain;background:#0d1020"><video muted loop playsinline preload="none" poster="assets/img/fc.png" data-src="assets/video/fc.mp4"></video></div></div>
+    </div>
+  </article>
 
-    <script>
-        const cursor = document.querySelector('.custom-cursor');
-        
-        // Only run custom cursor logic if the device supports hover
-        if (window.matchMedia("(hover: hover)").matches) {
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
+  <div class="mini-grid">
+    <div class="mini rv" style="--c:#22d3ee"><h3>Threat Eye <span class="g mini-g" style="--g1:#22d3ee;--g2:#10b981">SOC Detection</span></h3><p>Threat-intelligence-driven SOC pipeline in Splunk Enterprise: 957,674+ network-flow events and a Random Forest classifier for AI-based correlation.</p><div class="tags"><span>Splunk</span><span>Python</span><span>scikit-learn</span><span>REST API</span></div><a class="btn sm" href="Soc Ope Final Report.pdf" target="_blank" rel="noopener">Project report (PDF) ↗</a></div>
+    <div class="mini rv" style="--c:#d65cff"><h3>MedCare Horizon <span class="g mini-g" style="--g1:#8b6bff;--g2:#ff4d8d">Strategy</span></h3><p>Security strategy for a 350-bed hospital: RBAC, IoT segmentation, a 5-goal enterprise plan and an ISO/IEC 27001 gap assessment.</p><div class="tags"><span>Security Strategy</span><span>ISO/IEC 27001</span><span>Risk Assessment</span></div><a class="btn sm" href="information sec.pdf" target="_blank" rel="noopener">Case study (PDF) ↗</a></div>
+  </div>
+</div>
+</section>
 
-            const interactives = document.querySelectorAll('a, .btn, .card, .tool-item, .project-card');
-            interactives.forEach(el => {
-                el.addEventListener('mouseenter', () => {
-                    cursor.classList.add('hovering');
-                });
-                el.addEventListener('mouseleave', () => {
-                    cursor.classList.remove('hovering');
-                });
-            });
-        }
-    </script>
- 
-    <script>
-        const canvas = document.getElementById('cyber-canvas');
-        const ctx = canvas.getContext('2d');
+<section id="skills">
+<div class="wrap">
+  <div class="head rv"><div class="kicker">Toolbox</div><h2>Tools &amp; <span class="g">technology</span></h2></div>
+  <div class="tools">
+    <div class="tool rv"><b style="background:#000"><img src="assets/logos/splunk.svg" alt="" width="34" height="34" loading="lazy"></b><span>Splunk</span></div>
+    <div class="tool rv"><b style="background:#fff"><img src="assets/logos/autopsy.png" alt="" width="34" height="34" loading="lazy"></b><span>Autopsy</span></div>
+    <div class="tool rv"><b style="background:#fff"><img src="assets/logos/ftk.png" alt="" width="34" height="34" loading="lazy"></b><span>FTK Imager</span></div>
+    <div class="tool rv"><b style="background:#fff"><img src="assets/logos/wireshark.svg" alt="" width="34" height="34" loading="lazy"></b><span>Wireshark</span></div>
+    <div class="tool rv"><b style="background:#fff"><img src="assets/logos/ida.png" alt="" width="34" height="34" loading="lazy"></b><span>IDA Pro</span></div>
+  </div>
+  <h3 class="soft-title rv">Soft skills</h3>
+  <div class="soft rv"><span>Analytical thinking</span><span>Report writing</span><span>Team collaboration</span><span>Communication</span><span>Time management</span><span>Adaptability</span></div>
+</div>
+</section>
 
-        const chars = '01HSN01SOC01SEC99';
-        const fontSize = 15;
-        let drops = [];
+<section id="experience">
+<div class="wrap">
+  <div class="head rv"><div class="kicker">Experience</div><h2>Practical <span class="g">experience</span></h2></div>
+  <div class="tl"><article class="rv"><div><h4>Hands-on Technical Training</h4><p>JODBE · 40 hours of intensive technical training.</p></div><time>Completed</time></article></div>
+</div>
+</section>
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const columns = Math.floor(canvas.width / fontSize);
-            while (drops.length < columns) drops.push(1);
-            drops.length = columns;
-        }
-        resizeCanvas();
+<section id="certifications">
+<div class="wrap">
+  <div class="head rv"><div class="kicker">Credentials</div><h2><span class="g">Certifications</span></h2></div>
+  <div class="tl">
+    <article class="rv"><div><h4>HTB Certified Defensive Security Analyst (CDSA)</h4><p>Hack The Box · self-learning, SOC analyst path.</p></div><time class="prog">In progress</time></article>
+    <article class="rv"><div><h4>AWS Academy Graduate · Cloud Foundations</h4><p>20 hours of comprehensive cloud foundation training.</p></div><time>Apr 2026</time></article>
+    <article class="rv"><div><h4>AWS Academy Graduate · Cloud Security Foundations</h4><p>20 hours of specialized cloud security training.</p></div><time>Apr 2026</time></article>
+    <article class="rv"><div><h4>Cyber Warriors Competition Training</h4><p>National Cyber Security Center (NCSC) · 25 hours.</p></div><time>Mar 2023</time></article>
+    <article class="rv"><div><h4>Cybersecurity Practical Training with JODBE</h4><p>40 hours of intensive technical training.</p></div><time>Jul 2026</time></article>
+  </div>
+</div>
+</section>
 
-        // iOS fires resize whenever the address bar collapses; only react to real width changes
-        let lastWidth = window.innerWidth;
-        window.addEventListener('resize', () => {
-            if (window.innerWidth !== lastWidth) {
-                lastWidth = window.innerWidth;
-                resizeCanvas();
-            }
-        });
+<section id="contact">
+<div class="wrap">
+  <div class="head rv"><div class="kicker">Contact</div><h2>Let's <span class="g">talk.</span></h2></div>
+  <div class="contact">
+    <a class="rv" href="mailto:hassanaldajah2004@gmail.com"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span><small>Email</small><strong>hassanaldajah2004@gmail.com</strong></a>
+    <a class="rv" href="tel:+962778721521"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#a3ff6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><small>Phone</small><strong>+962 778721521</strong></a>
+    <a class="rv" href="https://www.linkedin.com/in/hassan-aldajah04" target="_blank" rel="noopener"><span class="ci"><img src="assets/logos/linkedin.svg" alt=""></span><small>LinkedIn</small><strong>Hassan Khaled Aldajah</strong></a>
+    <a class="rv" href="https://github.com/hassanaldajah" target="_blank" rel="noopener"><span class="ci"><img src="assets/logos/github.svg" alt=""></span><small>GitHub</small><strong>hassanaldajah</strong></a>
+  </div>
+  <div class="big-cta rv"><h2>Let's work on <span class="g">SOC &amp; digital forensics</span> together.</h2>
+    <div class="btns" id="ctaBtns"><button type="button" class="btn primary" id="sayHello" aria-expanded="false" aria-controls="cform">Say hello</button></div>
+    <form class="cform" id="cform" novalidate hidden>
+      <div class="cf-head"><strong>Send me a message</strong><button type="button" class="cf-x" id="cfClose" aria-label="Close the form">×</button></div>
+      <label class="fld" for="cf-name"><span>Name</span><input id="cf-name" type="text" autocomplete="name" maxlength="80" required spellcheck="false" aria-describedby="cf-name-err"></label>
+      <small class="err" id="cf-name-err"></small>
+      <label class="fld" for="cf-email"><span>Email</span><input id="cf-email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" maxlength="254" required spellcheck="false" aria-describedby="cf-email-err"></label>
+      <small class="err" id="cf-email-err"></small>
+      <label class="fld" for="cf-msg"><span>Message</span><textarea id="cf-msg" rows="5" maxlength="2000" required aria-describedby="cf-msg-err cf-count"></textarea></label>
+      <div class="cf-meta"><small class="err" id="cf-msg-err"></small><small class="count" id="cf-count">0 / 2000</small></div>
+      <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" id="cf-hp" tabindex="-1" autocomplete="off"></label></div>
+      <button type="submit" class="btn primary cf-send" id="cfSend">Send message</button>
+      <p class="cf-status" id="cfStatus" role="status" aria-live="polite"></p>
+    </form>
+    <div class="cf-done" id="cfDone" hidden tabindex="-1"><strong>Message sent ✓</strong><p id="cfDoneText"></p><button type="button" class="btn sm" id="cfAgain">Send another</button></div>
+  </div>
+</div>
+</section>
 
-        function drawCyberRain() {
-            ctx.fillStyle = 'rgba(248, 250, 252, 0.25)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+<section id="void" class="void" aria-hidden="true"></section>
+</main>
 
-            ctx.font = 'bold ' + fontSize + 'px monospace';
+<footer>© <span id="yr">2026</span> Hassan Aldajah · Built with Three.js, GSAP and Lenis<br><small class="credit">Earth and Moon imagery: NASA (Blue Marble, Black Marble, LRO). Jupiter and Mercury textures: Solar System Scope (CC BY 4.0), based on NASA data.</small></footer>
 
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
-                
-                ctx.fillStyle = i % 2 === 0 ? 'rgba(159, 18, 57, 0.75)' : 'rgba(14, 165, 233, 0.85)';
-                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+<button id="sound" class="sound" type="button" aria-pressed="false" aria-label="Turn sound on" title="Sound">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M3 9v6h4l5 4V5L7 9H3z"/>
+    <path class="waves" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+    <path class="slash" d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>
+</button>
 
-                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
+<dialog id="vid"><header><span id="vidTitle"></span><button class="x" aria-label="Close">×</button></header><div id="vidBody"></div></dialog>
 
-        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+document.body.classList.remove('no-js');
+document.getElementById('yr').textContent=new Date().getFullYear();
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const touch=matchMedia('(hover: none) and (pointer: coarse)').matches;
+if(reduced) document.body.classList.add('reduced');
 
-        // Slower frame rate on phones to save battery; skipped entirely if motion is reduced
-        if (!reduceMotion) {
-            setInterval(drawCyberRain, isTouch ? 90 : 50);
-        }
-    </script>
-    <script>
-        const h1 = document.querySelector('.hero-text h1');
-        const targetText = h1.getAttribute('data-value');
-        const hackerChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*-_<>[]{}//\\<>?!";
+/* mobile menu */
+const burger=document.querySelector('.burger'),menu=document.getElementById('menu');
+burger.addEventListener('click',()=>{const o=menu.classList.toggle('open');burger.setAttribute('aria-expanded',o)});
+menu.addEventListener('click',e=>{if(e.target.tagName==='A'){menu.classList.remove('open');burger.setAttribute('aria-expanded',false)}});
 
-        let iteration = 0;
-        
-        function startDecryption() {
-            let interval = setInterval(() => {
-                h1.innerText = targetText
-                    .split("")
-                    .map((char, index) => {
-                        if (index < iteration) {
-                            return targetText[index];
-                        }
-                        return hackerChars[Math.floor(Math.random() * hackerChars.length)];
-                    })
-                    .join("");
-                
-                if (iteration >= targetText.length) {
-                    clearInterval(interval);
-                }
-                
-                iteration += 1 /3.5; 
-            }, 50);
-        }
+/* smooth scroll + reveal (degrades to plain scrolling if a CDN fails) */
+let lenis=null;
+if(window.gsap&&window.ScrollTrigger&&!reduced){
+  gsap.registerPlugin(ScrollTrigger);
+  if(window.Lenis){
+    lenis=new Lenis({duration:1.15,smoothWheel:true});
+    lenis.on('scroll',ScrollTrigger.update);
+    gsap.ticker.add(t=>lenis.raf(t*1000));
+    gsap.ticker.lagSmoothing(0);
+    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+      const el=document.querySelector(a.getAttribute('href'));
+      if(el){e.preventDefault();lenis.scrollTo(el,{offset:-70})}
+    }));
+  }
+  document.querySelectorAll('.rv').forEach(el=>{
+    gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 90%',once:true}});
+  });
+}else{document.querySelectorAll('.rv').forEach(el=>{el.style.opacity=1;el.style.transform='none'})}   // keep each element's own inline styles (colours etc.)
 
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            h1.innerText = targetText;
-        } else {
-            window.addEventListener('DOMContentLoaded', startDecryption);
-        }
-    </script>
+const navEl=document.querySelector('nav');const onS=()=>{navEl.classList.toggle('scrolled',scrollY>40);navEl.style.setProperty('--p',Math.min(1,scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)).toFixed(4))};addEventListener('scroll',onS,{passive:true});onS();
+const inView=e=>{e.target._inView=e.isIntersecting;if(!e.target._touched)e.target.classList.toggle('lit',e.isIntersecting)};
+const litIO=new IntersectionObserver(es=>es.forEach(inView),{rootMargin:'-40% 0px -40% 0px'});
+if(matchMedia('(hover: none)').matches)document.querySelectorAll('.proj,.mini').forEach(el=>litIO.observe(el));
+/* nav reacts to the cursor: spotlight + magnetic links */
+if(matchMedia('(hover: hover)').matches&&!reduced){
+  navEl.addEventListener('pointermove',e=>{const r=navEl.getBoundingClientRect();navEl.style.setProperty('--mx',(e.clientX-r.left)+'px');navEl.style.setProperty('--my',(e.clientY-r.top)+'px');navEl.style.setProperty('--spot',1)});
+  navEl.addEventListener('pointerleave',()=>navEl.style.setProperty('--spot',0));
+  navEl.querySelectorAll('ul a,.brand').forEach(a=>{
+    a.addEventListener('pointermove',e=>{const r=a.getBoundingClientRect();a.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.18}px,${(e.clientY-r.top-r.height/2)*.25}px)`});
+    a.addEventListener('pointerleave',()=>a.style.transform='');
+  });
+}
+/* section title cards light up while they are on screen */
+const headIO=new IntersectionObserver(es=>es.forEach(inView),{rootMargin:'-15% 0px -15% 0px'});
+document.querySelectorAll('.head').forEach(h=>headIO.observe(h));
+/* card spotlight follows the cursor; on touch screens the card in the middle of the screen lights up */
+const cardSel='.tool,.tl article,.contact a';
+if(matchMedia('(hover: hover)').matches)document.querySelectorAll(cardSel).forEach(c=>c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();c.style.setProperty('--hx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');c.style.setProperty('--hy',((e.clientY-r.top)/r.height*100).toFixed(1)+'%')}));
+else document.querySelectorAll(cardSel).forEach(el=>litIO.observe(el));
+/* paint-dot cursor (mouse only): follows the pointer and stretches along the direction of motion like a drop of paint;
+   text fields keep the normal text cursor */
+if(matchMedia('(hover: hover) and (pointer: fine)').matches){
+  const root=document.documentElement,dot=document.createElement('div');
+  dot.className='cdot';document.body.append(dot);root.classList.add('dot-cursor');
+  let x=-99,y=-99,dx=-99,dy=-99,on=false;
+  addEventListener('pointermove',e=>{
+    if(e.pointerType!=='mouse')return;x=e.clientX;y=e.clientY;
+    if(!on){dx=x;dy=y;on=true;root.classList.add('dot-on')}
+    probe(e.target);
+  },{passive:true});
+  function probe(t){
+    t=t instanceof Element?t:document.body;
+    const field=t.closest('input,textarea,select');
+    root.classList.toggle('dot-field',!!field);
+  }
+  // scrolling moves the page under a still mouse: re-check what is under the dot
+  let pending=false;addEventListener('scroll',()=>{if(!on||pending)return;pending=true;requestAnimationFrame(()=>{pending=false;probe(document.elementFromPoint(x,y))})},{passive:true});
+  document.addEventListener('pointerleave',()=>{on=false;root.classList.remove('dot-on')});
+  addEventListener('pointerdown',()=>root.classList.add('dot-down'));
+  addEventListener('pointerup',()=>root.classList.remove('dot-down'));
+  (function follow(){
+    requestAnimationFrame(follow);
+    const vx=x-dx,vy=y-dy;dx+=vx*.42;dy+=vy*.42;
+    const sp=reduced?0:Math.min(1,Math.hypot(vx,vy)/60);
+    dot.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(${Math.atan2(vy,vx)}rad) scale(${1+sp*.6},${1-sp*.35})`;
+  })();
+}
+/* cards float out of step with each other; tags are numbered for the ripple */
+document.querySelectorAll('.tool,.contact a,.tl article,.mini,.proj').forEach(c=>{c.style.setProperty('--bd',(6+Math.random()*3).toFixed(2)+'s');c.style.setProperty('--bdl',(-Math.random()*8).toFixed(2)+'s')});
+document.querySelectorAll('.tags').forEach(t=>[...t.children].forEach((s,i)=>s.style.setProperty('--i',i)));
+/* 3D tilt toward the pointer: the mouse on laptops, the finger on phones. A touched card also lights up, like a hovered one. */
+function tilt(area,target,max,card){
+  const own=area===target;   // cards tilt themselves; device mockups tilt inside their area (which supplies the perspective)
+  const set=(cx,cy)=>{const r=area.getBoundingClientRect(),x=(cx-r.left)/r.width-.5,y=(cy-r.top)/r.height-.5;
+    target.style.transform=`${own?'perspective(900px) ':''}rotateX(${(-y*max).toFixed(2)}deg) rotateY(${(x*max*1.2).toFixed(2)}deg)${own?' translateY(-4px)':''}`};
+  const reset=()=>{target.style.transform=''};
+  area.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')set(e.clientX,e.clientY)});
+  area.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')reset()});
+  area.addEventListener('touchstart',e=>{const t=e.touches[0];card._touched=true;card.classList.add('lit');set(t.clientX,t.clientY)},{passive:true});
+  area.addEventListener('touchmove',e=>{const t=e.touches[0];set(t.clientX,t.clientY)},{passive:true});
+  const end=()=>{reset();card._touched=false;card.classList.toggle('lit',!!card._inView)};
+  area.addEventListener('touchend',end,{passive:true});area.addEventListener('touchcancel',end,{passive:true});
+}
+if(!reduced){
+  document.querySelectorAll('.tool,.contact a,.tl article,.mini,.head').forEach(c=>tilt(c,c,c.classList.contains('head')?5:c.matches('.tl article')?3:8,c));
+  document.querySelectorAll('.tilt').forEach(d=>tilt(d.parentElement,d,8,d.closest('.proj')));
+}
+/* nav highlight */
+const links=[document.querySelector('.brand'),...menu.querySelectorAll('a')];
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)links.forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id))}),{rootMargin:'-45% 0px -50% 0px'});
+document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s));
+
+/* typed role */
+(()=>{const el=document.getElementById('typed');if(reduced)return;
+  const words=['Cyber Security Eng & SOC Analyst','Digital Forensics','Incident Response'];let w=0,i=words[0].length,del=true;
+  (function tick(){
+    if(del){i--;if(i<=0){del=false;w=(w+1)%words.length}}else{i++;if(i>=words[w].length)del=true}
+    el.textContent=words[w].slice(0,i);
+    setTimeout(tick,del&&i===words[w].length-1?1600:del?30:70)})();
+})();
+
+/* track-names strip: drifts left on its own; grab it with a finger or the mouse to drag it back and forth.
+   Let go and it keeps the speed of your flick, then eases back into its own drift. */
+(()=>{
+  const strip=document.querySelector('.marquee'),track=strip&&strip.firstElementChild;
+  if(!track)return;
+  track.style.animation='none';
+  let x=0,v=0,period=1,drag=false,lastX=0,lastT=0,shown=true,prev=performance.now();
+  const base=()=>reduced?0:-period/32;   // same pace as before: one full loop every 32 s
+  const measure=()=>{period=track.scrollWidth/2||1};   // the strip holds the list twice
+  measure();v=base();addEventListener('resize',measure);if(document.fonts)document.fonts.ready.then(measure);
+  new IntersectionObserver(es=>{shown=es[0].isIntersecting}).observe(strip);
+  strip.addEventListener('pointerdown',e=>{
+    if(e.button>0)return;
+    drag=true;lastX=e.clientX;lastT=performance.now();v=0;
+    strip.setPointerCapture(e.pointerId);document.documentElement.classList.add('grabbing');
+  });
+  strip.addEventListener('pointermove',e=>{
+    if(!drag)return;
+    const now=performance.now(),dx=e.clientX-lastX;
+    x+=dx;v=v*.5+dx/(Math.max(8,now-lastT)/1000)*.5;lastX=e.clientX;lastT=now;
+  });
+  const release=()=>{if(!drag)return;drag=false;v=Math.max(-3000,Math.min(3000,v));document.documentElement.classList.remove('grabbing')};
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>strip.addEventListener(t,release));
+  (function tick(now){
+    requestAnimationFrame(tick);
+    const dt=Math.min(.05,(now-prev)/1000);prev=now;
+    if(!shown&&!drag)return;
+    if(!drag){v+=(base()-v)*(1-Math.exp(-dt*1.8));x+=v*dt}
+    x=((x%period)+period)%period-period;
+    track.style.transform=`translate3d(${x.toFixed(2)}px,0,0)`;
+  })(prev);
+})();
+
+/* sound: a quiet space ambience and a low engine rumble when the ship flies past, synthesised with Web Audio (no audio files).
+   Browsers only allow sound after a tap: the first tap anywhere turns it on (unless you muted it before); the button mutes it. */
+(()=>{
+  const btn=document.getElementById('sound'),VOL=.09;   // master volume: kept low
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC){btn.hidden=true;return}
+  let ctx=null,master=null,noise=null,on=false,ducked=false;   // ducked: a video with sound is playing
+  const saved=(()=>{try{return localStorage.getItem('sound')}catch(_){return null}})();
+  function build(){
+    ctx=new AC();master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
+    // brown noise, reused for the wind and the engine
+    noise=ctx.createBuffer(1,ctx.sampleRate*4,ctx.sampleRate);const d=noise.getChannelData(0);let l=0;
+    for(let i=0;i<d.length;i++){l=(l+.02*(Math.random()*2-1))/1.02;d[i]=l*3.5}
+    // a low, slowly breathing pad: detuned sines through a lowpass that an LFO opens and closes
+    const lp=ctx.createBiquadFilter();lp.type='lowpass';lp.frequency.value=380;lp.Q.value=.6;lp.connect(master);
+    [55,82.4,110.2,164.8].forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type=i%2?'triangle':'sine';o.frequency.value=f;o.detune.value=(i-1.5)*7;
+      g.gain.value=[.5,.22,.16,.07][i];o.connect(g).connect(lp);o.start()});
+    const lfo=ctx.createOscillator(),lg=ctx.createGain();lfo.frequency.value=.05;lg.gain.value=160;lfo.connect(lg).connect(lp.frequency);lfo.start();
+    // faint solar wind
+    const n=ctx.createBufferSource(),bp=ctx.createBiquadFilter(),ng=ctx.createGain();n.buffer=noise;n.loop=true;bp.type='bandpass';bp.frequency.value=280;bp.Q.value=.5;ng.gain.value=.1;
+    n.connect(bp).connect(ng).connect(master);n.start();
+  }
+  function rumble(sec){   // the ship: passes from right to left and drops in pitch as it flies away
+    if(!on||ducked||!ctx)return;
+    const t=ctx.currentTime,n=ctx.createBufferSource(),o=ctx.createOscillator(),og=ctx.createGain(),lp=ctx.createBiquadFilter(),g=ctx.createGain();
+    n.buffer=noise;n.loop=true;o.type='sawtooth';o.frequency.setValueAtTime(64,t);o.frequency.exponentialRampToValueAtTime(36,t+sec);og.gain.value=.16;
+    lp.type='lowpass';lp.frequency.setValueAtTime(900,t);lp.frequency.exponentialRampToValueAtTime(110,t+sec);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.9,t+.7);g.gain.exponentialRampToValueAtTime(.001,t+sec);
+    n.connect(lp);o.connect(og).connect(lp);lp.connect(g);
+    if(ctx.createStereoPanner){const pan=ctx.createStereoPanner();pan.pan.setValueAtTime(.8,t);pan.pan.linearRampToValueAtTime(-.6,t+sec);g.connect(pan).connect(master)}
+    else g.connect(master);
+    n.start(t);o.start(t);n.stop(t+sec+.2);o.stop(t+sec+.2);
+  }
+  function setSound(v){
+    on=v;
+    if(v){if(!ctx)build();ctx.resume()}
+    level();
+    btn.setAttribute('aria-pressed',v);btn.setAttribute('aria-label',v?'Turn sound off':'Turn sound on');
+    try{localStorage.setItem('sound',v?'on':'off')}catch(_){}
+  }
+  function level(){if(ctx)master.gain.setTargetAtTime(on&&!ducked?VOL:0,ctx.currentTime,on&&!ducked?.8:.12)}   // fade in slowly, out quickly
+  addEventListener('duck',e=>{ducked=!!e.detail;level()});   // videos with sound pause the space ambience
+  btn.addEventListener('click',()=>setSound(!on));
+  addEventListener('shipflyby',e=>rumble(e.detail||8));
+  document.addEventListener('visibilitychange',()=>{if(ctx&&on){document.hidden?ctx.suspend():ctx.resume()}});
+  if(saved!=='off'){
+    const first=e=>{if(btn.contains(e.target))return;off();setSound(true)};
+    const off=()=>{removeEventListener('pointerup',first);removeEventListener('keydown',first)};
+    addEventListener('pointerup',first);addEventListener('keydown',first);
+  }
+})();
+
+/* project videos: use the file when it exists, play only while visible */
+document.querySelectorAll('.screen video').forEach(v=>{
+  fetch(v.dataset.src,{method:'HEAD'}).then(r=>{if(!r.ok)throw 0;
+    v.src=v.dataset.src;v.load();
+    new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!reduced){v.play().catch(()=>{});v.previousElementSibling&&(v.previousElementSibling.style.opacity=0)}else v.pause()}),{threshold:.35}).observe(v);
+  }).catch(()=>{v.remove()});
+});
+
+/* video dialog (full-length demo / promo, with sound controls) */
+const dlg=document.getElementById('vid'),body=document.getElementById('vidBody'),ttl=document.getElementById('vidTitle');
+const titles={nashmi:'Nashmi · live demo',pixel:'Pixel · promo',fc:'FC · promo'};
+document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',async()=>{
+  const k=b.dataset.open,src=`assets/video/${k}.mp4`;ttl.textContent=titles[k];
+  let ok=false;try{ok=(await fetch(src,{method:'HEAD'})).ok}catch(e){}
+  body.innerHTML=ok?`<video controls autoplay playsinline poster="assets/img/${{fc:'fc.png',pixel:'pixel-poster.jpg',nashmi:'nashmi.jpg'}[k]}"><source src="${src}" type="video/mp4"></video>`:`<div class="empty">The ${titles[k].toLowerCase()} is coming soon.</div>`;
+  const v=body.querySelector('video'),duck=d=>dispatchEvent(new CustomEvent('duck',{detail:d}));
+  if(v){v.addEventListener('play',()=>duck(true));v.addEventListener('pause',()=>duck(false));v.addEventListener('ended',()=>duck(false))}
+  dlg.showModal();lenis&&lenis.stop();
+}));
+function closeVid(){dlg.close()}
+dlg.addEventListener('close',()=>{body.innerHTML='';lenis&&lenis.start();dispatchEvent(new CustomEvent('duck',{detail:false}))});
+dlg.querySelector('.x').addEventListener('click',closeVid);
+dlg.addEventListener('click',e=>{if(e.target===dlg)closeVid()});
+
+/* contact form: opens in place of the buttons, cleans and validates every field, then posts JSON to FormSubmit.
+   Nothing the visitor types is ever inserted into the page as HTML (textContent only). */
+(()=>{
+  const ENDPOINT='https://formsubmit.co/ajax/hassanaldajah2004@gmail.com';
+  const $=id=>document.getElementById(id);
+  const sayHello=$('sayHello'),btns=$('ctaBtns'),form=$('cform'),done=$('cfDone');
+  const fName=$('cf-name'),fMail=$('cf-email'),fMsg=$('cf-msg'),hp=$('cf-hp'),send=$('cfSend'),status=$('cfStatus'),count=$('cf-count');
+  const errs={name:$('cf-name-err'),email:$('cf-email-err'),msg:$('cf-msg-err')};
+  let openedAt=0,sending=false;
+  // control characters, zero-width and bidi-override characters (used to hide or reorder text) are removed
+  const STRIP=/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060-\u2064\u2066-\u2069\uFEFF]/g;
+  const clean=(v,multi)=>{
+    let t=String(v).normalize('NFKC').replace(STRIP,'');
+    t=multi?t.replace(/\r\n?/g,'\n').replace(/\n{3,}/g,'\n\n'):t.replace(/\s+/g,' ');
+    return t.replace(/</g,'‹').replace(/>/g,'›').replace(/[ \t]{2,}/g,' ').trim();
+  };
+  const NAME=/^[\p{L}\p{M}][\p{L}\p{M} .'’-]{0,79}$/u;
+  const MAIL=/^[A-Za-z0-9._%+-]{1,64}@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.)+[A-Za-z]{2,24}$/;
+  function check(){
+    const name=clean(fName.value),email=clean(fMail.value).toLowerCase(),msg=clean(fMsg.value,true),e={};
+    if(!name)e.name='Please enter your name.';
+    else if(!NAME.test(name))e.name='Please use letters only (no numbers or symbols).';
+    if(!email)e.email='Please enter your email.';
+    else if(email.length>254||!MAIL.test(email)||email.includes('..'))e.email='Please enter a valid email address.';
+    if(msg.length<10)e.msg='Please write at least 10 characters.';
+    else if(msg.length>2000)e.msg='Please keep it under 2000 characters.';
+    else if((msg.match(/https?:\/\/|www\./gi)||[]).length>2)e.msg='Please include at most 2 links.';
+    return {name,email,msg,e};
+  }
+  function showErrors(e){
+    [['name',fName],['email',fMail],['msg',fMsg]].forEach(([k,f])=>{errs[k].textContent=e[k]||'';f.setAttribute('aria-invalid',e[k]?'true':'false')});
+  }
+  const say=(t,bad)=>{status.textContent=t;status.classList.toggle('bad',!!bad)};
+  const sentLog=()=>{try{return JSON.parse(localStorage.getItem('cf-sent')||'[]').filter(t=>Date.now()-t<864e5)}catch(_){return []}};
+  const logSent=()=>{try{const a=sentLog();a.push(Date.now());localStorage.setItem('cf-sent',JSON.stringify(a.slice(-10)))}catch(_){}};
+  function open(){
+    btns.hidden=true;done.hidden=true;form.hidden=false;sayHello.setAttribute('aria-expanded','true');openedAt=Date.now();say('');
+    if(window.gsap&&!reduced)gsap.fromTo(form,{opacity:0,y:24,scale:.98},{opacity:1,y:0,scale:1,duration:.6,ease:'power3.out'});
+    if(lenis)lenis.scrollTo(form,{offset:-110});else form.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
+    setTimeout(()=>fName.focus({preventScroll:true}),400);
+  }
+  function close(){form.hidden=true;done.hidden=true;btns.hidden=false;sayHello.setAttribute('aria-expanded','false');sayHello.focus({preventScroll:true})}
+  function finished(name){
+    form.reset();count.textContent='0 / 2000';showErrors({});form.hidden=true;done.hidden=false;
+    $('cfDoneText').textContent=`Thanks, ${name}. I'll reply to you by email soon.`;
+    done.focus({preventScroll:true});
+  }
+  sayHello.addEventListener('click',open);
+  $('cfClose').addEventListener('click',close);
+  $('cfAgain').addEventListener('click',open);
+  fMsg.addEventListener('input',()=>{count.textContent=`${fMsg.value.length} / 2000`});
+  [fName,fMail,fMsg].forEach(f=>f.addEventListener('input',()=>{if(f.getAttribute('aria-invalid')==='true')showErrors(check().e)}));
+  form.addEventListener('submit',async ev=>{
+    ev.preventDefault();
+    if(sending)return;
+    say('');
+    const {name,email,msg,e}=check();
+    showErrors(e);
+    if(Object.keys(e).length){(e.name?fName:e.email?fMail:fMsg).focus();return}
+    if(hp.value){finished(name);return}                       // a bot filled the hidden field: show "sent", send nothing
+    if(Date.now()-openedAt<3000){say('Please take a moment and try again.',true);return}
+    const log=sentLog();
+    if(log.length>=5){say('You have sent several messages today. Please email me directly instead.',true);return}
+    if(log.length&&Date.now()-log[log.length-1]<60000){say('Please wait a minute before sending another message.',true);return}
+    sending=true;send.disabled=true;send.textContent='Sending…';
+    const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),15000);
+    try{
+      const r=await fetch(ENDPOINT,{method:'POST',credentials:'omit',signal:ctl.signal,
+        headers:{'Content-Type':'application/json',Accept:'application/json'},
+        body:JSON.stringify({name,email,message:msg,_subject:'New message from your portfolio',_replyto:email,_template:'table',_captcha:'false',_honey:''})});
+      const j=await r.json().catch(()=>({}));
+      if(r.ok&&String(j.success)==='true'){logSent();finished(name)}
+      else say('The message could not be sent right now. Please try again later or email me at hassanaldajah2004@gmail.com.',true);
+    }catch(x){say(x.name==='AbortError'?'The connection timed out. Please try again.':'You seem to be offline. Please try again.',true)}
+    finally{clearTimeout(timer);sending=false;send.disabled=false;send.textContent='Send message'}
+  });
+})();
+</script>
+
+<script type="module">
+/* Background, two scenes in one canvas:
+   1. real planets (NASA imagery) and dim stars, in 3D, behind everything;
+   2. hundreds of glowing light ribbons on top, drawn in one GPU pass (positions computed in the vertex shader).
+   Desktop adds bloom. Loaded after first paint; phones get lighter textures, fewer ribbons and no bloom. */
+const canvas=document.getElementById('stage');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const touch=matchMedia('(hover: none) and (pointer: coarse)').matches;
+const start=async()=>{
+  let THREE,FX,RoomEnv;
+  try{
+    THREE=await import('three');
+    RoomEnv=(await import('three/addons/environments/RoomEnvironment.js')).RoomEnvironment;
+    if(!touch){const [ec,rp,ub,op]=await Promise.all([import('three/addons/postprocessing/EffectComposer.js'),import('three/addons/postprocessing/RenderPass.js'),import('three/addons/postprocessing/UnrealBloomPass.js'),import('three/addons/postprocessing/OutputPass.js')]);
+      FX={EffectComposer:ec.EffectComposer,RenderPass:rp.RenderPass,UnrealBloomPass:ub.UnrealBloomPass,OutputPass:op.OutputPass}}
+  }catch(e){canvas.remove();return}
+  let renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'})}catch(e){canvas.remove();return}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,touch?1.5:2));
+  const scene=new THREE.Scene();   // fibres; drawn on top of the planet scene
+  const camera=new THREE.OrthographicCamera(-1,1,1,-1,-10,10);
+
+  const LINES=touch?110:240,SEG=touch?140:220;
+  const n=LINES*SEG*2,aU=new Float32Array(n),aS=new Float32Array(n);
+  let k=0;for(let l=0;l<LINES;l++){const seed=Math.random();for(let i=0;i<SEG;i++){aU[k]=i/SEG;aS[k++]=seed;aU[k]=(i+1)/SEG;aS[k++]=seed}}
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*3),3));
+  g.setAttribute('aU',new THREE.BufferAttribute(aU,1));g.setAttribute('aS',new THREE.BufferAttribute(aS,1));
+  const uni={uT:{value:0},uAsp:{value:1},uCore:{value:new THREE.Vector2(-.25,-.12)},uMouse:{value:new THREE.Vector2()},uScroll:{value:0},uGain:{value:touch?1.6:1},uDrag:{value:new THREE.Vector2()},uFlex:{value:0},uPtr:{value:new THREE.Vector2(9,9)},uPtrVel:{value:new THREE.Vector2()},uGrabAt:{value:new THREE.Vector2(9,9)},uPull:{value:new THREE.Vector2()}};
+  const mat=new THREE.ShaderMaterial({uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    vertexShader:`
+      attribute float aU;attribute float aS;uniform float uT,uAsp,uScroll,uFlex;uniform vec2 uCore,uMouse,uDrag,uPtr,uPtrVel,uGrabAt,uPull;
+      varying float vU;varying float vS;varying float vGlow;
+      void main(){
+        vU=aU;vS=aS;
+        float x=mix(-1.25,1.25,aU)*uAsp;
+        vec2 c=vec2((uCore.x+uDrag.x)*uAsp,uCore.y+uDrag.y)+uMouse*vec2(.12*uAsp,.08);
+        float d=x-c.x;                        // signed distance from the pinch
+        float side=d<0.?.35:1.;               // fan opens wider to the right
+        float spread=(aS-.5)*2.;
+        float fan=spread*abs(d)*(.55+.25*sin(aS*31.))*side;
+        float wave=(sin(d*2.2-uT*(.35+aS*.5)+aS*40.)*.07*abs(d)
+                  +sin(d*5.3+uT*.6+aS*17.)*.025*abs(d))*(1.+uFlex*2.6)
+                  +sin(d*7.-uT*9.+aS*23.)*.05*uFlex*abs(d);
+        float lift=(.22-uDrag.y*.35)*d+.10*d*d;             // the whole bundle sweeps up to the right, like the reference
+        float y=c.y+fan+wave+lift+uScroll*.15*d;
+        vGlow=exp(-d*d*9.);
+        // the cursor parts the strands and combs them along its motion
+        vec2 v=vec2(x,y),dv=v-vec2(uPtr.x*uAsp,uPtr.y);
+        float f=exp(-dot(dv,dv)*7.);
+        y+=dv.y/(abs(dv.y)+.03)*f*.085+uPtrVel.y*f*.035;
+        x+=uPtrVel.x*f*.02*uAsp;
+        // grabbed strands stretch toward the cursor and snap back with a wobble when released
+        vec2 da=v-vec2(uGrabAt.x*uAsp,uGrabAt.y);float g=exp(-dot(da,da)*2.2);
+        y+=uPull.y*g;x+=uPull.x*uAsp*g*.8;
+        gl_Position=vec4(x/uAsp,y,0.,1.);
+      }`,
+    fragmentShader:`
+      varying float vU;varying float vS;varying float vGlow;uniform float uT,uGain;
+      vec3 pal(float t){                      // violet -> magenta -> pink -> cyan -> blue
+        vec3 a=vec3(.49,.36,1.),b=vec3(.84,.36,1.),c=vec3(1.,.30,.55),d=vec3(.13,.83,.93),e=vec3(.36,.49,1.);
+        t=fract(t);return t<.25?mix(a,b,t*4.):t<.5?mix(b,c,(t-.25)*4.):t<.75?mix(c,d,(t-.5)*4.):mix(d,e,(t-.75)*4.);
+      }
+      void main(){
+        float edge=smoothstep(0.,.08,vU)*smoothstep(1.,.85,vU);
+        float pulse=.6+.4*sin(vU*18.-uT*1.6+vS*50.);   // light travelling along each ribbon
+        vec3 col=pal(vS*.85+vU*.35+uT*.02);
+        float a=((.055+.07*pulse)*(1.-.75*vGlow)*edge*uGain+.035*vGlow)*.62;
+        gl_FragColor=vec4(col*(.95+.5*vGlow),a);
+      }`});
+  const ribbons=new THREE.LineSegments(g,mat);ribbons.frustumCulled=false;scene.add(ribbons);
+
+  // soft core glow
+  const core=new THREE.Mesh(new THREE.PlaneGeometry(2,2),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:uni,
+    vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=vec4(position.xy,0.,1.);}`,
+    fragmentShader:`varying vec2 vP;uniform vec2 uCore,uMouse,uDrag;uniform float uAsp,uT;
+      void main(){vec2 c=uCore+uDrag+uMouse*vec2(.12,.08);vec2 d=(vP-c)*vec2(uAsp,1.);float r=length(d);
+        float g=exp(-r*r*90.)*(.5+.08*sin(uT*1.3))+exp(-r*r*10.)*.07;
+        gl_FragColor=vec4(mix(vec3(.62,.3,1.),vec3(.75,.95,1.),exp(-r*r*400.))*g,g);}`}));
+  core.frustumCulled=false;scene.add(core);
+
+  // ---------- real planets (NASA imagery), laid out like the iPhone Astronomy wallpaper; scrolling glides past them ----------
+  const pScene=new THREE.Scene();pScene.background=new THREE.Color(0x020309);
+  const pCam=new THREE.PerspectiveCamera(36,1,.1,400);
+  const sunDir=new THREE.Vector3(-.78,.42,.46).normalize();
+  const sunL=new THREE.DirectionalLight(0xfff4e8,3.2);sunL.position.copy(sunDir);pScene.add(sunL);
+  pScene.add(new THREE.AmbientLight(0x6a78ff,.03));
+  const QUAL=touch?'sd':'hd',aniso=Math.min(8,renderer.capabilities.getMaxAnisotropy()),tl=new THREE.TextureLoader();
+  const tex=(name,srgb=true)=>new Promise(ok=>tl.load(`assets/planets/${name}-${QUAL}.jpg`,t=>{if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=aniso;ok(t)},undefined,()=>ok(null)));
+  const ball=new THREE.SphereGeometry(1,touch?96:160,touch?48:80);
+  // thin atmosphere shell: brightest right at the planet's edge and on the sunlit side
+  const shell=(color,power,scale)=>{
+    const m=new THREE.Mesh(ball,new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.BackSide,blending:THREE.AdditiveBlending,
+      uniforms:{uC:{value:new THREE.Color(color)},uP:{value:power},uE:{value:Math.sqrt(1-1/(scale*scale))},uSun:{value:sunDir},uA:{value:0}},
+      vertexShader:`varying vec3 vNv;varying vec3 vNw;void main(){vNv=normalize(normalMatrix*normal);vNw=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader:`uniform vec3 uC;uniform float uP,uE,uA;uniform vec3 uSun;varying vec3 vNv;varying vec3 vNw;
+        void main(){float t=clamp(-vNv.z/uE,0.,1.);float g=pow(t,2.2)*uP;float lit=.1+.9*smoothstep(-.3,.6,dot(normalize(vNw),uSun));
+          gl_FragColor=vec4(uC*g*lit*uA,1.);}`}));
+    m.scale.setScalar(scale);return m;
+  };
+  // Earth: day map, city lights on the night side, sun glint on the oceans, blue haze toward the edge
+  const earthMat=new THREE.ShaderMaterial({uniforms:{uDay:{value:null},uNight:{value:null},uWater:{value:null},uSun:{value:sunDir},uA:{value:0}},
+    vertexShader:`varying vec2 vUv;varying vec3 vNw;varying vec3 vV;void main(){vUv=uv;vNw=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.);vV=normalize(cameraPosition-w.xyz);gl_Position=projectionMatrix*viewMatrix*w;}`,
+    fragmentShader:`uniform sampler2D uDay,uNight,uWater;uniform vec3 uSun;uniform float uA;varying vec2 vUv;varying vec3 vNw;varying vec3 vV;
+      void main(){
+        vec3 n=normalize(vNw);float l=dot(n,uSun);float day=smoothstep(-.1,.22,l);
+        vec3 dc=texture2D(uDay,vUv).rgb,nc=texture2D(uNight,vUv).rgb;float wt=texture2D(uWater,vUv).r;
+        float sp=pow(max(dot(n,normalize(uSun+vV)),0.),45.)*wt*.55;
+        vec3 col=dc*max(l,0.)*1.3+nc*(1.-day)*1.6+vec3(1.,.93,.8)*sp*day;
+        float fr=pow(1.-max(dot(n,vV),0.),3.2);
+        col+=vec3(.28,.55,1.)*fr*smoothstep(-.25,.45,l)*1.1;
+        col+=vec3(1.,.42,.18)*.1*exp(-l*l*40.);
+        gl_FragColor=vec4(col*uA,1.);
+        #include <colorspace_fragment>
+      }`});
+  const planets={};
+  const addPlanet=(name,mat,{tilt=[0,0],spin=.01,turn=0,atmo=null,extra=null}={})=>{
+    const g=new THREE.Group(),axis=new THREE.Group(),body=new THREE.Mesh(ball,mat);
+    axis.rotation.set(tilt[0],0,tilt[1]);body.rotation.y=turn;axis.add(body);if(extra)axis.add(extra);g.add(axis);if(atmo)g.add(atmo);
+    g.visible=false;pScene.add(g);planets[name]={g,body,mat,spin,extra,atmo,a:0,ready:false};
+  };
+  const cloudMat=new THREE.MeshStandardMaterial({color:0xffffff,transparent:true,depthWrite:false,roughness:1,metalness:0,opacity:0});
+  const clouds=new THREE.Mesh(ball,cloudMat);clouds.scale.setScalar(1.006);
+  const rock=()=>new THREE.MeshStandardMaterial({roughness:1,metalness:0,transparent:true,opacity:0});
+  // the Middle East (Jordan, ~36°E) starts on the lit limb under the photo
+  addPlanet('earth',earthMat,{tilt:[-.75,.22],spin:.1,turn:Math.PI/2-2*Math.PI*((36+180)/360),atmo:shell(0x5aa8ff,1.6,1.035),extra:clouds});
+  addPlanet('moon',rock(),{spin:.08});
+  addPlanet('jupiter',rock(),{tilt:[.05,.05],spin:.14,atmo:shell(0xffe2c0,.45,1.02)});
+  addPlanet('mercury',rock(),{spin:.1});
+  const ready=(name)=>{const P=planets[name];P.g.visible=true;P.ready=true;if(reduced){P.a=1;applyFade(P)}};
+  (async()=>{
+    const [d,n,wt,c]=await Promise.all([tex('earth-day'),tex('earth-night'),tex('earth-water',false),tex('earth-clouds',false)]);
+    if(d){earthMat.uniforms.uDay.value=d;earthMat.uniforms.uNight.value=n;earthMat.uniforms.uWater.value=wt;if(c){cloudMat.alphaMap=c;cloudMat.needsUpdate=true}ready('earth')}
+    for(const [name,bump] of [['moon',3],['jupiter',0],['mercury',3]]){
+      const t=await tex(name);if(!t)continue;const m=planets[name].mat;m.map=t;if(bump){m.bumpMap=t;m.bumpScale=bump}m.needsUpdate=true;ready(name);
+    }
+    if(reduced)render();
+  })();
+  function applyFade(P){
+    if(P.mat===earthMat){earthMat.uniforms.uA.value=P.a;cloudMat.opacity=.92*P.a}
+    else{P.mat.opacity=P.a;if(P.a>=1&&P.mat.transparent){P.mat.transparent=false;P.mat.needsUpdate=true}}
+    if(P.atmo)P.atmo.material.uniforms.uA.value=P.a;
+  }
+  // stars: plain dim dots, no glow or twinkle (kept under the bloom threshold), on a disk far behind the planets.
+  // The disk turns slowly around a point above the middle of the screen, so the whole sky circles; scrolling turns it a little more.
+  const SN=touch?1000:1800,skyP=new Float32Array(SN*3),skyS=new Float32Array(SN),skyA=new Float32Array(SN);
+  for(let i=0;i<SN;i++){const a=Math.random()*6.2832,r=Math.sqrt(Math.random());skyP[i*3]=Math.cos(a)*r;skyP[i*3+1]=Math.sin(a)*r;
+    skyS[i]=Math.random()<.88?1+Math.random()*.6:1.6+Math.random()*.6;skyA[i]=.16+Math.pow(Math.random(),2)*.34}
+  const skyG=new THREE.BufferGeometry();skyG.setAttribute('position',new THREE.BufferAttribute(skyP,3));
+  skyG.setAttribute('aSize',new THREE.BufferAttribute(skyS,1));skyG.setAttribute('aAlpha',new THREE.BufferAttribute(skyA,1));
+  const sky=new THREE.Points(skyG,new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{uPR:{value:renderer.getPixelRatio()}},
+    vertexShader:`attribute float aSize;attribute float aAlpha;uniform float uPR;varying float vA;
+      void main(){vA=aAlpha;gl_PointSize=aSize*uPR;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying float vA;void main(){float r=length(gl_PointCoord-.5);if(r>.5)discard;
+      gl_FragColor=vec4(vec3(.86,.9,1.),vA*smoothstep(.5,.15,r));
+      #include <colorspace_fragment>
+    }`}));
+  sky.frustumCulled=false;const skyPivot=new THREE.Group();skyPivot.add(sky);pScene.add(skyPivot);
+  const SKY=220;
+  // black hole: a dark core and an accretion disk of short light streaks; inner streaks orbit faster (Kepler: speed ~ r^-1.5)
+  const HN=touch?10000:26000,hR=new Float32Array(HN*2),hA=new Float32Array(HN*2),hY=new Float32Array(HN*2),hB=new Float32Array(HN*2),hE=new Float32Array(HN*2);
+  for(let i=0;i<HN;i++){
+    const r=1.3+Math.pow(Math.random(),1.7)*2.7,a=Math.random()*6.2832,y=(Math.random()-.5)*.05*r,br=.25+Math.random()*.75;
+    for(let j=0;j<2;j++){const k=i*2+j;hR[k]=r;hA[k]=a;hY[k]=y;hB[k]=br;hE[k]=j}
+  }
+  const hG=new THREE.BufferGeometry();hG.setAttribute('position',new THREE.BufferAttribute(new Float32Array(HN*6),3));
+  [['aR',hR],['aA',hA],['aY',hY],['aB',hB],['aE',hE]].forEach(([n,v])=>hG.setAttribute(n,new THREE.BufferAttribute(v,1)));
+  const holeUni={uT:{value:0},uC:{value:new THREE.Vector3()},uRE:{value:1},uRS:{value:1}};
+  const diskMat=front=>new THREE.ShaderMaterial({uniforms:holeUni,defines:{FRONT:front?1:0},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    vertexShader:`attribute float aR,aA,aY,aB,aE;uniform float uT,uRE,uRS;uniform vec3 uC;varying float vB;varying float vK;
+      void main(){
+        float w=1.6/pow(aR,1.5);                       // angular speed
+        float ang=aA+uT*w-aE*(.05+.09*aB);             // each streak trails a short arc behind itself
+        float wob=sin(ang*3.+aR*5.)*.015*aR;
+        vec4 mv=modelViewMatrix*vec4(cos(ang)*(aR+wob),aY,sin(ang)*(aR+wob),1.);
+        // gravitational lensing: light from the far side of the disk bends around the hole into a halo above and below it
+        float behind=clamp((uC.z-mv.z)/uRE,0.,1.);
+        vec2 d=mv.xy-uC.xy;float r=max(length(d),1e-4);
+        mv.xy=mix(mv.xy,uC.xy+d/r*(.5*(r+sqrt(r*r+4.*uRE*uRE))),behind);
+        gl_Position=projectionMatrix*mv;
+        float rim=smoothstep(1.3,1.55,aR)*(1.-smoothstep(3.3,4.,aR));
+        float beam=1.+.55*sin(ang);                    // the side spinning toward you shines brighter (Doppler beaming)
+        vB=aB*rim*(1.45-aR*.26)*(1.-aE*.85)*beam;      // bright head, fading tail; brighter toward the core
+        #if FRONT
+          vK=(1.-step(.001,behind))*(1.-step(uRS,length(mv.xy-uC.xy)));   // only near-side streaks crossing the black core
+        #else
+          vK=1.;
+        #endif
+      }`,
+    fragmentShader:`varying float vB;varying float vK;void main(){if(vK<.5)discard;vec3 c=mix(vec3(.82,.86,1.),vec3(1.,.9,.78),clamp(vB,0.,1.));gl_FragColor=vec4(c*vB,vB);}`});
+  const disk=new THREE.LineSegments(hG,diskMat(false));disk.frustumCulled=false;
+  const holeCore=new THREE.Mesh(ball,new THREE.MeshBasicMaterial({color:0x000000}));   // hides the far side of the disk behind it
+  // the shadow: a camera-facing pitch-black disc that swallows the far side of the disk, plus a thin photon ring at its edge
+  const shadow=new THREE.Mesh(new THREE.PlaneGeometry(3.2,3.2),new THREE.ShaderMaterial({transparent:true,depthWrite:true,
+    vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec2 vP;void main(){float a=1.-smoothstep(1.2,1.4,length(vP));if(a<.02)discard;gl_FragColor=vec4(0.,0.,0.,a);}`}));
+  shadow.renderOrder=-1;
+  const photon=new THREE.Mesh(new THREE.PlaneGeometry(3.6,3.6),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec2 vP;void main(){float r=length(vP);float g=exp(-pow((r-1.43)/.045,2.))*.55+exp(-pow((r-1.5)/.18,2.))*.08;gl_FragColor=vec4(vec3(1.,.93,.84)*g,g);}`}));
+  photon.renderOrder=2;
+  const hole=new THREE.Group(),holeTilt=new THREE.Group();hole.add(shadow,photon);
+  holeTilt.rotation.set(.42,0,-.38);holeTilt.add(disk,holeCore);hole.add(holeTilt);pScene.add(hole);   // seen almost edge-on, tipped diagonally, like the reference
+  const topScene=new THREE.Scene(),topHole=new THREE.Group(),topTilt=new THREE.Group(),frontDisk=new THREE.LineSegments(hG,diskMat(true));
+  const topShadow=new THREE.Mesh(shadow.geometry,shadow.material);frontDisk.frustumCulled=false;topShadow.renderOrder=-1;
+  topTilt.rotation.copy(holeTilt.rotation);topTilt.add(frontDisk);topHole.add(topShadow,topTilt);topScene.add(topHole);
+  //               hero              projects           skills             certifications     contact
+  const HL=[[3,-1.8,.6],       [3,-1.8,.6],       [3,-1.8,.6],       [2.3,1.35,.75],    [.62,.02,1],       [0,0,1.75]];
+  const HP=[[3,-1.8,.4],       [3,-1.8,.4],       [3,-1.8,.4],       [2.5,1.4,.5],      [.08,.44,.95],     [0,.05,.8]];
+  // where each planet sits per section: [x in half-widths, y in half-heights, radius in half-heights]
+  //            hero                  projects               skills                 certifications         contact
+  const KL={earth:  [[.2,-1.86,1.32],  [-1.05,-1.3,.85],   [-2.3,-1.1,.6],     [-2.6,-1.1,.5],     [-2.6,-1.1,.5],    [-2.6,-1.1,.5]],
+            moon:   [[.86,.78,.07],    [.96,.36,.34],      [1.9,1.05,.28],     [2.6,1.2,.25],      [2.6,1.2,.25],    [2.6,1.2,.25]],
+            jupiter:[[-2.7,-1.7,1.1],  [-2.7,-1.7,1.1],    [-.98,-.2,1.05],    [-2.5,.1,.9],       [-2.7,.1,.9],    [-2.7,.1,.9]],
+            mercury:[[2.6,-1.4,.26],   [2.6,-1.4,.26],     [2.6,-1.4,.26],     [2.5,-1.3,.26],     [-.86,.6,.24],    [-.86,.6,.24]]};
+  const KP={earth:  [[.1,-1.58,.78],   [-1.4,-1.25,.5],    [-2.6,-1.1,.4],     [-2.8,-1.1,.4],     [-2.8,-1.1,.4],    [-2.8,-1.1,.4]],
+            moon:   [[-.68,.66,.055],  [.72,.5,.18],       [1.8,.9,.14],       [2.6,1.1,.12],      [2.6,1.1,.12],    [2.6,1.1,.12]],
+            jupiter:[[-2.8,-1.5,.5],   [-2.8,-1.5,.5],     [-1.,-.4,.46],      [-2.6,0,.4],        [-2.8,0,.4],    [-2.8,0,.4]],
+            mercury:[[2.8,-1.2,.1],    [2.8,-1.2,.1],      [2.8,-1.2,.1],      [2.7,-1.1,.1],      [-.7,-.75,.1],    [-.7,-.75,.1]]};
+  // the sun swings around as you scroll so each planet shows its lit face (Jupiter sits on the left, so its sun comes from the right)
+  const SUN=[[-.78,.42,.46],[-.7,.4,.6],[.75,.35,.56],[-.7,.35,.62],[-.65,.4,.64],[-.55,.45,.7]].map(v=>new THREE.Vector3(...v).normalize());
+  // each planet settles at the top of its section, then glides to the next layout over most of the section
+  const DEPTH=30,ease=t=>{t=Math.max(0,Math.min(1,(t-.25)/.75));return t*t*(3-2*t)};
+  // every planet loops on its own tilted 3D orbit: it swoops toward you as it sinks, turns at its closest point,
+  // then rises back into the distance, spinning faster while it is close
+  //        [loop radius in half-heights, seconds per loop, start angle, how close it comes (world units)]
+  const ORB={earth:[.03,90,0,2],moon:[.14,30,1.3,14],jupiter:[.04,70,2.1,3],mercury:[.13,32,5.1,12]};
+  // finale: each planet's size (in black-hole disk units) and where it starts in the 30 s fall
+  // ---------- spaceship: a giant capital ship that flies out from beside you (right) and away into the upper-left corner ----------
+  // hull texture drawn once on a canvas: thousands of steel plates with dark seams, plus rows of tiny lit windows that sell the scale
+  const [hullTex,lightTex]=(()=>{
+    const make=()=>{const c=document.createElement('canvas');c.width=c.height=1024;return [c,c.getContext('2d')]};
+    const [c1,g]=make(),[c2,e]=make();
+    g.fillStyle='#8a909a';g.fillRect(0,0,1024,1024);
+    for(let i=0;i<1400;i++){const w=10+Math.random()*130,h=6+Math.random()*70,x=Math.random()*1024,y=Math.random()*1024,v=112+Math.random()*48|0;
+      g.fillStyle=`rgb(${v},${v+3},${v+10})`;g.fillRect(x,y,w,h);g.strokeStyle='rgba(18,20,26,.6)';g.lineWidth=1.3;g.strokeRect(x,y,w,h)}
+    e.fillStyle='#000';e.fillRect(0,0,1024,1024);
+    for(let r=0;r<90;r++){const y=Math.random()*1024,x0=Math.random()*1024,n=4+Math.random()*30|0;e.fillStyle=Math.random()<.8?'#ffe6bd':'#c4e4ff';
+      for(let k=0;k<n;k++)if(Math.random()<.7)e.fillRect(x0+k*7,y,2.4,2.4)}
+    return [c1,c2].map((c,i)=>{const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(.32,.32);t.anisotropy=aniso;t.colorSpace=THREE.SRGBColorSpace;return t});
+  })();
+  const shipEnv=new THREE.PMREMGenerator(renderer).fromScene(new RoomEnv(),.04).texture;   // something for the metal to reflect
+  const hullMat=new THREE.MeshStandardMaterial({map:hullTex,bumpMap:hullTex,bumpScale:2,metalness:.72,roughness:.48,envMap:shipEnv,envMapIntensity:.85,
+    emissiveMap:lightTex,emissive:0xffffff,emissiveIntensity:1.6,flatShading:true});
+  const darkMat=new THREE.MeshStandardMaterial({color:0x4b5059,metalness:.8,roughness:.55,envMap:shipEnv,envMapIntensity:.7,flatShading:true});
+  const ship=new THREE.Group();ship.visible=false;pScene.add(ship);
+  // stacked wedge decks: [nose z, half width at the rear, bottom y, thickness]
+  const wedge=(nose,half,y0,th)=>{const sh=new THREE.Shape();sh.moveTo(0,nose);sh.lineTo(half,-6);sh.lineTo(-half,-6);sh.closePath();
+    const geo=new THREE.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,bevelThickness:.04,bevelSize:.04,bevelSegments:1});
+    geo.rotateX(Math.PI/2);geo.translate(0,y0+th,0);ship.add(new THREE.Mesh(geo,hullMat))};
+  wedge(4.6,2.7,-.85,.35);wedge(6,3.4,-.5,.5);wedge(3.2,2.25,0,.4);wedge(.6,1.35,.4,.3);wedge(-2.2,.6,.7,.22);
+  const box=(w,h,d,x,y,z,m=hullMat)=>{const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y,z);ship.add(b);return b};
+  box(.55,.5,.55,0,1.1,-5.1,darkMat);box(1.7,.5,.85,0,1.4,-5.25);box(3.1,.2,.55,0,1.72,-5.3);   // command tower and its T-shaped bridge
+  [-1.3,1.3].forEach(x=>{const d=new THREE.Mesh(new THREE.SphereGeometry(.18,16,10),darkMat);d.position.set(x,1.9,-5.3);ship.add(d)});
+  // greebles: hundreds of small blocks on the decks
+  const deckTop=[[0,6,3.4],[.4,3.2,2.25],[.7,.6,1.35]],GN=420,gm=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),darkMat,GN),m4=new THREE.Matrix4();
+  for(let i=0;i<GN;i++){const [y,nose,half]=deckTop[i%3],z=-5.8+Math.random()*(nose+5.6),hw=half*(nose-z)/(nose+6)*.9,w=.06+Math.random()*.32,h=.04+Math.random()*.16;
+    m4.compose(new THREE.Vector3((Math.random()*2-1)*hw,y+h/2,z),new THREE.Quaternion(),new THREE.Vector3(w,h,.06+Math.random()*.4));gm.setMatrixAt(i,m4)}
+  ship.add(gm);
+  // engines: dark nozzles with a hot blue core and a soft glow behind each
+  const glowMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+    vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec2 vP;void main(){float r=length(vP)*2.;float g=exp(-r*r*5.)*1.6+exp(-r*r*.9)*.35;gl_FragColor=vec4(vec3(.45,.7,1.)*g,g);}`});
+  [[0,-.25,.6],[-1.45,-.3,.42],[1.45,-.3,.42],[-2.5,-.35,.3],[2.5,-.35,.3]].forEach(([x,y,r])=>{
+    const n=new THREE.Mesh(new THREE.CylinderGeometry(r,r*1.15,.9,28,1,true),darkMat);n.rotation.x=Math.PI/2;n.position.set(x,y,-6.35);ship.add(n);
+    const core=new THREE.Mesh(new THREE.CircleGeometry(r*.92,28),new THREE.MeshBasicMaterial({color:new THREE.Color(.7,.9,3.2)}));core.position.set(x,y,-6.62);core.rotation.y=Math.PI;ship.add(core);
+    const g=new THREE.Mesh(new THREE.PlaneGeometry(r*7,r*7),glowMat);g.position.set(x,y,-6.75);g.rotation.y=Math.PI;ship.add(g)});
+  // navigation lights: red port, green starboard, white at the nose
+  const navs=[[-3.35,-.25,-5.85,0xff3b3b],[3.35,-.25,-5.85,0x3bff7a],[0,-.3,5.9,0xffffff]].map(([x,y,z,c])=>{
+    const l=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),new THREE.MeshBasicMaterial({color:c}));l.position.set(x,y,z);ship.add(l);return l});
+  // the fly-by: depth grows exponentially (steady apparent speed) while the screen position eases from the right edge to the upper-left
+  const FLY=10,EVERY=26;let flying=false,flyT=0,nextFly=2.5;
+  const shipAt=(u,out)=>{const e=1-Math.pow(1-u,2),d=9*Math.pow(19,u),hd=d*Math.tan(pCam.fov*Math.PI/360);
+    return out.set((1.3-2.1*e)*hd*pCam.aspect,(-.5+1.12*e)*hd,-d)};
+  const shipP=new THREE.Vector3(),shipN=new THREE.Vector3();
+  const flyShip=(t,dt)=>{
+    if(!flying&&!reduced&&stage<.6&&t>nextFly){flying=true;flyT=0;dispatchEvent(new CustomEvent('shipflyby',{detail:FLY}))}
+    if(!flying){ship.visible=false;return}
+    flyT+=dt;const u=flyT/FLY;
+    if(u>=1){flying=false;ship.visible=false;nextFly=t+EVERY;return}
+    ship.visible=true;shipAt(u,shipP);shipAt(Math.min(1,u+.02),shipN);
+    ship.position.copy(shipP);ship.lookAt(shipN);ship.rotateZ(.28-.22*u);   // nose along the path, banking as it turns away
+    navs.forEach((l,i)=>l.visible=Math.sin(t*5+i*2)>.2);
+  };
+  const SUCK={earth:[.55,0],jupiter:[.8,.2],moon:[.25,.6],mercury:[.3,.8]},tmpV=new THREE.Vector3();
+  function place(stage,t=0){
+    const asp=pCam.aspect,tanH=Math.tan(pCam.fov*Math.PI/360),halfH=DEPTH*tanH,K=asp<.9?KP:KL;
+    const last=SUN.length-2,i=Math.max(0,Math.min(last,Math.floor(stage))),f=ease(Math.max(0,Math.min(1,stage-i)));
+    const H=asp<.9?HP:HL,hA0=H[i],hB0=H[i+1];
+    hole.position.set((hA0[0]+(hB0[0]-hA0[0])*f)*halfH*asp,(hA0[1]+(hB0[1]-hA0[1])*f)*halfH,-DEPTH);hole.scale.setScalar((hA0[2]+(hB0[2]-hA0[2])*f)*halfH/4);
+    const pull=Math.min(1,Math.max(0,(stage-last-.25)/.6));   // 0 until the finale, then the planets belong to the black hole
+    sunDir.copy(SUN[i]).lerp(SUN[i+1],f).normalize();sunL.position.copy(sunDir);
+    const mx=uni.uMouse.value.x,my=uni.uMouse.value.y;
+    for(const k in planets){const P=planets[k],A=K[k][i],B=K[k][i+1],O=ORB[k],r=A[2]+(B[2]-A[2])*f;
+      const a=t*6.2832/O[1]+O[2],near=Math.sin(a),d=DEPTH-O[3]*near,hd=d*tanH,par=r*.05;   // bigger planets shift more with the mouse
+      // the layout spot stays fixed on screen at any distance; the loop is in world units, so it reads bigger up close
+      P.g.position.set((A[0]+(B[0]-A[0])*f)*hd*asp+Math.cos(a)*O[0]*halfH-mx*par*hd,(A[1]+(B[1]-A[1])*f)*hd-near*O[0]*.6*halfH-my*par*.6*hd,-d);
+      P.g.scale.setScalar(r*halfH);P.g.rotation.z=near*O[3]*.016;P.near=Math.max(0,near);
+      if(pull>0){   // spiral in, faster and smaller as it falls, until the shadow swallows it; then it starts again from the outside
+        const S=SUCK[k],q=(t/30+S[1])%1,rr=6.5-5.4*Math.pow(q,1.35),ang=S[1]*6.2832+6.2832*2.2*Math.pow(q,1.8);
+        tmpV.set(Math.cos(ang)*rr,0,Math.sin(ang)*rr).applyEuler(holeTilt.rotation).multiplyScalar(hole.scale.x).add(hole.position);
+        P.g.position.lerp(tmpV,pull);P.g.scale.setScalar(r*halfH+(S[0]*hole.scale.x*Math.pow(1-q,.55)-r*halfH)*pull);P.near=Math.max(P.near,q*pull)}
+    }
+    // the star disk is centred above the middle of the screen and always reaches past every corner
+    const sH=SKY*Math.tan(pCam.fov*Math.PI/360),sW=sH*asp;
+    skyPivot.position.set(0,.35*sH,-SKY);sky.scale.setScalar(Math.hypot(sW,1.35*sH)*1.02);
+  }
+  // the scroll position between section tops decides the stage (0 = hero ... 4 = contact)
+  const anchors=['#home','#projects','#skills','#certifications','#contact','#void'];let tops=[0,1,2,3,4,5],stage=0;
+  const measure=()=>{tops=anchors.map(q=>{const el=document.querySelector(q);return el?el.getBoundingClientRect().top+scrollY:0})};
+  measure();addEventListener('load',measure);setInterval(measure,2500);
+
+  let composer=null;
+  if(FX){composer=new FX.EffectComposer(renderer);composer.addPass(new FX.RenderPass(pScene,pCam));
+    const fib=new FX.RenderPass(scene,camera);fib.clear=false;fib.clearDepth=true;composer.addPass(fib);
+    composer.addPass(new FX.UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.6,.5,.62));
+    const top=new FX.RenderPass(topScene,pCam);top.clear=false;top.clearDepth=true;composer.addPass(top);   // keeps the core pitch black over the glow
+    composer.addPass(new FX.OutputPass())}
+
+  let w=0,h=0,mx=0,my=0,sy=0,narrow=false;
+  const resize=()=>{w=innerWidth;h=innerHeight;renderer.setSize(w,h,false);composer&&composer.setSize(w,h);uni.uAsp.value=w/h;narrow=w<860;pCam.aspect=w/h;pCam.updateProjectionMatrix();measure();
+    uni.uCore.value.set(narrow?-.55:-.32,narrow?.32:-.1)};
+  resize();let lw=innerWidth;addEventListener('resize',()=>{if(innerWidth!==lw||!touch){lw=innerWidth;resize()}});
+  addEventListener('pointermove',e=>{mx=e.clientX/w*2-1;my=-(e.clientY/h*2-1)},{passive:true});
+  addEventListener('scroll',()=>{sy=scrollY},{passive:true});
+  // the fibres are elastic: grab any empty spot and pull, they stretch toward the cursor; let go and they snap back with a wobble
+  const busy=el=>el.closest('a,button,input,textarea,select,label,dialog,nav,form,.cf-done,video,.marquee');
+  let grab=false,ax=9,ay=9,px=0,py=0,lpx=0,lpy=0,pvx=0,pvy=0,kick=0;const pull={x:0,y:0},pv={x:0,y:0},want={x:0,y:0};
+  addEventListener('pointerdown',e=>{if(e.button!==0||e.pointerType==='touch'||busy(e.target))return;grab=true;ax=mx;ay=my;document.documentElement.classList.add('grabbing');e.preventDefault()});
+  const drop=()=>{if(!grab)return;grab=false;want.x=want.y=0;kick=1;document.documentElement.classList.remove('grabbing')};
+  addEventListener('pointerup',drop);addEventListener('pointercancel',drop);addEventListener('blur',drop);
+  let last=performance.now();
+  let visible=true;document.addEventListener('visibilitychange',()=>visible=!document.hidden);
+  const clock=new THREE.Clock();let sm=0;
+  renderer.autoClear=false;
+  const render=()=>{if(composer){composer.render();return}renderer.clear();renderer.render(pScene,pCam);renderer.clearDepth();renderer.render(scene,camera);renderer.clearDepth();renderer.render(topScene,pCam)};
+  function frame(){
+    requestAnimationFrame(frame);if(!visible)return;
+    const t=clock.getElapsedTime();uni.uT.value=t;
+    const now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
+    px+=(mx-px)*.25;py+=(my-py)*.25;const ivx=(px-lpx)/Math.max(dt,.001),ivy=(py-lpy)/Math.max(dt,.001);lpx=px;lpy=py;
+    pvx+=(ivx-pvx)*.12;pvy+=(ivy-pvy)*.12;
+    if(grab){want.x=Math.max(-.8,Math.min(.8,mx-ax));want.y=Math.max(-.6,Math.min(.6,my-ay))}
+    const stiff=grab?120:38,damp=grab?16:4.2;   // stiff while held, soft and wobbly once released
+    pv.x+=((want.x-pull.x)*stiff-pv.x*damp)*dt;pv.y+=((want.y-pull.y)*stiff-pv.y*damp)*dt;pull.x+=pv.x*dt;pull.y+=pv.y*dt;
+    kick*=Math.exp(-dt*1.6);
+    uni.uPtr.value.set(px,py);uni.uPtrVel.value.set(Math.max(-3,Math.min(3,pvx)),Math.max(-3,Math.min(3,pvy)));
+    uni.uGrabAt.value.set(ax,ay);uni.uPull.value.set(pull.x,pull.y);uni.uDrag.value.set(pull.x*.35,pull.y*.35);
+    uni.uFlex.value=Math.min(1,kick*.6+Math.hypot(pv.x,pv.y)*.25);
+    uni.uMouse.value.x+=(mx-uni.uMouse.value.x)*.04;uni.uMouse.value.y+=(my-uni.uMouse.value.y)*.04;
+    const p=sy/Math.max(1,document.documentElement.scrollHeight-h);sm+=(p-sm)*.05;uni.uScroll.value=sm*6.;
+    // planets: glide between sections, spin, fade in once their textures arrive, follow the mouse a little
+    const yy=sy+h*.4,n=anchors.length-1;let st=n;for(let i=0;i<n;i++){if(yy<tops[i+1]){st=i+Math.max(0,(yy-tops[i])/Math.max(1,tops[i+1]-tops[i]));break}}
+    stage+=(st-stage)*Math.min(1,dt*3.5);place(stage,t);
+    skyPivot.rotation.z=-(t*.021+sm*.9);holeUni.uT.value=t;flyShip(t,dt);
+    for(const k in planets){const P=planets[k],turn=P.spin*dt*(1+1.6*(P.near||0));P.body.rotation.y+=turn;if(P.extra)P.extra.rotation.y+=turn*.35;if(P.ready&&P.a<1){P.a=Math.min(1,P.a+dt*.7);applyFade(P)}}
+    pCam.rotation.set(uni.uMouse.value.y*.012,-uni.uMouse.value.x*.02,0);pCam.updateMatrixWorld();
+    holeUni.uC.value.copy(hole.position).applyMatrix4(pCam.matrixWorldInverse);holeUni.uRE.value=1.45*hole.scale.x;holeUni.uRS.value=1.3*hole.scale.x;
+    topHole.position.copy(hole.position);topHole.scale.copy(hole.scale);topHole.visible=hole.position.x<60;
+    // fibres soften as you leave the hero so the planets take over
+    const fade=Math.min(1,sy/(h*1.1));uni.uGain.value=(touch?1.6:1)*(1-fade*.55)*(1-.8*Math.min(1,Math.max(0,stage-3.2)/.6));
+    render();
+  }
+  if(reduced){uni.uT.value=4;holeUni.uT.value=6;place(0);render()}else frame();
+};
+(window.requestIdleCallback||(f=>setTimeout(f,300)))(start,{timeout:1500});
+</script>
 </body>
 </html>
