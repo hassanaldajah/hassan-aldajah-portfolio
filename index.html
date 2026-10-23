@@ -215,6 +215,8 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .device .bar span{margin-left:10px;font:12px var(--mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .screen{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:0 0 16px 16px;background:#05060b}
 .screen video,.screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* a video without sound gets no speaker button */
+.device:has(video[data-silent]) .vsound{display:none}
 .screen:empty::after{content:"Video coming soon";position:absolute;inset:0;display:grid;place-items:center;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28)}
 .logo-banner{position:relative;min-height:0;border-radius:16px;overflow:hidden;border:1px solid color-mix(in srgb,var(--c) 35%,transparent);box-shadow:0 0 60px -20px var(--c)}
 .logo-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -495,7 +497,8 @@ html.dot-field .cdot{opacity:0}
       <div class="logo-banner" style="background:#0d1020"><img src="assets/img/icon-fc.png" alt="FC logo" loading="lazy" style="object-fit:contain;padding:8%"></div>
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>FC — Ctrl+Alt+C</span></div>
-          <div class="screen"><video muted loop playsinline preload="none" data-src="assets/video/fc.mp4"></video></div></div>
+          <div class="screen"><video autoplay muted loop playsinline preload="none" poster="assets/img/fc-poster.jpg" data-src="assets/video/fc.mp4" data-webm="assets/video/fc.webm" data-silent></video></div></div>
+          <script>/* FC video: the WebM (a fifth of the size) where the browser plays it */{const v=document.querySelector('video[data-webm]');if(v.canPlayType('video/webm; codecs="vp9"'))v.dataset.src=v.dataset.webm}</script>
       </div>
     </div>
   </article>
