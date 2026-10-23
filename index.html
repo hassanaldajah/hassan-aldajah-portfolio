@@ -182,15 +182,11 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj.compact p{margin-bottom:14px}
 .proj.compact .tags{margin-bottom:16px}
 .proj.nashmi{grid-template-columns:.85fr 1.15fr}
-.proj.nashmi .screen{aspect-ratio:1730/1675}
-.proj.nashmi .screen img{inset:5% 12%;width:76%;height:90%}
-.proj.pixel{align-items:start}
-.proj.pixel .media{display:grid;grid-template-rows:1fr 1fr;gap:18px}
-.proj.safe{grid-template-columns:.8fr 1.2fr;align-items:stretch}
-.proj.safe .media{display:flex;align-self:stretch;min-height:420px}
-.proj.safe .device{flex:1;display:flex;flex-direction:column}
-.proj.safe .screen{flex:1;aspect-ratio:auto;min-height:0}
-.proj.safe .screen img{object-fit:cover;object-position:50% 40%}
+/* logo panel on top, 16:9 video window below, same height each */
+.proj:has(.media.duo){align-items:start}
+.media.duo{display:grid;grid-template-rows:1fr 1fr;gap:18px}
+.proj.safe{grid-template-columns:.8fr 1.2fr}
+.proj.safe .screen img{object-position:50% 40%}
 .pico{display:block;width:64px;height:64px;border-radius:16px;object-fit:cover;margin-bottom:14px;box-shadow:0 12px 34px -10px var(--c)}
 .pico.fox{width:84px;height:84px;object-fit:contain;background:none;border-radius:0;box-shadow:none;padding:0;filter:drop-shadow(0 8px 24px rgba(229,72,77,.45))}
 .pico.mark{width:70px;height:88px;object-fit:contain;border-radius:0;box-shadow:none;background:none;filter:drop-shadow(0 6px 20px rgba(16,185,129,.45))}
@@ -211,10 +207,16 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .device .bar i{width:10px;height:10px;border-radius:50%;background:#ff5f57}
 .device .bar i:nth-child(2){background:#febc2e}
 .device .bar i:nth-child(3){background:#28c840}
+.vsound{margin-left:auto;flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted);cursor:pointer;transition:color .25s,border-color .25s,box-shadow .25s}
+.vsound svg{width:14px;height:14px;fill:currentColor}
+.vsound:hover,.vsound:focus-visible{color:#fff;border-color:var(--c);outline:none}
+.vsound[aria-pressed=true]{color:var(--c);border-color:var(--c);box-shadow:0 0 12px -2px var(--c)}
+.vsound .waves{display:none}.vsound[aria-pressed=true] .waves{display:inline}.vsound[aria-pressed=true] .slash{display:none}
 .device .bar span{margin-left:10px;font:12px var(--mono);color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .screen{position:relative;aspect-ratio:16/9;overflow:hidden;border-radius:0 0 16px 16px;background:#05060b}
 .screen video,.screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.logo-banner{position:relative;min-height:0;border-radius:16px;overflow:hidden;border:1px solid rgba(30,144,255,.35);box-shadow:0 0 60px -20px #1e90ff;background:#020b20}
+.screen:empty::after{content:"Video coming soon";position:absolute;inset:0;display:grid;place-items:center;font:500 12px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.28)}
+.logo-banner{position:relative;min-height:0;border-radius:16px;overflow:hidden;border:1px solid color-mix(in srgb,var(--c) 35%,transparent);box-shadow:0 0 60px -20px var(--c)}
 .logo-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .devwrap{position:relative}
 .float-card{position:absolute;z-index:4;padding:10px 14px;border-radius:14px;background:rgba(12,14,26,.85);border:1px solid var(--line);backdrop-filter:blur(10px);font:500 12.5px var(--mono);animation:float 6s ease-in-out infinite;pointer-events:none}
@@ -235,8 +237,6 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 @media(max-width:900px){
   .proj,.proj.alt,.proj.nashmi,.proj.compact,.proj.safe{grid-template-columns:1fr}
   .proj.alt .info{order:0}
-  .proj.safe .media{min-height:0}
-  .proj.safe .screen{aspect-ratio:4/3;flex:none}
   .fc1{left:4px}
   .fc2{right:4px}
 }
@@ -331,14 +331,6 @@ footer{background:linear-gradient(180deg,rgba(5,6,11,.55),rgba(5,6,11,.92) 45%);
 .sound[aria-pressed=true] .waves{display:inline}
 .sound[aria-pressed=true] .slash{display:none}
 
-/* ---------- video dialog ---------- */
-dialog{margin:auto;width:min(1000px,94vw);padding:0;border:1px solid var(--line);border-radius:22px;background:#0a0c16;color:#fff;overflow:hidden}
-dialog::backdrop{background:rgba(3,4,10,.82);backdrop-filter:blur(6px)}
-dialog header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font:600 16px var(--display)}
-dialog button.x{background:none;border:0;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:2px 8px}
-dialog video{width:100%;max-height:78vh;background:#000}
-dialog .empty{padding:56px 24px;text-align:center;color:var(--muted)}
-
 /* ---------- reveal on scroll (shown at once without JS or with reduced motion) ---------- */
 .rv{opacity:0;transform:translateY(34px)}
 .no-js .rv,.reduced .rv{opacity:1;transform:none}
@@ -418,19 +410,21 @@ html.dot-field .cdot{opacity:0}
       <div class="tags"><span>Python</span><span>Streamlit</span><span>PostgreSQL</span><span>OAuth 2.0</span><span>2FA</span><span>Three.js</span><span>Plotly</span></div>
       <div class="btns">
         <a class="btn primary sm" href="https://nashmiagent-hassan-aldajah.streamlit.app/" target="_blank" rel="noopener">Open live site ↗</a>
-        <button class="btn sm" data-open="nashmi">▶ Watch live demo</button>
         <a class="btn sm" href="https://github.com/hassanaldajah/NashmiAgent" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
-    <div class="media">
-      <span class="float-card fc1">threat score <b>87</b></span><span class="float-card fc2">events <b>12,480</b></span>
-      <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nashmiagent.streamlit.app</span></div>
-        <div class="screen"><img src="assets/img/nashmi.jpg" alt="Nashmi, the pixel-art fox with the red shemagh" loading="lazy" style="object-fit:contain;background:#12090f"><video muted loop playsinline preload="none" poster="assets/img/nashmi.jpg" data-src="assets/video/nashmi.mp4"></video></div></div>
+    <div class="media duo">
+      <div class="logo-banner" style="background:#12090f"><img src="assets/img/nashmi.jpg" alt="Nashmi, the pixel-art fox with the red shemagh" loading="lazy" style="object-fit:contain;padding:7%"></div>
+      <div class="devwrap">
+        <span class="float-card fc1">threat score <b>87</b></span><span class="float-card fc2">events <b>12,480</b></span>
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nashmiagent.streamlit.app</span></div>
+          <div class="screen"><video muted loop playsinline preload="none" data-src="assets/video/nashmi.mp4"></video></div></div>
+      </div>
     </div>
   </article>
 
   <!-- PIXEL -->
-  <article class="proj alt pixel rv" style="--c:#1e90ff" data-video="pixel">
+  <article class="proj alt rv" style="--c:#1e90ff" data-video="pixel">
     <div class="info">
       <div class="num">02 · DESKTOP APP</div>
       <h3>Pixel <span class="g">image studio</span></h3>
@@ -445,11 +439,10 @@ html.dot-field .cdot{opacity:0}
       <div class="btns">
         <a class="btn primary sm" href="https://github.com/hassanaldajah/pixels" target="_blank" rel="noopener">GitHub repo ↗</a>
         <a class="btn sm" href="https://github.com/hassanaldajah/pixels/releases/latest" target="_blank" rel="noopener">Download</a>
-        <button class="btn sm" data-open="pixel">▶ Promo video</button>
       </div>
     </div>
-    <div class="media">
-      <div class="logo-banner"><img src="assets/img/pixels-banner.jpg?v=4" alt="pixels" width="1600" height="1000" loading="lazy"></div>
+    <div class="media duo">
+      <div class="logo-banner" style="background:#020b20"><img src="assets/img/pixels-banner.jpg?v=4" alt="pixels" width="1600" height="1000" loading="lazy"></div>
       <div class="devwrap">
         <span class="float-card fc1">security gate <b>passed</b></span><span class="float-card fc2">VirusTotal <b>0 / 69</b></span>
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>pixels — Windows · Linux</span></div>
@@ -459,7 +452,7 @@ html.dot-field .cdot{opacity:0}
   </article>
 
   <!-- SAFE SHARE -->
-  <article class="proj safe rv" style="--c:#10b981">
+  <article class="proj safe rv" style="--c:#10b981" data-video="safeshare">
     <div class="info">
       <img class="pico mark" src="assets/img/icon-safeshare.svg?v=2" alt="Safe Share logo" width="70" height="88"><div class="num">03 · GRADUATION PROJECT</div>
       <h3>Safe <span class="g g-green">Share</span></h3>
@@ -476,9 +469,12 @@ html.dot-field .cdot{opacity:0}
         <a class="btn sm" href="https://github.com/hassanaldajah/Safe-Share" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
-    <div class="media">
-      <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>safe-share-gold.vercel.app</span></div>
-        <div class="screen"><img src="assets/img/safeshare.jpg" alt="Safe Share landing page: End-to-End Encrypted File Sharing" loading="lazy"></div></div>
+    <div class="media duo">
+      <div class="logo-banner" style="background:#04110d"><img src="assets/img/safeshare-logo.svg" alt="safeshare: Secure Media Network" loading="lazy" style="object-fit:contain;padding:6%"></div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>safe-share-gold.vercel.app</span></div>
+          <div class="screen"><img src="assets/img/safeshare.jpg" alt="Safe Share landing page: End-to-End Encrypted File Sharing" loading="lazy"><video muted loop playsinline preload="none" data-src="assets/video/safeshare.mp4"></video></div></div>
+      </div>
     </div>
   </article>
 
@@ -493,12 +489,14 @@ html.dot-field .cdot{opacity:0}
       <div class="btns">
         <a class="btn primary sm" href="https://github.com/hassanaldajah/FC" target="_blank" rel="noopener">GitHub repo ↗</a>
         <a class="btn sm" href="https://github.com/hassanaldajah/FC/releases/latest" target="_blank" rel="noopener">Download</a>
-        <button class="btn sm" data-open="fc">▶ Promo video</button>
       </div>
     </div>
-    <div class="media">
-      <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>FC — Ctrl+Alt+C</span></div>
-        <div class="screen"><img src="assets/img/fc.png" alt="FC octagon menu" loading="lazy" style="object-fit:contain;background:#0d1020"><video muted loop playsinline preload="none" poster="assets/img/fc.png" data-src="assets/video/fc.mp4"></video></div></div>
+    <div class="media duo">
+      <div class="logo-banner" style="background:#0d1020"><img src="assets/img/icon-fc.png" alt="FC logo" loading="lazy" style="object-fit:contain;padding:8%"></div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>FC — Ctrl+Alt+C</span></div>
+          <div class="screen"><video muted loop playsinline preload="none" data-src="assets/video/fc.mp4"></video></div></div>
+      </div>
     </div>
   </article>
 
@@ -585,7 +583,6 @@ html.dot-field .cdot{opacity:0}
   </svg>
 </button>
 
-<dialog id="vid"><header><span id="vidTitle"></span><button class="x" aria-label="Close">×</button></header><div id="vidBody"></div></dialog>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -743,7 +740,7 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
   const btn=document.getElementById('sound'),VOL=.09;   // master volume: kept low
   const AC=window.AudioContext||window.webkitAudioContext;
   if(!AC){btn.hidden=true;return}
-  let ctx=null,master=null,noise=null,on=false,ducked=false;   // ducked: a video with sound is playing
+  let ctx=null,master=null,noise=null,on=false,ducked=false;   // ducked: a video is playing with sound
   const saved=(()=>{try{return localStorage.getItem('sound')}catch(_){return null}})();
   function build(){
     ctx=new AC();master=ctx.createGain();master.gain.value=0;master.connect(ctx.destination);
@@ -777,8 +774,8 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
     btn.setAttribute('aria-pressed',v);btn.setAttribute('aria-label',v?'Turn sound off':'Turn sound on');
     try{localStorage.setItem('sound',v?'on':'off')}catch(_){}
   }
-  function level(){if(ctx)master.gain.setTargetAtTime(on&&!ducked?VOL:0,ctx.currentTime,on&&!ducked?.8:.12)}   // fade in slowly, out quickly
-  addEventListener('duck',e=>{ducked=!!e.detail;level()});   // videos with sound pause the space ambience
+  function level(){const up=on&&!ducked;if(ctx)master.gain.setTargetAtTime(up?VOL:0,ctx.currentTime,up?.8:.12)}   // fade in slowly, out quickly
+  addEventListener('duck',e=>{ducked=!!e.detail;level()});
   btn.addEventListener('click',()=>setSound(!on));
   addEventListener('shipflyby',e=>rumble(e.detail||8));
   document.addEventListener('visibilitychange',()=>{if(ctx&&on){document.hidden?ctx.suspend():ctx.resume()}});
@@ -789,29 +786,27 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
   }
 })();
 
-/* project videos: use the file when it exists, play only while visible */
+/* project videos: use the file when it exists, play muted only while visible; the speaker in the window's bar turns its sound on */
+const SPEAKER=document.querySelector('#sound svg').innerHTML;
+const vids=[];
+const duck=()=>dispatchEvent(new CustomEvent('duck',{detail:vids.some(v=>!v.muted&&!v.paused)}));
 document.querySelectorAll('.screen video').forEach(v=>{
   fetch(v.dataset.src,{method:'HEAD'}).then(r=>{if(!r.ok)throw 0;
-    v.src=v.dataset.src;v.load();
-    new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!reduced){v.play().catch(()=>{});v.previousElementSibling&&(v.previousElementSibling.style.opacity=0)}else v.pause()}),{threshold:.35}).observe(v);
+    v.src=v.dataset.src;v.load();vids.push(v);
+    const b=document.createElement('button');b.type='button';b.className='vsound';b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${SPEAKER}</svg>`;
+    const show=()=>{b.setAttribute('aria-pressed',!v.muted);b.setAttribute('aria-label',v.muted?'Turn video sound on':'Turn video sound off')};
+    b.addEventListener('click',()=>{
+      const turnOn=v.muted;
+      vids.forEach(o=>{o.muted=true});v.muted=!turnOn;
+      if(turnOn)v.play().catch(()=>{});
+      document.querySelectorAll('.vsound').forEach(x=>x.dispatchEvent(new Event('sync')));duck();
+    });
+    b.addEventListener('sync',show);show();
+    v.closest('.device').querySelector('.bar').append(b);
+    ['play','pause','volumechange'].forEach(t=>v.addEventListener(t,duck));
+    new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!reduced){v.play().catch(()=>{});if(v.previousElementSibling)v.previousElementSibling.style.opacity=0}else v.pause()}),{threshold:.35}).observe(v);
   }).catch(()=>{v.remove()});
 });
-
-/* video dialog (full-length demo / promo, with sound controls) */
-const dlg=document.getElementById('vid'),body=document.getElementById('vidBody'),ttl=document.getElementById('vidTitle');
-const titles={nashmi:'Nashmi · live demo',pixel:'Pixel · promo',fc:'FC · promo'};
-document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',async()=>{
-  const k=b.dataset.open,src=`assets/video/${k}.mp4`;ttl.textContent=titles[k];
-  let ok=false;try{ok=(await fetch(src,{method:'HEAD'})).ok}catch(e){}
-  body.innerHTML=ok?`<video controls autoplay playsinline poster="assets/img/${{fc:'fc.png',pixel:'pixel-poster.jpg',nashmi:'nashmi.jpg'}[k]}"><source src="${src}" type="video/mp4"></video>`:`<div class="empty">The ${titles[k].toLowerCase()} is coming soon.</div>`;
-  const v=body.querySelector('video'),duck=d=>dispatchEvent(new CustomEvent('duck',{detail:d}));
-  if(v){v.addEventListener('play',()=>duck(true));v.addEventListener('pause',()=>duck(false));v.addEventListener('ended',()=>duck(false))}
-  dlg.showModal();lenis&&lenis.stop();
-}));
-function closeVid(){dlg.close()}
-dlg.addEventListener('close',()=>{body.innerHTML='';lenis&&lenis.start();dispatchEvent(new CustomEvent('duck',{detail:false}))});
-dlg.querySelector('.x').addEventListener('click',closeVid);
-dlg.addEventListener('click',e=>{if(e.target===dlg)closeVid()});
 
 /* contact form: opens in place of the buttons, cleans and validates every field, then posts JSON to FormSubmit.
    Nothing the visitor types is ever inserted into the page as HTML (textContent only). */
@@ -920,7 +915,7 @@ const start=async()=>{
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*3),3));
   g.setAttribute('aU',new THREE.BufferAttribute(aU,1));g.setAttribute('aS',new THREE.BufferAttribute(aS,1));
-  const uni={uT:{value:0},uAsp:{value:1},uCore:{value:new THREE.Vector2(-.25,-.12)},uMouse:{value:new THREE.Vector2()},uScroll:{value:0},uGain:{value:touch?1.6:1},uDrag:{value:new THREE.Vector2()},uFlex:{value:0},uPtr:{value:new THREE.Vector2(9,9)},uPtrVel:{value:new THREE.Vector2()},uGrabAt:{value:new THREE.Vector2(9,9)},uPull:{value:new THREE.Vector2()}};
+  const uni={uT:{value:0},uAsp:{value:1},uCore:{value:new THREE.Vector2(-.25,-.12)},uMouse:{value:new THREE.Vector2()},uScroll:{value:0},uGain:{value:touch?2.5:1},uSat:{value:touch?1.5:1},uDrag:{value:new THREE.Vector2()},uFlex:{value:0},uPtr:{value:new THREE.Vector2(9,9)},uPtrVel:{value:new THREE.Vector2()},uGrabAt:{value:new THREE.Vector2(9,9)},uPull:{value:new THREE.Vector2()}};
   const mat=new THREE.ShaderMaterial({uniforms:uni,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:`
       attribute float aU;attribute float aS;uniform float uT,uAsp,uScroll,uFlex;uniform vec2 uCore,uMouse,uDrag,uPtr,uPtrVel,uGrabAt,uPull;
@@ -950,7 +945,7 @@ const start=async()=>{
         gl_Position=vec4(x/uAsp,y,0.,1.);
       }`,
     fragmentShader:`
-      varying float vU;varying float vS;varying float vGlow;uniform float uT,uGain;
+      varying float vU;varying float vS;varying float vGlow;uniform float uT,uGain,uSat;
       vec3 pal(float t){                      // violet -> magenta -> pink -> cyan -> blue
         vec3 a=vec3(.49,.36,1.),b=vec3(.84,.36,1.),c=vec3(1.,.30,.55),d=vec3(.13,.83,.93),e=vec3(.36,.49,1.);
         t=fract(t);return t<.25?mix(a,b,t*4.):t<.5?mix(b,c,(t-.25)*4.):t<.75?mix(c,d,(t-.5)*4.):mix(d,e,(t-.75)*4.);
@@ -959,6 +954,7 @@ const start=async()=>{
         float edge=smoothstep(0.,.08,vU)*smoothstep(1.,.85,vU);
         float pulse=.6+.4*sin(vU*18.-uT*1.6+vS*50.);   // light travelling along each ribbon
         vec3 col=pal(vS*.85+vU*.35+uT*.02);
+        col=max(mix(vec3(dot(col,vec3(.299,.587,.114))),col,uSat),0.);   // phones get no bloom, so their fibres get deeper, richer colour instead
         float a=((.055+.07*pulse)*(1.-.75*vGlow)*edge*uGain+.035*vGlow)*.62;
         gl_FragColor=vec4(col*(.95+.5*vGlow),a);
       }`});
@@ -1252,7 +1248,7 @@ const start=async()=>{
     holeUni.uC.value.copy(hole.position).applyMatrix4(pCam.matrixWorldInverse);holeUni.uRE.value=1.45*hole.scale.x;holeUni.uRS.value=1.3*hole.scale.x;
     topHole.position.copy(hole.position);topHole.scale.copy(hole.scale);topHole.visible=hole.position.x<60;
     // fibres soften as you leave the hero so the planets take over
-    const fade=Math.min(1,sy/(h*1.1));uni.uGain.value=(touch?1.6:1)*(1-fade*.55)*(1-.8*Math.min(1,Math.max(0,stage-3.2)/.6));
+    const fade=Math.min(1,sy/(h*1.1));uni.uGain.value=(touch?2.5:1)*(1-fade*.55)*(1-.8*Math.min(1,Math.max(0,stage-3.2)/.6));
     render();
   }
   if(reduced){uni.uT.value=4;holeUni.uT.value=6;place(0);render()}else frame();
