@@ -340,6 +340,7 @@ footer{background:linear-gradient(180deg,rgba(5,6,11,.55),rgba(5,6,11,.92) 45%);
 
 /* ---------- paint-dot cursor: a white dot with mix-blend-mode:difference, so it always takes the opposite colour of what is under it ---------- */
 .cdot{position:fixed;left:0;top:0;z-index:9999;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;mix-blend-mode:difference;opacity:0;pointer-events:none;will-change:transform;transition:opacity .3s,width .25s,height .25s,margin .25s}
+.off,.off *,.off::before,.off::after,.off ::before,.off ::after{animation-play-state:paused!important}
 html.dot-cursor,html.dot-cursor *{cursor:none!important}
 html.dot-cursor input,html.dot-cursor textarea,html.dot-cursor select{cursor:text!important}
 html.dot-on .cdot{opacity:1}
@@ -622,16 +623,26 @@ if(window.gsap&&window.ScrollTrigger&&!reduced){
   });
 }else{document.querySelectorAll('.rv').forEach(el=>{el.style.opacity=1;el.style.transform='none'})}   // keep each element's own inline styles (colours etc.)
 
-const navEl=document.querySelector('nav');const onS=()=>{navEl.classList.toggle('scrolled',scrollY>40);navEl.style.setProperty('--p',Math.min(1,scrollY/Math.max(1,document.documentElement.scrollHeight-innerHeight)).toFixed(4))};addEventListener('scroll',onS,{passive:true});onS();
+/* page height, measured only when the layout changes size (reading it on every scroll or frame forces a style recalc) */
+let maxScroll=1;const sizeRO=new ResizeObserver(()=>{maxScroll=Math.max(1,document.documentElement.scrollHeight-innerHeight);dispatchEvent(new Event('pagesize'))});sizeRO.observe(document.body);
+addEventListener('resize',()=>{maxScroll=Math.max(1,document.documentElement.scrollHeight-innerHeight)});
+/* pointer handlers read element boxes from this cache; scrolling or resizing invalidates it */
+let boxGen=0;const bump=()=>boxGen++;addEventListener('scroll',bump,{passive:true});addEventListener('resize',bump);addEventListener('pagesize',bump);
+const box=el=>{if(el._bg!==boxGen){el._bg=boxGen;el._box=el.getBoundingClientRect()}return el._box};
+const navEl=document.querySelector('nav');let lastP='';const onS=()=>{navEl.classList.toggle('scrolled',scrollY>40);const p=Math.min(1,scrollY/maxScroll).toFixed(4);if(p!==lastP)navEl.style.setProperty('--p',lastP=p)};addEventListener('scroll',onS,{passive:true});addEventListener('pagesize',onS);onS();
+/* CSS loops (rings, gradients, floating cards) pause while their section is off screen; they resume where they stopped */
+const offIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('off',!e.isIntersecting)),{rootMargin:'200px 0px'});
+document.querySelectorAll('main > section,main > .marquee,footer').forEach(s=>offIO.observe(s));
 const inView=e=>{e.target._inView=e.isIntersecting;if(!e.target._touched)e.target.classList.toggle('lit',e.isIntersecting)};
 const litIO=new IntersectionObserver(es=>es.forEach(inView),{rootMargin:'-40% 0px -40% 0px'});
 if(matchMedia('(hover: none)').matches)document.querySelectorAll('.proj,.mini').forEach(el=>litIO.observe(el));
 /* nav reacts to the cursor: spotlight + magnetic links */
 if(matchMedia('(hover: hover)').matches&&!reduced){
-  navEl.addEventListener('pointermove',e=>{const r=navEl.getBoundingClientRect();navEl.style.setProperty('--mx',(e.clientX-r.left)+'px');navEl.style.setProperty('--my',(e.clientY-r.top)+'px');navEl.style.setProperty('--spot',1)});
+  navEl.addEventListener('pointermove',e=>{const r=box(navEl);navEl.style.setProperty('--mx',(e.clientX-r.left)+'px');navEl.style.setProperty('--my',(e.clientY-r.top)+'px');navEl.style.setProperty('--spot',1)});
   navEl.addEventListener('pointerleave',()=>navEl.style.setProperty('--spot',0));
   navEl.querySelectorAll('ul a,.brand').forEach(a=>{
-    a.addEventListener('pointermove',e=>{const r=a.getBoundingClientRect();a.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.18}px,${(e.clientY-r.top-r.height/2)*.25}px)`});
+    a.addEventListener('pointerenter',()=>{a.style.transform='';a._bg=-1});
+    a.addEventListener('pointermove',e=>{const r=box(a);a.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.18}px,${(e.clientY-r.top-r.height/2)*.25}px)`});
     a.addEventListener('pointerleave',()=>a.style.transform='');
   });
 }
@@ -640,7 +651,7 @@ const headIO=new IntersectionObserver(es=>es.forEach(inView),{rootMargin:'-15% 0
 document.querySelectorAll('.head').forEach(h=>headIO.observe(h));
 /* card spotlight follows the cursor; on touch screens the card in the middle of the screen lights up */
 const cardSel='.tool,.tl article,.contact a';
-if(matchMedia('(hover: hover)').matches)document.querySelectorAll(cardSel).forEach(c=>c.addEventListener('pointermove',e=>{const r=c.getBoundingClientRect();c.style.setProperty('--hx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');c.style.setProperty('--hy',((e.clientY-r.top)/r.height*100).toFixed(1)+'%')}));
+if(matchMedia('(hover: hover)').matches)document.querySelectorAll(cardSel).forEach(c=>c.addEventListener('pointermove',e=>{const r=box(c);c.style.setProperty('--hx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');c.style.setProperty('--hy',((e.clientY-r.top)/r.height*100).toFixed(1)+'%')}));
 else document.querySelectorAll(cardSel).forEach(el=>litIO.observe(el));
 /* paint-dot cursor (mouse only): follows the pointer and stretches along the direction of motion like a drop of paint;
    text fields keep the normal text cursor */
@@ -665,7 +676,7 @@ if(matchMedia('(hover: hover) and (pointer: fine)').matches){
   addEventListener('pointerup',()=>root.classList.remove('dot-down'));
   (function follow(){
     requestAnimationFrame(follow);
-    const vx=x-dx,vy=y-dy;dx+=vx*.42;dy+=vy*.42;
+    const vx=x-dx,vy=y-dy;if(Math.abs(vx)+Math.abs(vy)<.01&&dot._still)return;dot._still=Math.abs(vx)+Math.abs(vy)<.01;dx+=vx*.42;dy+=vy*.42;
     const sp=reduced?0:Math.min(1,Math.hypot(vx,vy)/60);
     dot.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(${Math.atan2(vy,vx)}rad) scale(${1+sp*.6},${1-sp*.35})`;
   })();
@@ -676,7 +687,7 @@ document.querySelectorAll('.tags').forEach(t=>[...t.children].forEach((s,i)=>s.s
 /* 3D tilt toward the pointer: the mouse on laptops, the finger on phones. A touched card also lights up, like a hovered one. */
 function tilt(area,target,max,card){
   const own=area===target;   // cards tilt themselves; device mockups tilt inside their area (which supplies the perspective)
-  const set=(cx,cy)=>{const r=area.getBoundingClientRect(),x=(cx-r.left)/r.width-.5,y=(cy-r.top)/r.height-.5;
+  const set=(cx,cy)=>{const r=box(area),x=(cx-r.left)/r.width-.5,y=(cy-r.top)/r.height-.5;
     target.style.transform=`${own?'perspective(900px) ':''}rotateX(${(-y*max).toFixed(2)}deg) rotateY(${(x*max*1.2).toFixed(2)}deg)${own?' translateY(-4px)':''}`};
   const reset=()=>{target.style.transform=''};
   area.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')set(e.clientX,e.clientY)});
@@ -795,7 +806,8 @@ const vids=[];
 const duck=()=>dispatchEvent(new CustomEvent('duck',{detail:vids.some(v=>!v.muted&&!v.paused)}));
 document.querySelectorAll('.screen video').forEach(v=>{
   fetch(v.dataset.src,{method:'HEAD'}).then(r=>{if(!r.ok)throw 0;
-    v.src=v.dataset.src;v.load();vids.push(v);
+    // fetch the file only once the window is close to the screen, not on page load
+    const near=new IntersectionObserver(es=>{if(es[0].isIntersecting){near.disconnect();v.src=v.dataset.src;v.load()}},{rootMargin:'600px 0px'});near.observe(v);vids.push(v);
     const b=document.createElement('button');b.type='button';b.className='vsound';b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${SPEAKER}</svg>`;
     const show=()=>{b.setAttribute('aria-pressed',!v.muted);b.setAttribute('aria-label',v.muted?'Turn video sound on':'Turn video sound off')};
     b.addEventListener('click',()=>{
@@ -1201,7 +1213,7 @@ const start=async()=>{
   // the scroll position between section tops decides the stage (0 = hero ... 4 = contact)
   const anchors=['#home','#projects','#skills','#certifications','#contact','#void'];let tops=[0,1,2,3,4,5],stage=0;
   const measure=()=>{tops=anchors.map(q=>{const el=document.querySelector(q);return el?el.getBoundingClientRect().top+scrollY:0})};
-  measure();addEventListener('load',measure);setInterval(measure,2500);
+  measure();addEventListener('load',measure);addEventListener('pagesize',measure);
 
   let composer=null;
   if(FX){composer=new FX.EffectComposer(renderer);composer.addPass(new FX.RenderPass(pScene,pCam));
@@ -1241,7 +1253,7 @@ const start=async()=>{
     uni.uGrabAt.value.set(ax,ay);uni.uPull.value.set(pull.x,pull.y);uni.uDrag.value.set(pull.x*.35,pull.y*.35);
     uni.uFlex.value=Math.min(1,kick*.6+Math.hypot(pv.x,pv.y)*.25);
     uni.uMouse.value.x+=(mx-uni.uMouse.value.x)*.04;uni.uMouse.value.y+=(my-uni.uMouse.value.y)*.04;
-    const p=sy/Math.max(1,document.documentElement.scrollHeight-h);sm+=(p-sm)*.05;uni.uScroll.value=sm*6.;
+    const p=sy/maxScroll;sm+=(p-sm)*.05;uni.uScroll.value=sm*6.;
     // planets: glide between sections, spin, fade in once their textures arrive, follow the mouse a little
     const yy=sy+h*.4,n=anchors.length-1;let st=n;for(let i=0;i<n;i++){if(yy<tops[i+1]){st=i+Math.max(0,(yy-tops[i])/Math.max(1,tops[i+1]-tops[i]));break}}
     stage+=(st-stage)*Math.min(1,dt*3.5);place(stage,t);
