@@ -473,7 +473,7 @@ html.dot-field .cdot{opacity:0}
       <div class="devwrap">
         <span class="float-card fc1">threat score <b>87</b></span><span class="float-card fc2">events <b>12,480</b></span>
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nashmiagent.streamlit.app</span></div>
-          <div class="screen"><video autoplay muted loop playsinline disableremoteplayback preload="none" data-src="assets/video/nashmi.mp4"></video></div></div>
+          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" data-src="assets/video/nashmi.mp4"></video></div></div>
       </div>
     </div>
   </article>
@@ -501,7 +501,7 @@ html.dot-field .cdot{opacity:0}
       <div class="devwrap">
         <span class="float-card fc1">security gate <b>passed</b></span><span class="float-card fc2">VirusTotal <b>0 / 69</b></span>
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>pixels — Windows · Linux</span></div>
-          <div class="screen"><img decoding="async" src="assets/img/pixel-ui.jpg" alt="The Pixels editor: tools, canvas and inspector" loading="lazy" style="object-fit:contain;background:#05070c"><video muted loop playsinline disableremoteplayback preload="none" poster="assets/img/pixel-ui.jpg" data-src="assets/video/pixel.mp4"></video></div></div>
+          <div class="screen"><img decoding="async" src="assets/img/pixel-ui.jpg" alt="The Pixels editor: tools, canvas and inspector" loading="lazy" style="object-fit:contain;background:#05070c"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/pixel-ui.jpg" data-src="assets/video/pixel.mp4"></video></div></div>
       </div>
     </div>
   </article>
@@ -528,7 +528,7 @@ html.dot-field .cdot{opacity:0}
       <div class="logo-banner" style="background:#04110d"><img decoding="async" src="assets/img/safeshare-logo.svg" alt="safeshare: Secure Media Network" loading="lazy" style="object-fit:contain;padding:6%"></div>
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>safe-share-gold.vercel.app</span></div>
-          <div class="screen"><video autoplay muted loop playsinline disableremoteplayback preload="none" poster="assets/img/safeshare-poster.jpg" data-src="assets/video/safeshare.mp4"></video></div></div>
+          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/safeshare-poster.jpg" data-src="assets/video/safeshare.mp4"></video></div></div>
       </div>
     </div>
   </article>
@@ -550,7 +550,7 @@ html.dot-field .cdot{opacity:0}
       <div class="logo-banner" style="background:#0d1020"><img decoding="async" src="assets/img/icon-fc.png" alt="FC logo" loading="lazy" style="object-fit:contain;padding:8%"></div>
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>FC — Ctrl+Alt+C</span></div>
-          <div class="screen"><video autoplay muted loop playsinline disableremoteplayback preload="none" poster="assets/img/fc-poster.jpg" data-src="assets/video/fc.mp4" data-webm="assets/video/fc.webm" data-silent></video></div></div>
+          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/fc-poster.jpg" data-src="assets/video/fc.mp4" data-webm="assets/video/fc.webm" data-silent></video></div></div>
           <script>/* FC video: the WebM (a fifth of the size) where the browser plays it; Apple devices keep the MP4, which they decode in hardware */{const v=document.querySelector('video[data-webm]');if(v.canPlayType('video/webm; codecs="vp9"')&&!/^((?!chrome|android).)*safari/i.test(navigator.userAgent))v.dataset.src=v.dataset.webm}</script>
       </div>
     </div>
@@ -880,14 +880,20 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
   }
 })();
 
-/* project videos: use the file when it exists, play muted only while visible; the speaker in the window's bar turns its sound on */
+/* project videos: use the file when it exists, play muted only while visible; the speaker in the window's bar turns its sound on.
+   The file starts buffering well before its window reaches the screen, so playback has a head start on slow connections. */
 const SPEAKER=document.querySelector('#sound svg').innerHTML;
 const vids=[];
 const duck=()=>dispatchEvent(new CustomEvent('duck',{detail:vids.some(v=>!v.muted&&!v.paused)}));
+const start=v=>{if(!reduced&&v.seen&&v.src&&v.paused)v.play().catch(()=>{})};
+// iOS Low Power Mode and data saver block muted autoplay: the first tap then starts the windows on screen
+addEventListener('pointerup',()=>vids.forEach(start),{passive:true});
+// no saving the videos from the right-click / long-press menu
+addEventListener('contextmenu',e=>{if(e.target.closest('.screen'))e.preventDefault()});
 document.querySelectorAll('.screen video').forEach(v=>{
   fetch(v.dataset.src,{method:'HEAD'}).then(r=>{if(!r.ok)throw 0;
-    // fetch the file only once the window is close to the screen, not on page load
-    const near=new IntersectionObserver(es=>{if(es[0].isIntersecting){near.disconnect();v.src=v.dataset.src;v.load()}},{rootMargin:'600px 0px'});near.observe(v);vids.push(v);
+    const near=new IntersectionObserver(es=>{if(es[0].isIntersecting){near.disconnect();v.preload='auto';v.src=v.dataset.src;v.load();start(v)}},{rootMargin:'1500px 0px'});near.observe(v);vids.push(v);
+    v.addEventListener('playing',()=>{if(v.previousElementSibling)v.previousElementSibling.style.opacity=0},{once:true});
     const b=document.createElement('button');b.type='button';b.className='vsound';b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${SPEAKER}</svg>`;
     const show=()=>{b.setAttribute('aria-pressed',!v.muted);b.setAttribute('aria-label',v.muted?'Turn video sound on':'Turn video sound off')};
     b.addEventListener('click',()=>{
@@ -899,7 +905,7 @@ document.querySelectorAll('.screen video').forEach(v=>{
     b.addEventListener('sync',show);show();
     v.closest('.device').querySelector('.bar').append(b);
     ['play','pause','volumechange'].forEach(t=>v.addEventListener(t,duck));
-    new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!reduced){v.play().catch(()=>{});if(v.previousElementSibling)v.previousElementSibling.style.opacity=0}else v.pause()}),{threshold:.35}).observe(v);
+    new IntersectionObserver(es=>es.forEach(e=>{v.seen=e.isIntersecting;v.seen?start(v):v.pause()}),{threshold:.35}).observe(v);
   }).catch(()=>{v.remove()});
 });
 
@@ -1277,16 +1283,16 @@ const start=async()=>{
   // navigation lights: red port, green starboard, white at the nose
   navs=[[-3.35,-.25,-5.85,0xff3b3b],[3.35,-.25,-5.85,0x3bff7a],[0,-.3,5.9,0xffffff]].map(([x,y,z,c])=>{
     const l=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),new THREE.MeshBasicMaterial({color:c}));l.position.set(x,y,z);ship.add(l);return l});
-  // two smaller escorts follow the capital ship on the same route, offset to its sides (clones share its geometry and materials)
+  // two smaller escorts follow the capital ship on the same route, offset to its sides: the first 2 s behind, the second 3 s after that so it never covers the others (clones share its geometry and materials)
   const navIdx=navs.map(l=>ship.children.indexOf(l));
-  fleet=[{g:ship,lag:0,ox:0,oy:0,s:1},{lag:.13,ox:-.32,oy:.26,s:.5},{lag:.24,ox:.26,oy:-.2,s:.42}].map((f,i)=>{
+  fleet=[{g:ship,lag:0,ox:0,oy:0,s:1},{lag:.2,ox:-.32,oy:.26,s:.5},{lag:.5,ox:.26,oy:-.2,s:.42}].map((f,i)=>{
     if(!i)return {...f,navs};const g=ship.clone();g.scale.setScalar(f.s);g.visible=false;pScene.add(g);return {...f,g,navs:navIdx.map(k=>g.children[k])}});
   try{await renderer.compileAsync(ship,pCam,pScene)}catch(e){}
   for(const t of [hullTex,lightTex])await upload(t);   // one per frame, like the planet maps (the reflection map is already on the GPU)
   shipReady=true;
   };
   // the fly-by: depth grows exponentially (steady apparent speed) while the screen position eases from the right edge to the upper-left
-  const FLY=10,EVERY=26,TAIL=.24;let flying=false,flyT=0,nextFly=2.5;   // TAIL: the last escort's delay, in fractions of a flight
+  const FLY=10,EVERY=26,TAIL=.5;let flying=false,flyT=0,nextFly=2.5;   // TAIL: the last escort's delay, in fractions of a flight
   const shipAt=(u,out)=>{const e=1-Math.pow(1-u,2),d=9*Math.pow(19,u),hd=d*Math.tan(pCam.fov*Math.PI/360);
     return out.set((1.3-2.1*e)*hd*pCam.aspect,(-.5+1.12*e)*hd,-d)};
   const shipP=new THREE.Vector3(),shipN=new THREE.Vector3();
