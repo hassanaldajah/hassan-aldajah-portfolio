@@ -1192,25 +1192,27 @@ const start=async()=>{
   const diskMat=front=>new THREE.ShaderMaterial({uniforms:holeUni,defines:{FRONT:front?1:0},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:`attribute float aR,aA,aY,aB,aE;uniform float uT,uRE,uRS;uniform vec3 uC;varying float vB;varying float vK;
       void main(){
-        float w=1.6/pow(aR,1.5);                       // angular speed
-        float ang=aA+uT*w-aE*(.05+.09*aB);             // each streak trails a short arc behind itself
-        float wob=sin(ang*3.+aR*5.)*.015*aR;
-        vec4 mv=modelViewMatrix*vec4(cos(ang)*(aR+wob),aY,sin(ang)*(aR+wob),1.);
+        // like the black hole in the intro: white dots that spiral in, faster as they fall, and wrap back out at the edge
+        float rr=1.3+fract((aR-1.3)/2.7-uT*.018*(.6+aB))*2.7;
+        float w=1.6/pow(rr,1.5);                       // angular speed
+        float ang=aA+uT*w-aE*(.012+.02*aB);            // a short tail: each streak reads as a moving dot
+        float wob=sin(ang*3.+rr*5.)*.015*rr;
+        vec4 mv=modelViewMatrix*vec4(cos(ang)*(rr+wob),aY,sin(ang)*(rr+wob),1.);
         // gravitational lensing: light from the far side of the disk bends around the hole into a halo above and below it
         float behind=clamp((uC.z-mv.z)/uRE,0.,1.);
         vec2 d=mv.xy-uC.xy;float r=max(length(d),1e-4);
         mv.xy=mix(mv.xy,uC.xy+d/r*(.5*(r+sqrt(r*r+4.*uRE*uRE))),behind);
         gl_Position=projectionMatrix*mv;
-        float rim=smoothstep(1.3,1.55,aR)*(1.-smoothstep(3.3,4.,aR));
-        float beam=1.+.55*sin(ang);                    // the side spinning toward you shines brighter (Doppler beaming)
-        vB=aB*rim*(1.45-aR*.26)*(1.-aE*.85)*beam;      // bright head, fading tail; brighter toward the core
+        float rim=smoothstep(1.3,1.55,rr)*(1.-smoothstep(3.3,4.,rr));
+        float beam=1.+.35*sin(ang);                    // the side spinning toward you shines a little brighter
+        vB=aB*rim*(1.45-rr*.26)*(1.-aE*.85)*beam;      // bright head, fading tail; brighter toward the core
         #if FRONT
           vK=(1.-step(.001,behind))*(1.-step(uRS,length(mv.xy-uC.xy)));   // only near-side streaks crossing the black core
         #else
           vK=1.;
         #endif
       }`,
-    fragmentShader:`varying float vB;varying float vK;void main(){if(vK<.5)discard;vec3 c=mix(vec3(.82,.86,1.),vec3(1.,.9,.78),clamp(vB,0.,1.));gl_FragColor=vec4(c*vB,vB);}`});
+    fragmentShader:`varying float vB;varying float vK;void main(){if(vK<.5)discard;gl_FragColor=vec4(vec3(vB),vB);}`});   // pure white dots, as in the intro
   const disk=new THREE.LineSegments(hG,diskMat(false));disk.frustumCulled=false;
   const holeCore=new THREE.Mesh(ball,new THREE.MeshBasicMaterial({color:0x000000}));   // hides the far side of the disk behind it
   // the shadow: a camera-facing pitch-black disc that swallows the far side of the disk, plus a thin photon ring at its edge
@@ -1220,7 +1222,7 @@ const start=async()=>{
   shadow.renderOrder=-1;
   const photon=new THREE.Mesh(new THREE.PlaneGeometry(3.6,3.6),new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
     vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader:`varying vec2 vP;void main(){float r=length(vP);float g=exp(-pow((r-1.43)/.045,2.))*.55+exp(-pow((r-1.5)/.18,2.))*.08;gl_FragColor=vec4(vec3(1.,.93,.84)*g,g);}`}));
+    fragmentShader:`varying vec2 vP;void main(){float r=length(vP),px=fwidth(r);float g=(1.-smoothstep(px*.5,px*1.8,abs(r-1.43)))*1.1+exp(-pow((r-1.46)/.1,2.))*.04;gl_FragColor=vec4(vec3(g),g);}`}));   // a thin, sharp white ring
   photon.renderOrder=2;
   const hole=new THREE.Group(),holeTilt=new THREE.Group();hole.add(shadow,photon);
   holeTilt.rotation.set(.42,0,-.38);holeTilt.add(disk,holeCore);hole.add(holeTilt);pScene.add(hole);   // seen almost edge-on, tipped diagonally, like the reference
