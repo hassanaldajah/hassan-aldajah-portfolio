@@ -100,11 +100,14 @@ nav .progress i{display:block;height:100%;width:100%;transform-origin:0 50%;tran
 .btn:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
 .btn.primary{border:0;background:var(--grad);box-shadow:0 8px 30px -8px rgba(255,77,141,.6)}
 .btn.primary:hover{box-shadow:0 12px 40px -6px rgba(255,77,141,.8)}
-/* the hero's other two buttons get their own colour from the same palette */
-.btn.primary.cv{background:linear-gradient(135deg,var(--cyan),var(--violet));box-shadow:0 8px 30px -8px rgba(34,211,238,.55)}
-.btn.primary.cv:hover{box-shadow:0 12px 40px -6px rgba(34,211,238,.75)}
-.btn.primary.gh{background:linear-gradient(135deg,var(--violet),#3b2a8c);box-shadow:0 8px 30px -8px rgba(124,92,255,.6)}
-.btn.primary.gh:hover{box-shadow:0 12px 40px -6px rgba(124,92,255,.8)}
+/* the hero's three buttons stay plain; each lights up in its own colour under the pointer */
+.btn.hv{isolation:isolate;overflow:hidden;transition:transform .25s,box-shadow .35s,border-color .35s}
+.btn.hv::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:var(--hv);opacity:0;transition:opacity .35s}
+.btn.hv:hover::before,.btn.hv:focus-visible::before{opacity:1}
+.btn.hv:hover,.btn.hv:focus-visible{border-color:transparent;box-shadow:0 12px 40px -8px var(--hvg)}
+.btn.hv.work{--hv:var(--grad);--hvg:rgba(255,77,141,.7)}
+.btn.hv.cv{--hv:linear-gradient(135deg,var(--cyan),var(--violet));--hvg:rgba(34,211,238,.65)}
+.btn.hv.gh{--hv:linear-gradient(135deg,var(--lime),var(--cyan));--hvg:rgba(163,255,107,.55)}
 .btn.sm{padding:9px 18px;font-size:14px}
 .btns{display:flex;flex-wrap:wrap;gap:12px}
 
@@ -434,9 +437,9 @@ html.dot-field .cdot{opacity:0}
       <div class="role rv" aria-live="off"><em>&gt;</em> <span id="typed">Cyber Security Eng &amp; SOC Analyst</span><span class="caret"></span></div>
       <p class="lead rv">Fourth-year Cybersecurity student at the University of Jordan. Interested in SOC operations and digital forensics: detecting threats, analyzing network traffic and investigating incidents.</p>
       <div class="btns rv">
-        <a class="btn primary" href="#projects">View my work</a>
-        <a class="btn primary cv" href="Hassan_Aldajah_cv.pdf" target="_blank" rel="noopener">View CV</a>
-        <a class="btn primary gh" href="https://github.com/hassanaldajah" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn hv work" href="#projects">View my work</a>
+        <a class="btn hv cv" href="Hassan_Aldajah_cv.pdf" target="_blank" rel="noopener">View CV</a>
+        <a class="btn hv gh" href="https://github.com/hassanaldajah" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
     <div class="avatar rv">
