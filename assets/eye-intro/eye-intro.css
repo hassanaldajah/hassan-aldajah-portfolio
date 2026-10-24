@@ -1,0 +1,31 @@
+/* EYE INTRO styles: everything is scoped to #eye-intro / #eye-intro-toast. The html/body rules only apply while the intro is on screen. */
+html.eye-intro-lock,html.eye-intro-lock body{overflow:hidden!important;overscroll-behavior:none}
+html.eye-intro-hide{background:#05060c}
+html.eye-intro-hide body{visibility:hidden}
+
+#eye-intro{--ei-bg:#05060c;--ei-text:#e9ebf5;--ei-accent:#ff4d8d;--ei-hole:0px;position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:9000;visibility:visible;font-family:'IBM Plex Mono',ui-monospace,monospace;color:var(--ei-text);touch-action:none;user-select:none;-webkit-user-select:none}
+#eye-intro[hidden]{display:none}
+#eye-intro .ei-stage{position:absolute;inset:0;background:var(--ei-bg)}
+#eye-intro .ei-stage canvas{display:block;width:100%;height:100%}
+/* the way out: a hole that grows from the pupil and shows the portfolio underneath */
+#eye-intro.ei-open .ei-stage{-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px));mask-image:radial-gradient(circle at 50% 50%,transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px))}
+#eye-intro .ei-ring{position:absolute;left:50%;top:50%;width:calc(var(--ei-hole) * 2 + 56px);height:calc(var(--ei-hole) * 2 + 56px);transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 1px color-mix(in srgb,var(--ei-accent) 55%,transparent),0 0 38px 6px color-mix(in srgb,var(--ei-accent) 30%,transparent);opacity:0;pointer-events:none}
+#eye-intro.ei-open .ei-ring{opacity:var(--ei-ring,0)}
+
+/* hint on the right edge */
+#eye-intro .ei-hint{position:absolute;right:clamp(14px,2.4vw,34px);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:18px;pointer-events:none;transition:opacity .45s ease}
+#eye-intro .ei-hint .ei-line{width:1px;height:64px;background:linear-gradient(to bottom,transparent,var(--ei-accent));opacity:.7;transform-origin:bottom;animation:ei-pulse 2.8s ease-in-out infinite}
+#eye-intro .ei-hint .ei-text{writing-mode:vertical-rl;font-size:11px;font-weight:500;letter-spacing:.35em;text-transform:uppercase;color:color-mix(in srgb,var(--ei-text) 60%,transparent);white-space:nowrap}
+@keyframes ei-pulse{0%,100%{transform:scaleY(.55);opacity:.35}50%{transform:scaleY(1);opacity:.85}}
+
+#eye-intro .ei-skip{position:absolute;right:clamp(14px,2.4vw,34px);bottom:max(18px,env(safe-area-inset-bottom));padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(10,12,22,.55);color:color-mix(in srgb,var(--ei-text) 62%,transparent);font:500 11px/1 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.24em;text-transform:uppercase;cursor:pointer;transition:color .25s,border-color .25s,opacity .45s}
+#eye-intro .ei-skip:hover,#eye-intro .ei-skip:focus-visible{color:var(--ei-text);border-color:var(--ei-accent);outline:none}
+
+/* "scroll up to zoom out", shown once at the top of the portfolio */
+#eye-intro-toast{position:fixed;right:clamp(14px,2.4vw,34px);top:50%;transform:translateY(-50%);z-index:8999;display:flex;flex-direction:column;align-items:center;gap:14px;pointer-events:none;opacity:0;transition:opacity .6s ease;font:500 11px 'IBM Plex Mono',ui-monospace,monospace}
+#eye-intro-toast.ei-show{opacity:1}
+#eye-intro-toast .ei-line{width:1px;height:48px;background:linear-gradient(to top,transparent,var(--ei-accent,#ff4d8d));opacity:.7}
+#eye-intro-toast .ei-text{writing-mode:vertical-rl;letter-spacing:.35em;text-transform:uppercase;color:color-mix(in srgb,var(--ei-text,#e9ebf5) 60%,transparent);white-space:nowrap}
+
+@media (max-width:640px){#eye-intro .ei-hint .ei-line{height:44px}#eye-intro .ei-hint .ei-text,#eye-intro-toast .ei-text{font-size:10px}}
+@media (prefers-reduced-motion:reduce){#eye-intro .ei-hint .ei-line{animation:none}}
