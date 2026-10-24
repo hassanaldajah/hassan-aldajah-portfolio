@@ -12,10 +12,10 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
-  cell: 10, cellMobile: 7, cellDive: 4.5,        // character cell in CSS px: at rest, and deep in the dive
-  glyphs: ' .,:;-=+*cxoO0#@',                     // light to dense
-  eyeWidth: 0.86,                                 // almond width / screen width (landscape); 0.92 in portrait
-  pupil: [0.14, 0.44],                            // pupil radius at rest and fully dilated (iris = 0.48)
+  cell: 6, cellMobile: 5, cellDive: 4,           // character cell in CSS px: dense, like a terminal printing the eye
+  glyphs: " .`',:;~-_=+<>*rcvxznusoaeyjtfLJCQ0OZwmqpdbkhgXYUMW8&%#@$",   // code characters, light to dense (no tall strokes in the dark tones: they print as stripes)
+  eyeWidth: 0.92,                                 // almond width / screen width (landscape); 0.92 in portrait
+  pupil: [0.12, 0.46],                            // pupil radius at rest and fully dilated (iris = 0.5)
   gaze: 0.38,                                     // how far the eyeball turns (rad)
   saccade: { move: [120, 180], hold: [700, 2400] },
   blink: { gap: [2500, 6000], double: 0.15 },
@@ -39,11 +39,9 @@ function makePalette() {
   const deep = (c, desat, dark) => { const h = {}; c.getHSL(h); return new THREE.Color().setHSL(h.h, h.s * (1 - desat), h.l * (1 - dark)); };
   return {
     bg: bg.clone().lerp(violet, 0.02),
-    skin: deep(violet, 0.55, 0.62).lerp(pink, 0.08),      // dusky, violet-tinted skin so the characters around the eye stay visible
-    skinDark: deep(violet, 0.5, 0.86),
-    sclera: text.clone().multiplyScalar(0.82),
-    irisIn: deep(cyan, 0.15, 0.12),
-    irisOut: deep(violet, 0.15, 0.2),
+    skin: new THREE.Color('#6a4632'), skinLight: new THREE.Color('#93664a'), skinDark: new THREE.Color('#140b07'), caruncle: new THREE.Color('#b8675e'),
+    sclera: new THREE.Color('#ebe6e0'), scleraShade: new THREE.Color('#a39388'), vein: new THREE.Color('#a33a36'),
+    irisIn: new THREE.Color('#d39a3f'), irisMid: new THREE.Color('#8c5424'), irisOut: new THREE.Color('#3e2414'), limbus: new THREE.Color('#0e0805'),
     accent: pink.clone(),
     accentDeep: deep(pink, 0.15, 0.35),
     text: text.clone(), violet: violet.clone(), cyan: cyan.clone(),
@@ -63,69 +61,69 @@ const eyeVert = /* glsl */`
 varying vec3 vO; varying vec3 vN; varying vec3 vW;
 void main(){vO=position; vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w;}`;
 const eyeFrag = /* glsl */`
-uniform vec3 uSclera, uIn, uOut, uAcc, uDeep, uLight; uniform float uRe, uIris, uPupil, uTime, uGlow;
+uniform vec3 uSclera, uShade, uVein, uIrisIn, uIrisMid, uIrisOut, uLimbus, uLight; uniform float uRe, uIris, uPupil, uTime, uOpen;
 varying vec3 vO; varying vec3 vN; varying vec3 vW;
 ${NOISE}
 void main(){
   float r=length(vO.xy); float front=step(0.,vO.z);
-  if(front>.5 && r<uPupil) discard;                                  // the pupil is open: what is behind it is another scene
+  if(front>.5 && r<uPupil){ if(uOpen<.5){ gl_FragColor=vec4(0.,0.,0.,1.); return; } discard; }   // black at rest; once you lean in it opens onto another scene
   float ang=atan(vO.y,vO.x);
   vec3 N=normalize(vN), L=normalize(uLight), V=normalize(cameraPosition-vW);
-  float dif=.32+.68*max(dot(N,L),0.);
-  // sclera with faint veins toward the corners
-  float side=smoothstep(.35,1.05,r/uRe);
-  vec3 col=uSclera*(1.-.38*side);
-  float vein=smoothstep(.78,.98,fbm(vec2(ang*6.,r*9.)))*side;
-  col=mix(col,uDeep*1.2,vein*.55);
-  // iris
-  float ir=front*(1.-smoothstep(uIris-.012,uIris+.006,r));
-  if(ir>0.){
+  float dif=.45+.55*max(dot(N,L),0.);
+  // sclera: white, greying toward the corners, fine red veins
+  float side=smoothstep(.55,1.15,r/uRe);
+  vec3 col=mix(uSclera,uShade,side*.7);                              // soft: a steep gradient prints as rings of characters
+  float v1=smoothstep(.72,.95,fbm(vec2(ang*5.,r*7.)+3.)), v2=smoothstep(.8,.97,fbm(vec2(ang*14.,r*20.)));
+  col=mix(col,uVein,(v1*.35+v2*.25)*side);
+  // iris: radial fibres, crypts, a golden collarette, a dark limbal ring
+  float edge=smoothstep(uIris+.006,uIris-.012,r)*front;
+  if(edge>0.){
     float t=clamp((r-uPupil)/(uIris-uPupil),0.,1.);
-    float fib=fbm(vec2(ang*28.,r*3.)+vec2(0.,uTime*.03))*.65+fbm(vec2(ang*70.,r*14.))*.45;
-    vec3 ic=mix(uIn*1.25,uOut,smoothstep(.15,.95,t))*(.45+.95*fib);
-    ic+=uAcc*.55*smoothstep(.7,.95,fbm(vec2(ang*12.,r*6.)))*(1.-t);  // ember flecks near the pupil
-    ic+=uIn*.5*exp(-pow((t-.22)/.06,2.));                                // the collarette ring
-    ic*=1.-.75*smoothstep(.82,1.,t);                                     // dark limbus
-    ic*=1.-.6*(1.-smoothstep(0.,.08,t));                                 // pupil edge falloff
-    col=mix(col,ic,ir);
+    float fib=fbm(vec2(ang*40.,t*2.5))*.6+fbm(vec2(ang*110.,t*8.))*.5;
+    vec3 ic=mix(uIrisIn,uIrisMid,smoothstep(.05,.42,t)); ic=mix(ic,uIrisOut,smoothstep(.45,.92,t));
+    ic*=.55+.8*fib;
+    float crypt=smoothstep(.62,.8,fbm(vec2(ang*9.,t*6.)+7.))*smoothstep(.2,.35,t)*(1.-smoothstep(.6,.78,t));
+    ic*=1.-.55*crypt;
+    ic+=uIrisIn*.4*exp(-pow((t-.3)/.05,2.))*fib;
+    ic=mix(ic,uLimbus,smoothstep(.8,1.,t));
+    ic*=mix(.3,1.,smoothstep(0.,.07,t));
+    col=mix(col,ic,edge);
   }
   col*=dif;
-  col*=1.-.5*smoothstep(.12,.52,vW.y)-.2*smoothstep(-.2,-.5,vW.y);   // the lids shade the eyeball, mostly from above
-  // ember rim on the limbus, like the Nashmi globe
-  float lim=exp(-pow((r-uIris)/.018,2.))*front;
-  col+=uAcc*lim*.55*uGlow;
-  // cornea: a soft wet sheen and one glint
-  vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),90.);
-  col+=vec3(1.)*spec*1.6*front+uSclera*pow(1.-max(dot(N,V),0.),3.)*.12;
+  col*=1.-.55*smoothstep(.05,.45,vW.y)-.18*smoothstep(-.15,-.45,vW.y);  // the lids shade the eyeball
+  // cornea: a window-like glint and a wet sheen
+  vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),140.);
+  col+=vec3(1.)*spec*2.4*front+uSclera*pow(1.-max(dot(N,V),0.),4.)*.08;
   gl_FragColor=vec4(col,1.);
 }`;
 
 // the face around the eye: skin with pores, an almond opening, lid crease, lashes; blinking closes the almond
 const faceVert = /* glsl */`varying vec2 vP; void main(){vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const faceFrag = /* glsl */`
-uniform vec3 uSkin, uDark, uAcc; uniform float uW, uH, uBlink, uMeet, uTime;
+uniform vec3 uSkin, uLight2, uDark, uCar; uniform float uW, uH, uBlink, uMeet;
 varying vec2 vP;
 ${NOISE}
 void main(){
-  float x=vP.x/uW, xx=clamp(1.-x*x,0.,1.);
-  float yu=mix(uH*pow(xx,.62)+uH*.12*x*xx, uMeet+.004, uBlink);         // the upper lid arches, slightly lifted at the inner corner
-  float yl=mix(-uH*.78*pow(xx,.8), uMeet, uBlink);
+  float x=vP.x/uW, xx=clamp(1.-x*x,0.,1.), tilt=.07*x;                  // x<0: inner corner (lower, rounder); x>0: outer corner (lifted)
+  float upper=uH*pow(xx,.55)*(1.-.1*x)+tilt, lower=-uH*.7*pow(xx,.9)+tilt*.5-.02;
+  float yu=mix(upper,uMeet,uBlink), yl=mix(lower,uMeet,uBlink);
   float inside=step(yl,vP.y)*step(vP.y,yu)*step(abs(x),1.);
-  if(inside>.5 && uBlink<.995) discard;
+  float car=inside*smoothstep(-.8,-.95,x);                              // the pink caruncle in the inner corner
+  if(inside>.5 && car<.5 && uBlink<.995) discard;
   float du=vP.y-yu, dl=yl-vP.y;
-  float d=abs(x)<1.?max(min(du,dl),0.):length(vec2(abs(vP.x)-uW,vP.y));
-  if(abs(x)<1.) d=du>0.?du:(dl>0.?dl:0.);
-  vec3 col=uSkin*(.72+.55*fbm(vP*11.))*(.9+.2*fbm(vP*2.3+7.));
-  col*=1.-.78*exp(-d*7.);                                                // shadow where the skin turns into the eye
-  float crease=exp(-pow((vP.y-(yu+.2*xx+.05))/.035,2.))*xx*step(0.,du);
-  col*=1.-.5*crease;
-  col+=uSkin*.35*exp(-pow((vP.y-(yu+.12*xx+.02))/.06,2.))*xx*step(0.,du); // the lid's soft highlight
-  float lash=step(0.,du)*(1.-smoothstep(0.,.07*xx+.005,du))*smoothstep(.35,.75,vn(vec2(vP.x*55.,0.)));
-  col=mix(col,uDark*.4,lash*.9);
-  col+=uAcc*.5*exp(-pow(du/.008,2.))*xx*step(abs(x),1.)*.35;            // a thin ember line along the lid edges
-  col+=uAcc*.3*exp(-pow(dl/.008,2.))*xx*step(abs(x),1.)*.25;
-  float far=smoothstep(1.4,3.6,length(vP/vec2(uW,uW*.6)));
-  col*=1.-.75*far;                                                       // the face fades into the dark
+  float d=inside>.5?0.:(abs(x)<1.?(du>0.?du:dl):length(vec2(abs(vP.x)-uW,vP.y-tilt)));
+  vec3 col=uSkin*(.8+.4*fbm(vP*14.))*(.9+.2*fbm(vP*3.+5.));
+  float up=step(0.,du)*step(abs(x),1.12), lo=step(0.,dl)*step(abs(x),1.12);
+  float fold=.2*xx+.05;
+  col=mix(col,uLight2*(.85+.3*fbm(vP*20.)),up*exp(-pow((du/fold-.45)/.35,2.))*.75);   // the lit, rounded upper lid
+  col*=1.-.6*exp(-pow((du-fold)/.03,2.))*up;                                          // the crease
+  col*=1.-.8*exp(-d*26.);                                                              // shadow where skin meets the eye
+  float lashes=up*(1.-smoothstep(0.,.11*xx+.01,du))*step(.62,h21(vec2(floor((vP.x+du*(.6+.9*x))*130.),3.)));
+  col=mix(col,uDark,max(lashes,up*(1.-smoothstep(0.,.012,du))));
+  col+=uLight2*.25*exp(-pow((dl-.03)/.03,2.))*lo;                                     // the moist lower rim catches light
+  col*=1.-.3*exp(-pow((dl-.17*xx)/.07,2.))*lo;                                        // under-eye shadow
+  if(car>.5) col=uCar*(.7+.4*fbm(vP*40.));
+  col*=1.-.85*smoothstep(1.25,3.1,length(vP/vec2(uW,uW*.62)));                        // the face falls into darkness
   gl_FragColor=vec4(col,1.);
 }`;
 
@@ -206,9 +204,9 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const range = (a, b) => a + (b - a) * Math.random();
 
 function glyphAtlas(chars) {
-  const n = chars.length, S = 64, c = document.createElement('canvas'); c.width = S * n; c.height = S;
+  const n = chars.length, S = 48, c = document.createElement('canvas'); c.width = S * n; c.height = S;
   const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, c.width, S);
-  g.fillStyle = '#fff'; g.font = '500 52px "IBM Plex Mono", ui-monospace, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = '#fff'; g.font = '500 40px "IBM Plex Mono", ui-monospace, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
   [...chars].forEach((ch, i) => g.fillText(ch, i * S + S / 2, S / 2 + 2));
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.NoColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
   return t;
@@ -242,16 +240,17 @@ async function start() {
   document.body.append(el, toast);
 
   /* ---------- the outside: the eye ---------- */
-  const Re = 1.3, IRIS = 0.48, W = 1.06, H = 0.5, FACE_Z = 1.22, PUPIL_Z = Re;
+  const Re = 1.8, IRIS = 0.5, W = 1.15, H = 0.44, FACE_Z = 1.72, PUPIL_Z = Re;
   const scene = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(KNOBS.fov, innerWidth / innerHeight, 0.001, 100);
   const eyeU = {
-    uSclera: { value: pal.sclera }, uIn: { value: pal.irisIn }, uOut: { value: pal.irisOut }, uAcc: { value: pal.accent }, uDeep: { value: pal.accentDeep },
-    uLight: { value: new THREE.Vector3(-0.55, 0.65, 1) }, uRe: { value: Re }, uIris: { value: IRIS }, uPupil: { value: KNOBS.pupil[0] }, uTime: { value: 0 }, uGlow: { value: 1 },
+    uSclera: { value: pal.sclera }, uShade: { value: pal.scleraShade }, uVein: { value: pal.vein },
+    uIrisIn: { value: pal.irisIn }, uIrisMid: { value: pal.irisMid }, uIrisOut: { value: pal.irisOut }, uLimbus: { value: pal.limbus },
+    uLight: { value: new THREE.Vector3(-0.55, 0.65, 1) }, uRe: { value: Re }, uIris: { value: IRIS }, uPupil: { value: KNOBS.pupil[0] }, uTime: { value: 0 }, uOpen: { value: 0 },
   };
   const eyeball = new THREE.Mesh(new THREE.SphereGeometry(Re, 128, 96), new THREE.ShaderMaterial({ uniforms: eyeU, vertexShader: eyeVert, fragmentShader: eyeFrag, depthTest: false, depthWrite: false }));
   eyeball.renderOrder = 1; scene.add(eyeball);
-  const faceU = { uSkin: { value: pal.skin }, uDark: { value: pal.skinDark }, uAcc: { value: pal.accent }, uW: { value: W }, uH: { value: H }, uBlink: { value: 0 }, uMeet: { value: -0.12 }, uTime: { value: 0 } };
+  const faceU = { uSkin: { value: pal.skin }, uLight2: { value: pal.skinLight }, uDark: { value: pal.skinDark }, uCar: { value: pal.caruncle }, uW: { value: W }, uH: { value: H }, uBlink: { value: 0 }, uMeet: { value: -0.1 } };
   const face = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShaderMaterial({ uniforms: faceU, vertexShader: faceVert, fragmentShader: faceFrag, depthTest: false, depthWrite: false }));
   face.position.z = FACE_Z; face.renderOrder = 2; scene.add(face);
 
@@ -281,13 +280,13 @@ async function start() {
 
   /* ---------- post: two scenes into one image, then characters, then a soft glow ---------- */
   const composer = new EffectComposer(renderer);
-  const innerPass = new RenderPass(inner, innerCam);
+  const innerPass = new RenderPass(inner, innerCam, null, new THREE.Color(0x000000), 1);   // space behind the pupil is truly black
   const outerPass = new RenderPass(scene, cam); outerPass.clear = false; outerPass.clearDepth = true;
   composer.addPass(innerPass); composer.addPass(outerPass);
   const lens = new ShaderPass(lensShader); composer.addPass(lens);
   const ascii = new ShaderPass(asciiShader);
   ascii.uniforms.uGlyphs.value = glyphAtlas(KNOBS.glyphs); ascii.uniforms.uCount.value = KNOBS.glyphs.length;
-  ascii.uniforms.uFloor.value.copy(pal.bg).multiplyScalar(0.35);
+  ascii.uniforms.uFloor.value.copy(pal.bg).multiplyScalar(0.12);
   composer.addPass(ascii);
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), KNOBS.bloom.strength, KNOBS.bloom.radius, KNOBS.bloom.threshold);
   composer.addPass(bloom);
@@ -389,22 +388,21 @@ async function start() {
     // blinks: never during the dive
     updateBlink(now, p <= 0.0001 && p >= -0.15);
     if (p > 0.05) { blink.phase = 'open'; blink.v = 0; }
-    faceU.uBlink.value = blink.v; faceU.uMeet.value = -0.12 + gy * 0.06;
-    eyeU.uTime.value = time; eyeU.uGlow.value = (1 - 0.35 * blink.v) * (1 + smooth(0.1, 0.45, p));
+    faceU.uBlink.value = blink.v; faceU.uMeet.value = -0.1 + gy * 0.05;
+    eyeU.uTime.value = time; eyeU.uOpen.value = p > 0.03 ? 1 : 0;
 
     // the fall: through the pupil a tiny burning ring waits; the camera spirals down onto it until the horizon swallows the view
     const q = easeIO(smooth(0.3, 0.93, p)), fall = smooth(0.5, 0.9, p);
-    const dist = 100 * Math.pow(5.4 / 100, q), az = q * 1.7, elev = lerp(0.06, 0.3, q);
+    const dist = 70 * Math.pow(5.4 / 70, q), az = q * 1.7, elev = lerp(0.06, 0.3, q);
     innerCam.position.set(HOLE.x + Math.sin(az) * Math.cos(elev) * dist, HOLE.y + Math.sin(elev) * dist, HOLE.z + Math.cos(az) * Math.cos(elev) * dist);
     const roll = q * 0.9 + (reduced ? 0 : Math.sin(time * 1.3) * 0.05 * fall);
     innerCam.up.set(Math.sin(roll), Math.cos(roll), 0); innerCam.lookAt(HOLE);
     halo.quaternion.copy(innerCam.quaternion);
-    diskU.uTime.value = time; diskU.uHeat.value = 1 + 0.8 * fall;
+    diskU.uTime.value = time; diskU.uHeat.value = smooth(0.04, 0.3, p) * (1 + 0.8 * fall);   // a real, black pupil at rest; the fire wakes as you lean in
     // gravity on the picture: the iris starts to twist into the pupil, then everything is pulled in and goes dark
-    const shake = reduced ? 0 : fall * 0.005 + smooth(0.38, 0.5, p) * 0.0025;
-    lens.uniforms.uShake.value.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
-    lens.uniforms.uSwirl.value = reduced ? 0 : smooth(0.1, 0.5, p) * 2.4 + fall * 2.6;
-    lens.uniforms.uPull.value = reduced ? 0 : smooth(0.12, 0.5, p) * 0.45 + fall * 0.9;
+    lens.uniforms.uShake.value.set(0, 0);
+    lens.uniforms.uSwirl.value = reduced ? 0 : fall * 1.2;   // only gravity near the hole bends the picture
+    lens.uniforms.uPull.value = reduced ? 0 : fall * 0.6;
     lens.uniforms.uShadow.value = smooth(0.8, 0.95, p) * 1.1;
 
     // characters: finer as we fall in, then they resolve into the picture
