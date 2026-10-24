@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://formsubmit.co; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Hassan Aldajah | Cybersecurity &amp; SOC Analyst Portfolio</title>
 <meta name="description" content="Hassan Aldajah: cybersecurity student and SOC analyst. Projects: Nashmi AI security agent, Pixel image studio, FC file converter, SafeShare.">
@@ -881,18 +881,28 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
 })();
 
 /* project videos: use the file when it exists, play muted only while visible; the speaker in the window's bar turns its sound on.
-   The file starts buffering well before its window reaches the screen, so playback has a head start on slow connections. */
+   Full-quality files are heavier than many connections: streamed, the iPhone would not even start Pixel and FC. So after the page
+   has loaded, each file is fetched whole in the background (nothing shown), one at a time, the window on screen first, and plays
+   from memory once complete: no stalls. Until then the window shows its poster. */
 const SPEAKER=document.querySelector('#sound svg').innerHTML;
-const vids=[];
+const vids=[],queue=[];let loading=false;
 const duck=()=>dispatchEvent(new CustomEvent('duck',{detail:vids.some(v=>!v.muted&&!v.paused)}));
 const start=v=>{if(!reduced&&v.seen&&v.src&&v.paused)v.play().catch(()=>{})};
+function pump(){
+  if(loading||!queue.length)return;
+  loading=true;const v=queue.shift();
+  fetch(v.dataset.src).then(r=>{if(!r.ok)throw 0;return r.blob()}).then(b=>URL.createObjectURL(b),()=>v.dataset.src)   // fetch failed: stream it instead
+    .then(url=>{v.preload='auto';v.src=url;v.load();start(v)})
+    .finally(()=>{loading=false;pump()});
+}
+const fetchAll=()=>setTimeout(pump,300);document.readyState==='complete'?fetchAll():addEventListener('load',fetchAll,{once:true});
 // iOS Low Power Mode and data saver block muted autoplay: the first tap then starts the windows on screen
 addEventListener('pointerup',()=>vids.forEach(start),{passive:true});
 // no saving the videos from the right-click / long-press menu
 addEventListener('contextmenu',e=>{if(e.target.closest('.screen'))e.preventDefault()});
 document.querySelectorAll('.screen video').forEach(v=>{
   fetch(v.dataset.src,{method:'HEAD'}).then(r=>{if(!r.ok)throw 0;
-    const near=new IntersectionObserver(es=>{if(es[0].isIntersecting){near.disconnect();v.preload='auto';v.src=v.dataset.src;v.load();start(v)}},{rootMargin:'1500px 0px'});near.observe(v);vids.push(v);
+    vids.push(v);queue.push(v);queue.sort((a,b)=>a.compareDocumentPosition(b)&4?-1:1);if(document.readyState==='complete')fetchAll();   // page order
     v.addEventListener('playing',()=>{if(v.previousElementSibling)v.previousElementSibling.style.opacity=0},{once:true});
     const b=document.createElement('button');b.type='button';b.className='vsound';b.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true">${SPEAKER}</svg>`;
     const show=()=>{b.setAttribute('aria-pressed',!v.muted);b.setAttribute('aria-label',v.muted?'Turn video sound on':'Turn video sound off')};
@@ -905,7 +915,11 @@ document.querySelectorAll('.screen video').forEach(v=>{
     b.addEventListener('sync',show);show();
     v.closest('.device').querySelector('.bar').append(b);
     ['play','pause','volumechange'].forEach(t=>v.addEventListener(t,duck));
-    new IntersectionObserver(es=>es.forEach(e=>{v.seen=e.isIntersecting;v.seen?start(v):v.pause()}),{threshold:.35}).observe(v);
+    new IntersectionObserver(es=>es.forEach(e=>{
+      v.seen=e.isIntersecting;if(!v.seen){v.pause();return}
+      const i=queue.indexOf(v);if(i>0){queue.splice(i,1);queue.unshift(v)}   // on screen and not fetched yet: it goes next
+      start(v);
+    }),{threshold:.35}).observe(v);
   }).catch(()=>{v.remove()});
 });
 
@@ -1283,16 +1297,16 @@ const start=async()=>{
   // navigation lights: red port, green starboard, white at the nose
   navs=[[-3.35,-.25,-5.85,0xff3b3b],[3.35,-.25,-5.85,0x3bff7a],[0,-.3,5.9,0xffffff]].map(([x,y,z,c])=>{
     const l=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),new THREE.MeshBasicMaterial({color:c}));l.position.set(x,y,z);ship.add(l);return l});
-  // two smaller escorts follow the capital ship on the same route, offset to its sides: the first 2 s behind, the second 3 s after that so it never covers the others (clones share its geometry and materials)
+  // two smaller escorts follow the capital ship on the same route, offset to its sides: 5 s apart so they never cover each other (clones share its geometry and materials)
   const navIdx=navs.map(l=>ship.children.indexOf(l));
-  fleet=[{g:ship,lag:0,ox:0,oy:0,s:1},{lag:.2,ox:-.32,oy:.26,s:.5},{lag:.5,ox:.26,oy:-.2,s:.42}].map((f,i)=>{
+  fleet=[{g:ship,lag:0,ox:0,oy:0,s:1},{lag:.5,ox:-.32,oy:.26,s:.5},{lag:1,ox:.26,oy:-.2,s:.42}].map((f,i)=>{
     if(!i)return {...f,navs};const g=ship.clone();g.scale.setScalar(f.s);g.visible=false;pScene.add(g);return {...f,g,navs:navIdx.map(k=>g.children[k])}});
   try{await renderer.compileAsync(ship,pCam,pScene)}catch(e){}
   for(const t of [hullTex,lightTex])await upload(t);   // one per frame, like the planet maps (the reflection map is already on the GPU)
   shipReady=true;
   };
   // the fly-by: depth grows exponentially (steady apparent speed) while the screen position eases from the right edge to the upper-left
-  const FLY=10,EVERY=26,TAIL=.5;let flying=false,flyT=0,nextFly=2.5;   // TAIL: the last escort's delay, in fractions of a flight
+  const FLY=10,EVERY=26,TAIL=1;let flying=false,flyT=0,nextFly=2.5;   // TAIL: the last escort's delay, in fractions of a flight
   const shipAt=(u,out)=>{const e=1-Math.pow(1-u,2),d=9*Math.pow(19,u),hd=d*Math.tan(pCam.fov*Math.PI/360);
     return out.set((1.3-2.1*e)*hd*pCam.aspect,(-.5+1.12*e)*hd,-d)};
   const shipP=new THREE.Vector3(),shipN=new THREE.Vector3();
