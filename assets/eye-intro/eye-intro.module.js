@@ -15,9 +15,9 @@ const KNOBS = {
   wordH: [0.024, 0.036],              // word height, in iris radii
   pupil: 0.30,                        // pupil radius / iris radius
   drift: 0.0055,                      // inward flow of the words (iris spans per second)
-  spin: 0.035,                        // ring rotation (rad/s), alternating direction
+  spin: 0.42,                         // ring rotation (rad/s): one ring clockwise, the next counter-clockwise
   sparks: 220, sparksMobile: 110, streaks: 520,
-  saccade: { range: 0.12, move: [120, 180], hold: [600, 2200] },
+  saccade: { range: 0.17, move: [110, 160], hold: [380, 1200] },   // alert: it keeps checking left and right
   blink: { gap: [2500, 6000], double: 0.15 },
   zoomPerPx: 1 / 1400,                // wheel pixels to progress
   bloom: { strength: 0.5, radius: 0.5, threshold: 0.6 },
@@ -39,8 +39,8 @@ function makePalette() {
   return {
     bg: bg.clone().lerp(violet, 0.02),          // near-black, tinted with the site's main hue
     bgDeep: bg.clone().lerp(violet, 0.11),        // the vignette's centre lift
-    ringIn: deep(cyan, 0.15, 0.30),               // inner rings
-    ringOut: deep(violet, 0.15, 0.28),            // outer rings
+    ringIn: deep(cyan, 0.2, 0.5),                 // inner rings (deep, low-lit)
+    ringOut: deep(violet, 0.2, 0.5),              // outer rings
     hot: text.clone(),                            // the few white words that flicker
     accent: pink.clone(),                         // ember: rim, pulsing words, sparks
     accentDeep: deep(pink, 0.15, 0.35),
@@ -156,7 +156,7 @@ varying vec2 vUv; varying float vRn, vRing, vRand, vAcc, vR;
 void main(){
   float span=1.-uR0, rn=fract(aP.x-uDrift);
   float r=uR0+rn*span;
-  float ang=aP.y+aQ.w*uSpin*(.55+.9*aQ.y);
+  float ang=aP.y+aQ.w*uSpin*(.75+.5*fract(aQ.x*7.13));   // the whole ring turns as one
   vec2 dR=vec2(cos(ang),sin(ang)), dT=vec2(-dR.y,dR.x);
   float len=aP.z*(1.+uStreak*(5.+aQ.y*9.));
   vec2 p=dR*(r+uStreak*aQ.y*.8+position.x*len)+dT*(position.y*aP.w);
@@ -178,9 +178,9 @@ void main(){
   float nz=sqrt(max(0.,1.-vR*vR*.92));                 // the iris as a shallow dome: fresnel at the limbus
   col+=uAcc*pow(1.-nz,3.)*.35;
   float hot=step(.97,fract(vRand*13.7+uTime*.1));       // ~3% hot white words that flicker
-  col=mix(col,uHot*1.5,hot*(.7+.3*sin(uTime*23.+vRand*50.)));
+  col=mix(col,uHot*.95,hot*(.7+.3*sin(uTime*23.+vRand*50.)));
   float pulse=.55+.45*sin(uTime*2.1+vRand*6.283);
-  col=mix(col,uAcc*(.8+.75*pulse),vAcc);               // the accent words burn like the globe's red words
+  col=mix(col,uAcc*(.5+.5*pulse),vAcc);               // the accent words burn like the globe's red words
   col*=uGlow;
   gl_FragColor=vec4(col,a);
 }`;
@@ -195,9 +195,9 @@ void main(){
   float r=length(vP), ang=atan(vP.y,vP.x);
   float burn=.7+.3*sin(ang*7.+uTime*1.3)*sin(ang*3.-uTime*.7);
   float d=r-1.;
-  float lim=exp(-d*d/(d<0.?.0011:.00018))*.48+exp(-d*d/(d<0.?.02:.002))*.1;   // strongest at the rim, fading inward
+  float lim=exp(-d*d/(d<0.?.0011:.00018))*.3+exp(-d*d/(d<0.?.02:.002))*.1;   // strongest at the rim, fading inward
   float dp=r-uR0;
-  float pr=exp(-dp*dp/.00006)*.42+exp(-dp*dp/.0012)*.07;
+  float pr=exp(-dp*dp/.00006)*.28+exp(-dp*dp/.0012)*.07;
   vec3 col=(uAcc*lim*burn+uAcc*pr*(.8+.2*burn))*uGlow;
   col+=uDeep*exp(-d*d/.05)*.035;
   gl_FragColor=vec4(col,1.);
@@ -334,6 +334,34 @@ const suckFrag = /* glsl */`
 uniform vec3 uCol; uniform float uAmt; varying float vA;
 void main(){vec2 q=gl_PointCoord-.5; float m=1.-smoothstep(.15,.5,length(q)); gl_FragColor=vec4(uCol*m*vA*uAmt,1.);}`;
 
+const skyVert = /* glsl */`varying vec3 vD; uniform vec3 uHole; void main(){vec4 w=modelMatrix*vec4(position,1.); vD=normalize(w.xyz-uHole); gl_Position=projectionMatrix*viewMatrix*w;}`;
+const skyFrag = /* glsl */`
+uniform vec3 uA, uB, uC; uniform float uTime, uAmt; varying vec3 vD;
+${NOISE}
+float fb(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*vnoise(p);p*=2.07;a*=.5;}return s;}
+void main(){
+  vec2 uv=vec2(atan(vD.z,vD.x)*1.6,asin(clamp(vD.y,-1.,1.))*3.2);
+  float n=fb(uv*1.4+vec2(uTime*.01,0.)), m=fb(uv*3.1-n*1.5+7.);
+  vec3 col=mix(uA,uB,smoothstep(.35,.75,n))*smoothstep(.25,.8,n);
+  col+=uC*pow(smoothstep(.55,.95,m*n*1.6),2.)*.8;                        // a few hot filaments
+  gl_FragColor=vec4(col*uAmt,1.);
+}`;
+const starVert = /* glsl */`
+attribute vec4 aS; attribute vec3 aC; uniform float uTime; uniform vec3 uHole; varying float vA; varying vec3 vC;
+void main(){
+  float f=fract(uTime*aS.w+aS.z*13.7);
+  float r=mix(aS.z,4.3,f*f);                                               // they fall faster and faster toward the horizon
+  float th=aS.x+f*f*2.2, ph=aS.y;
+  vec3 dir=vec3(cos(th)*cos(ph),sin(ph)*(1.-f*.6),sin(th)*cos(ph));
+  vec4 mv=modelViewMatrix*vec4(uHole+dir*r,1.);
+  vA=smoothstep(0.,.12,f)*(1.-smoothstep(.9,1.,f)); vC=aC;
+  gl_PointSize=clamp(1.6*(1.+f*1.4),1.,4.);
+  gl_Position=projectionMatrix*mv;
+}`;
+const starFrag = /* glsl */`
+varying float vA; varying vec3 vC; uniform float uAmt;
+void main(){vec2 q=gl_PointCoord-.5; float m=1.-smoothstep(.1,.5,length(q)); gl_FragColor=vec4(vC*m*vA*uAmt,1.);}`;
+
 const finalShader = {
   uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uNoise: { value: 0.03 }, uLift: { value: new THREE.Color() }, uLiftAmt: { value: 1 } },
   vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
@@ -466,14 +494,20 @@ async function start() {
   /* inside the pupil: darkness, then a black hole with a burning disk, in true-black space */
   const inner = new THREE.Scene();
   const innerCam = new THREE.PerspectiveCamera(KNOBS.fov, innerWidth / innerHeight, 0.1, 2000);
-  const NSt = mobile ? 1200 : 2400, stp = new Float32Array(NSt * 3), stc = new Float32Array(NSt * 3);
+  const HOLE0 = new THREE.Vector3(0, 0, -60);
+  const skyU = { uHole: { value: HOLE0 }, uA: { value: new THREE.Color('#0b1236') }, uB: { value: new THREE.Color('#2b1458') }, uC: { value: pal.accent.clone().multiplyScalar(0.55) }, uTime: { value: 0 }, uAmt: { value: 0 } };
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(900, 48, 32), new THREE.ShaderMaterial({ uniforms: skyU, vertexShader: skyVert, fragmentShader: skyFrag, side: THREE.BackSide, depthWrite: false }));
+  sky.position.copy(HOLE0); sky.renderOrder = -1; inner.add(sky);
+  const NSt = mobile ? 1400 : 2800, stS = new Float32Array(NSt * 4), stC = new Float32Array(NSt * 3);
   for (let i = 0; i < NSt; i++) {
-    const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, rr = range(120, 700), sq = Math.sqrt(1 - u * u);
-    stp.set([Math.cos(th) * sq * rr, Math.sin(th) * sq * rr, u * rr], i * 3);
-    const c = rnd() < 0.75 ? pal.hot : rnd() < 0.5 ? pal.ringIn : pal.ringOut; stc.set([c.r, c.g, c.b], i * 3);
+    stS.set([rnd() * Math.PI * 2, Math.asin(rnd() * 2 - 1) * 0.8, range(40, 420), range(0.03, 0.09)], i * 4);
+    const c = rnd() < 0.8 ? pal.hot : rnd() < 0.5 ? pal.ringIn.clone().multiplyScalar(2) : pal.ringOut.clone().multiplyScalar(2); stC.set([c.r, c.g, c.b], i * 3);
   }
-  const stg = new THREE.BufferGeometry(); stg.setAttribute('position', new THREE.BufferAttribute(stp, 3)); stg.setAttribute('color', new THREE.BufferAttribute(stc, 3));
-  inner.add(new THREE.Points(stg, new THREE.PointsMaterial({ size: 1.8, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false })));
+  const stg = new THREE.BufferGeometry(); stg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(NSt * 3), 3));
+  stg.setAttribute('aS', new THREE.BufferAttribute(stS, 4)); stg.setAttribute('aC', new THREE.BufferAttribute(stC, 3));
+  const starU = { uTime: { value: 0 }, uHole: { value: HOLE0 }, uAmt: { value: 0 } };
+  const stars = new THREE.Points(stg, new THREE.ShaderMaterial({ uniforms: starU, vertexShader: starVert, fragmentShader: starFrag, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  stars.frustumCulled = false; inner.add(stars);
   const HOLE = new THREE.Vector3(0, 0, -60);
   const horizon = new THREE.Mesh(new THREE.SphereGeometry(4, 64, 48), new THREE.MeshBasicMaterial({ color: 0x000000 }));
   horizon.position.copy(HOLE); inner.add(horizon);
@@ -539,7 +573,8 @@ async function start() {
     const rg = KNOBS.saccade.range;
     sac.fx = sac.x; sac.fy = sac.y;
     if (!touchFirst && rnd() < 0.3 && (mouse.x || mouse.y)) { sac.tx = mouse.x * rg * 0.9; sac.ty = mouse.y * rg * 0.5; }   // a glance toward the cursor
-    else { sac.tx = range(-rg, rg); sac.ty = range(-rg, rg) * 0.35; }
+    else if (rnd() < 0.18) { sac.tx = range(-0.15, 0.15) * rg; sac.ty = 0; }   // back to the centre now and then
+    else { sac.side = -(sac.side || 1); sac.tx = sac.side * range(0.6, 1) * rg; sac.ty = range(-1, 1) * rg * 0.18; }
     sac.t0 = now; sac.dur = range(...KNOBS.saccade.move);
     sac.holdUntil = now + sac.dur + range(...KNOBS.saccade.hold);
     if (Math.hypot(sac.tx - sac.fx, sac.ty - sac.fy) > rg * 1.1 && rnd() < 0.35) blink.next = Math.min(blink.next, now + sac.dur + 40);   // big saccades often bring a blink
@@ -631,17 +666,19 @@ async function start() {
       halo.quaternion.copy(innerCam.quaternion);
       diskU.uTime.value = time; diskU.uHeat.value = smooth(0.6, 0.7, p) * 0.9;
       suckU.uTime.value = time; suckU.uAmt.value = smooth(0.6, 0.68, p);
+      skyU.uTime.value = time; skyU.uAmt.value = smooth(0.6, 0.7, p) * (1 - smooth(0.84, 0.94, p));
+      starU.uTime.value = time; starU.uAmt.value = smooth(0.6, 0.68, p);
     }
     sparks.visible = !reduced;
-    bloom.strength = KNOBS.bloom.strength * (p >= 0.6 ? 0.8 : 1 + 0.6 * zoomE);
-    fin.uniforms.uTime.value = time; fin.uniforms.uLiftAmt.value = 1 - zoomE;
+    bloom.strength = KNOBS.bloom.strength * (p >= 0.6 ? 0.55 : 1 + 0.6 * zoomE);
+    fin.uniforms.uTime.value = time; fin.uniforms.uLiftAmt.value = 1 - zoomE; fin.uniforms.uNoise.value = p >= 0.6 ? 0.012 : 0.03;
 
     // DOM: hint, skip, the hole that opens on the portfolio
     hintText.textContent = p < -0.01 ? (touchFirst ? 'Swipe to enter' : 'Scroll to enter') : (touchFirst ? 'Swipe up to zoom in' : 'Scroll to zoom in');
     const pullEye = reduced ? 0 : smooth(0.32, 0.58, p) * (1 - smooth(0.58, 0.6, p));
     const pullIn = reduced ? 0 : smooth(0.62, 0.92, p);
-    lens.uniforms.uSwirl.value = pullEye * 1.8 + pullIn * 2.4;
-    lens.uniforms.uPull.value = pullEye * 0.55 + pullIn * 0.9;
+    lens.uniforms.uSwirl.value = pullEye * 1.8 + pullIn * 1.1;
+    lens.uniforms.uPull.value = pullEye * 0.55 + pullIn * 0.35;
     lens.uniforms.uShadow.value = smooth(0.8, 0.95, p) * 1.15;
     hint.style.opacity = String(progress < 0 ? 1 : 1 - smooth(0.004, 0.04, progress));   // gone with the first scroll in
     skip.style.opacity = String(1 - smooth(0.8, 0.92, p));
