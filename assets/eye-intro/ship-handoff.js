@@ -1,6 +1,6 @@
 /* EYE INTRO ship shot: the portfolio's fleet (capital ship + two escorts) carries the journey from the void into the site.
    0.26-0.86  grey stand-ins of the three ships form out of the dots, fly with them and shrink into the black hole's core
-   0.87       the real fleet starts its flight from the bottom-right, escorts alongside (handoff through the hook in index.html)
+   0.86       the real fleet starts its flight from the bottom-right, escorts alongside (handoff through the hook in index.html)
    Forward only: scrolling back never flies them backward, and once they have gone in they only come back after a reload.
    The stand-ins clone the real ships, so geometry and textures are shared (nothing is downloaded twice). */
 
@@ -19,7 +19,7 @@ export function makeShipShot(THREE, { scene, reduced }) {
   scene.add(key, fill);
 
   function acquire() {
-    if (!api && window.__portfolioShip) { api = window.__portfolioShip; api.hold(true); }   // keep the fleet in the hangar while the intro plays
+    if (!api && window.__portfolioShip) { api = window.__portfolioShip; api.hold(true); dispatchEvent(new CustomEvent('duck', { detail: true })); }   // keep the fleet in the hangar and the site's sound quiet while the intro plays
   }
   function build() {
     if (clones || !api || !api.ready()) return;
@@ -63,8 +63,11 @@ export function makeShipShot(THREE, { scene, reduced }) {
         });
         mats.forEach(m => { m.opacity = fade; });
       }
-      if (!handed && p >= 0.87 && api.ready()) handed = api.startFlight(0, HANDOFF_FORMATION);   // the real fleet flies us out, right away
+      if (!handed && p >= 0.86 && api.ready()) {   // the fleet goes into the hole: its engines are heard as the real ships fly us out
+        dispatchEvent(new CustomEvent('duck', { detail: false }));
+        handed = api.startFlight(0, HANDOFF_FORMATION);
+      }
     },
-    release() { if (api) api.hold(false); },
+    release() { if (api) { api.hold(false); dispatchEvent(new CustomEvent('duck', { detail: false })); } },
   };
 }

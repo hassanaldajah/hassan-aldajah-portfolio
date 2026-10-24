@@ -11,10 +11,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
-import { makeEyePalette } from './palette.js?v=13';   // keep every ?v in step with VERSION in eye-intro.js
-import { makeSuction, makeStarfield } from './particles.js?v=13';
-import { makeShipShot } from './ship-handoff.js?v=13';
-import { NewsWall } from './news.js?v=13';
+import { makeEyePalette } from './palette.js?v=14';   // keep every ?v in step with VERSION in eye-intro.js
+import { makeSuction, makeStarfield } from './particles.js?v=14';
+import { makeShipShot } from './ship-handoff.js?v=14';
+import { NewsWall } from './news.js?v=14';
 
 /* ---------- knobs ---------- */
 const KNOBS = {

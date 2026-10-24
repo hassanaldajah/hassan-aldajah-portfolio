@@ -3,7 +3,7 @@
    Runs in <head> so the eye covers the page from the first paint; the WebGL module loads once the page is parsed. */
 (function () {
   var EYE_INTRO_ENABLED = true;
-  var VERSION = '13';   // bump on every change so browsers fetch the new files instead of a cached copy
+  var VERSION = '14';   // bump on every change so browsers fetch the new files instead of a cached copy
   if (!EYE_INTRO_ENABLED) return;
   // a deep link (#projects) or a restored scroll position goes straight to the content
   if (location.hash.length > 1) return;
