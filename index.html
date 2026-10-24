@@ -37,9 +37,14 @@ main,footer{position:relative;z-index:2}
 section{padding:clamp(72px,12vw,150px) 0}
 
 /* ---------- background layers: WebGL canvas, a dark veil for readability, two soft colour glows ---------- */
-#stage{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#stage{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0;transition:opacity .9s ease-out}
+#stage.on{opacity:1}
 .veil{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(5,6,11,.6) 0%,rgba(5,6,11,.42) 38%,rgba(5,6,11,.2) 68%,rgba(5,6,11,.12) 100%),rgba(5,6,11,.1)}
 .glow{position:fixed;z-index:0;pointer-events:none;border-radius:50%;filter:blur(110px);opacity:.22}
+/* once the script has computed the exact brightness profile of the blurred disc, it is drawn as a plain gradient on a box 3 blur radii wider (same look, no 110px blur to recompose every frame) */
+html.glow-g .glow{filter:none;border-radius:0;margin:-330px;background:radial-gradient(circle closest-side,var(--gs))}
+html.glow-g .glow.a{width:calc(46vmax + 660px);height:calc(46vmax + 660px);--gc:var(--violet)}
+html.glow-g .glow.b{width:calc(40vmax + 660px);height:calc(40vmax + 660px);--gc:var(--pink)}
 .glow.a{width:46vmax;height:46vmax;left:-14vmax;top:-10vmax;background:var(--violet)}
 .glow.b{width:40vmax;height:40vmax;right:-12vmax;bottom:-12vmax;background:var(--pink)}
 html.grabbing,html.grabbing *{cursor:grabbing!important;user-select:none!important;-webkit-user-select:none!important}
@@ -50,8 +55,16 @@ html.grabbing,html.grabbing *{cursor:grabbing!important;user-select:none!importa
 @keyframes navIn{from{opacity:0;transform:translate(-50%,-40px) scale(.94)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
 nav{--mx:50%;--my:50%;--spot:0;position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(10,12,22,.62);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);max-width:calc(100vw - 24px);overflow:visible;animation:navIn 1s cubic-bezier(.2,.8,.2,1) both .2s;transition:padding .4s,background .4s,box-shadow .4s}
 nav.scrolled{padding-top:5px;padding-bottom:5px;background:rgba(8,10,20,.85);box-shadow:0 14px 40px -12px rgba(0,0,0,.8)}
-nav::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),#7c5cff,#d65cff,#ff4d8d,#ffb3d9,#22d3ee,#5b7cff,#7c5cff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.85;animation:ring 5s linear infinite;pointer-events:none}
-nav:hover::before{animation-duration:2.2s;opacity:1;filter:drop-shadow(0 0 6px rgba(214,92,255,.8))}
+/* rainbow rings (nav, title cards, FC card): a conic layer inside a border-shaped mask, turned with transform so the GPU compositor
+   spins it (no repaint per frame). Browsers without hypot()/container units turn the gradient angle instead, as before. */
+.ring{position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;overflow:hidden;container-type:size;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;background:conic-gradient(from var(--a),var(--rg));animation:ring var(--rd) linear infinite}
+.ring i{display:none}
+@supports (width:hypot(1cqw,1cqh)){
+  .ring{background:none;animation:none}
+  .ring i{display:block;position:absolute;left:50%;top:50%;width:calc(hypot(100cqw,100cqh) + 6px);aspect-ratio:1;translate:-50% -50%;background:conic-gradient(from 0deg,var(--rg));animation:spin var(--rd) linear infinite}
+}
+nav>.ring{--rg:#7c5cff,#d65cff,#ff4d8d,#ffb3d9,#22d3ee,#5b7cff,#7c5cff;--rd:5s;opacity:.85}
+nav:hover>.ring{--rd:2.2s;opacity:1;filter:drop-shadow(0 0 6px rgba(214,92,255,.8))}
 nav::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:var(--spot);transition:opacity .35s;background:radial-gradient(180px circle at var(--mx) var(--my),rgba(214,92,255,.32),rgba(34,211,238,.16) 40%,transparent 70%)}
 @media(hover:none){nav::after{display:none}}
 .brand{display:flex;align-items:center;gap:8px;padding:7px 15px 7px 12px;margin-right:4px;border-radius:999px;font:600 14px var(--body);color:var(--muted);white-space:nowrap;transition:color .25s,background .35s,transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
@@ -142,7 +155,7 @@ h1{font:700 clamp(40px,6vw,82px)/1.02 var(--display);letter-spacing:-.035em}
 /* ---------- section titles: each sits in its own glowing card, in its section's two colours ---------- */
 @keyframes bob{0%,100%{translate:0 0}50%{translate:0 var(--bob,-4px)}}
 @keyframes flowg{to{background-position:200% 0}}
-@keyframes glowdrift{from{background-position:0% 0%}to{background-position:100% 100%}}
+@keyframes glowdrift{to{transform:translate(-41.1765%,-41.1765%)}}   /* = background-position 0% -> 100% at background-size 170% */
 main section{--c1:#8b6bff;--c2:#ff4d8d}
 #skills{--c1:#22d3ee;--c2:#8b6bff}
 #experience{--c1:#10b981;--c2:#22d3ee}
@@ -152,12 +165,15 @@ main section{--c1:#8b6bff;--c2:#ff4d8d}
 h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max-width:880px}
 .sub{color:var(--muted);max-width:620px;margin-top:16px}
 .head{--bob:-7px;position:relative;width:fit-content;max-width:100%;margin-bottom:clamp(36px,6vw,72px);padding:clamp(22px,3.2vw,38px) clamp(22px,3.6vw,46px);border-radius:28px;background:linear-gradient(160deg,rgba(18,20,36,.84),rgba(9,10,20,.84));backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:0 0 0 1px rgba(255,255,255,.06),0 0 60px -28px var(--c1),0 0 90px -42px var(--c2);animation:bob 6.5s ease-in-out infinite;transition:box-shadow .6s,transform .35s}
-.head::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),transparent 0 52%,var(--c1),var(--c2),transparent 88%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ring 7s linear infinite;opacity:.7;pointer-events:none;transition:opacity .6s}
-.head::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:.6;transition:opacity .6s;background:radial-gradient(60% 90% at 0% 0%,color-mix(in srgb,var(--c1) 22%,transparent),transparent 70%),radial-gradient(60% 90% at 100% 100%,color-mix(in srgb,var(--c2) 18%,transparent),transparent 70%);background-size:170% 170%;animation:glowdrift 9s ease-in-out infinite alternate}
+.head>.ring{--rg:transparent 0 52%,var(--c1),var(--c2),transparent 88%;--rd:7s;opacity:.7;transition:opacity .6s}
+/* the corner glows drift across the card: a 170% layer slid by transform inside a clipped box (was an animated background-position) */
+.hglow{position:absolute;inset:0;border-radius:inherit;overflow:hidden;pointer-events:none;opacity:.6;transition:opacity .6s}
+.hglow i{position:absolute;left:0;top:0;width:170%;height:170%;background:radial-gradient(60% 90% at 0% 0%,color-mix(in srgb,var(--c1) 22%,transparent),transparent 70%),radial-gradient(60% 90% at 100% 100%,color-mix(in srgb,var(--c2) 18%,transparent),transparent 70%);animation:glowdrift 9s ease-in-out infinite alternate}
 .head>*{position:relative;z-index:1}
+.head>.ring,.head>.hglow{position:absolute;z-index:auto}
 .head.lit,.head:hover{box-shadow:0 0 0 1px rgba(255,255,255,.09),0 0 80px -16px var(--c1),0 0 130px -28px var(--c2)}
-.head.lit::before,.head:hover::before{opacity:1;animation-duration:3.5s}
-.head.lit::after,.head:hover::after{opacity:1}
+.head.lit>.ring,.head:hover>.ring{opacity:1;--rd:3.5s}
+.head.lit>.hglow,.head:hover>.hglow{opacity:1}
 .head .kicker{color:var(--c1)}
 .head .g{background:linear-gradient(90deg,var(--c1),var(--c2),var(--c1)) 0 0/200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:flowg 5s linear infinite}
 
@@ -174,8 +190,8 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj:hover,.proj.lit{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 60px -10px var(--c),inset 0 0 80px -40px var(--c)}
 .proj.multi{--c:#a855f7}
 .proj.multi:hover,.proj.multi.lit{border-color:transparent;box-shadow:0 0 60px -12px #c04cff,0 0 80px -20px #4cc9ff,0 0 90px -30px #3be07a}
-.proj.multi::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:conic-gradient(from var(--a),#c04cff,#4cc9ff,#3be07a,#c04cff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .5s;animation:ring 6s linear infinite;pointer-events:none}
-.proj.multi:hover::after,.proj.multi.lit::after{opacity:1}
+.proj.multi>.ring{inset:0;--rg:#c04cff,#4cc9ff,#3be07a,#c04cff;--rd:6s;opacity:0;transition:opacity .5s}
+.proj.multi:hover>.ring,.proj.multi.lit>.ring{opacity:1}
 .proj.alt{grid-template-columns:1.1fr 1fr}
 .proj.alt .info{order:2}
 .proj.compact{grid-template-columns:.8fr 1.2fr;gap:clamp(20px,3vw,40px);padding:clamp(16px,2.4vw,26px) clamp(18px,3vw,34px)}
@@ -390,6 +406,7 @@ html.dot-field .cdot{opacity:0}
 <div class="glow a"></div><div class="glow b"></div>
 
 <nav>
+  <span class="ring" aria-hidden="true"><i></i></span>
   <a href="#home" class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6bff"/><stop offset=".5" stop-color="#d65cff"/><stop offset="1" stop-color="#ff5fa2"/></linearGradient></defs><path d="M32 1C33.6 22 42 30.4 63 32 42 33.6 33.6 42 32 63 30.4 42 22 33.6 1 32 22 30.4 30.4 22 32 1Z"/></svg><span>Home</span></a>
   <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
   <span class="progress" aria-hidden="true"><i></i></span>
@@ -431,7 +448,7 @@ html.dot-field .cdot{opacity:0}
 
 <section id="projects">
 <div class="wrap">
-  <div class="head rv"><div class="kicker">Case files &amp; projects</div><h2>Things I built, <span class="g">end to end.</span></h2><p class="sub">Security tools, desktop apps and research. Each one is public, with real code behind it.</p></div>
+  <div class="head rv"><span class="ring" aria-hidden="true"><i></i></span><span class="hglow" aria-hidden="true"><i></i></span><div class="kicker">Case files &amp; projects</div><h2>Things I built, <span class="g">end to end.</span></h2><p class="sub">Security tools, desktop apps and research. Each one is public, with real code behind it.</p></div>
 
   <!-- NASHMI -->
   <article class="proj nashmi rv" style="--c:#e5484d" data-video="nashmi">
@@ -537,7 +554,7 @@ html.dot-field .cdot{opacity:0}
           <script>/* FC video: the WebM (a fifth of the size) where the browser plays it; Apple devices keep the MP4, which they decode in hardware */{const v=document.querySelector('video[data-webm]');if(v.canPlayType('video/webm; codecs="vp9"')&&!/^((?!chrome|android).)*safari/i.test(navigator.userAgent))v.dataset.src=v.dataset.webm}</script>
       </div>
     </div>
-  </article>
+  <span class="ring" aria-hidden="true"><i></i></span></article>
 
   <div class="mini-grid">
     <div class="mini rv" style="--c:#22d3ee"><h3>Threat Eye <span class="g mini-g" style="--g1:#22d3ee;--g2:#10b981">SOC Detection</span></h3><p>Threat-intelligence-driven SOC pipeline in Splunk Enterprise: 957,674+ network-flow events and a Random Forest classifier for AI-based correlation.</p><div class="tags"><span>Splunk</span><span>Python</span><span>scikit-learn</span><span>REST API</span></div><a class="btn sm" href="Soc Ope Final Report.pdf" target="_blank" rel="noopener">Project report (PDF) ↗</a></div>
@@ -548,7 +565,7 @@ html.dot-field .cdot{opacity:0}
 
 <section id="skills">
 <div class="wrap">
-  <div class="head rv"><div class="kicker">Toolbox</div><h2>Tools &amp; <span class="g">technology</span></h2></div>
+  <div class="head rv"><span class="ring" aria-hidden="true"><i></i></span><span class="hglow" aria-hidden="true"><i></i></span><div class="kicker">Toolbox</div><h2>Tools &amp; <span class="g">technology</span></h2></div>
   <div class="tools">
     <div class="tool rv"><b style="background:#000"><img decoding="async" class="wide" src="assets/logos/splunk.svg" alt="" width="34" height="34" loading="lazy"></b><span>Splunk</span></div>
     <div class="tool rv"><b style="background:#fff"><img decoding="async" src="assets/logos/autopsy.png" alt="" width="34" height="34" loading="lazy"></b><span>Autopsy</span></div>
@@ -563,14 +580,14 @@ html.dot-field .cdot{opacity:0}
 
 <section id="experience">
 <div class="wrap">
-  <div class="head rv"><div class="kicker">Experience</div><h2>Practical <span class="g">experience</span></h2></div>
+  <div class="head rv"><span class="ring" aria-hidden="true"><i></i></span><span class="hglow" aria-hidden="true"><i></i></span><div class="kicker">Experience</div><h2>Practical <span class="g">experience</span></h2></div>
   <div class="tl"><article class="rv"><div><h4>Hands-on Technical Training</h4><p>JODBE · 40 hours of intensive technical training.</p></div><time>Completed</time></article></div>
 </div>
 </section>
 
 <section id="certifications">
 <div class="wrap">
-  <div class="head rv"><div class="kicker">Credentials</div><h2><span class="g">Certifications</span></h2></div>
+  <div class="head rv"><span class="ring" aria-hidden="true"><i></i></span><span class="hglow" aria-hidden="true"><i></i></span><div class="kicker">Credentials</div><h2><span class="g">Certifications</span></h2></div>
   <div class="tl">
     <article class="rv"><div><h4>HTB Certified Defensive Security Analyst (CDSA)</h4><p>Hack The Box · self-learning, SOC analyst path.</p></div><time class="prog">In progress</time></article>
     <article class="rv"><div><h4>AWS Academy Graduate · Cloud Foundations</h4><p>20 hours of comprehensive cloud foundation training.</p></div><time>Apr 2026</time></article>
@@ -583,7 +600,7 @@ html.dot-field .cdot{opacity:0}
 
 <section id="contact">
 <div class="wrap">
-  <div class="head rv"><div class="kicker">Contact</div><h2>Let's <span class="g">talk.</span></h2></div>
+  <div class="head rv"><span class="ring" aria-hidden="true"><i></i></span><span class="hglow" aria-hidden="true"><i></i></span><div class="kicker">Contact</div><h2>Let's <span class="g">talk.</span></h2></div>
   <div class="contact">
     <a class="rv" href="mailto:hassanaldajah2004@gmail.com"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></span><small>Email</small><strong>hassanaldajah2004@gmail.com</strong></a>
     <a class="rv" href="tel:+962778721521"><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="#a3ff6b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg></span><small>Phone</small><strong>+962 778721521</strong></a>
@@ -612,7 +629,7 @@ html.dot-field .cdot{opacity:0}
 <section id="void" class="void" aria-hidden="true"></section>
 </main>
 
-<footer>© <span id="yr">2026</span> Hassan Aldajah · Built with Three.js, GSAP and Lenis<br><small class="credit">Earth and Moon imagery: NASA (Blue Marble, Black Marble, LRO). Jupiter and Mercury textures: Solar System Scope (CC BY 4.0), based on NASA data.</small></footer>
+<footer>© <span id="yr">2026</span> Hassan Aldajah · Built with Three.js and Lenis<br><small class="credit">Earth and Moon imagery: NASA (Blue Marble, Black Marble, LRO). Jupiter and Mercury textures: Solar System Scope (CC BY 4.0), based on NASA data.</small></footer>
 
 <button id="sound" class="sound" type="button" aria-pressed="false" aria-label="Turn sound on" title="Sound">
   <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -623,10 +640,7 @@ html.dot-field .cdot{opacity:0}
 </button>
 
 
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script>
 document.body.classList.remove('no-js');
 document.getElementById('yr').textContent=new Date().getFullYear();
@@ -639,24 +653,45 @@ const burger=document.querySelector('.burger'),menu=document.getElementById('men
 burger.addEventListener('click',()=>{const o=menu.classList.toggle('open');burger.setAttribute('aria-expanded',o)});
 menu.addEventListener('click',e=>{if(e.target.tagName==='A'){menu.classList.remove('open');burger.setAttribute('aria-expanded',false)}});
 
-/* smooth scroll + reveal (degrades to plain scrolling if a CDN fails) */
+/* reveal on scroll: each element rises and fades in once its top passes 90% of the screen.
+   Web Animations on transform/opacity run on the GPU compositor, so they stay smooth even while the 3D background keeps the main thread busy. */
+const EASE='cubic-bezier(.215,.61,.355,1)';   // power3.out
+const rvIO=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting&&e.boundingClientRect.top>0)return;   // still below the line (elements already scrolled past show at once)
+  rvIO.unobserve(e.target);e.target.classList.remove('rv');e.target.style.transform='translate(0px, 0px)';   // the resting state the old GSAP reveal left inline (the touch tilt clears it), so cards keep behaving exactly as before
+  if(e.isIntersecting)e.target.animate([{opacity:0,transform:'translateY(34px)'},{opacity:1,transform:'none'}],{duration:900,easing:EASE});
+}),{rootMargin:'0px 0px -10% 0px'});
+document.querySelectorAll('.rv').forEach(el=>reduced?el.classList.remove('rv'):rvIO.observe(el));
+/* smooth wheel scrolling (Lenis) on mouse/trackpad computers only: touch screens keep the native scroll, which iOS runs off the main thread.
+   Loaded after the page so it never delays the first paint; in-page links glide either way. */
 let lenis=null;
-if(window.gsap&&window.ScrollTrigger&&!reduced){
-  gsap.registerPlugin(ScrollTrigger);
-  if(window.Lenis){
-    lenis=new Lenis({lerp:.13,smoothWheel:true});   // catches up with the wheel in about a quarter second: smooth, without feeling heavy
-    lenis.on('scroll',ScrollTrigger.update);
-    gsap.ticker.add(t=>lenis.raf(t*1000));
-    gsap.ticker.lagSmoothing(0);
-    document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
-      const el=document.querySelector(a.getAttribute('href'));
-      if(el){e.preventDefault();lenis.scrollTo(el,{offset:-70})}
-    }));
-  }
-  document.querySelectorAll('.rv').forEach(el=>{
-    gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:el,start:'top 90%',once:true}});
-  });
-}else{document.querySelectorAll('.rv').forEach(el=>{el.style.opacity=1;el.style.transform='none'})}   // keep each element's own inline styles (colours etc.)
+const go=(el,off)=>{if(lenis)lenis.scrollTo(el,{offset:off});else scrollTo({top:el.getBoundingClientRect().top+scrollY+off,behavior:reduced?'auto':'smooth'})};
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+  const el=document.querySelector(a.getAttribute('href'));
+  if(el){e.preventDefault();go(el,-70)}
+}));
+if(!reduced&&matchMedia('(hover: hover) and (pointer: fine)').matches){
+  const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js';sc.async=true;
+  sc.onload=()=>{lenis=new Lenis({lerp:.13,smoothWheel:true});   // catches up with the wheel in about a quarter second: smooth, without feeling heavy (time-based, same at any refresh rate)
+    (function raf(t){lenis.raf(t);requestAnimationFrame(raf)})(performance.now())};
+  addEventListener('load',()=>document.head.append(sc),{once:true});
+}
+
+/* the two big colour glows: a 110px blur is costly to recompose under a moving background, so the exact brightness profile
+   of a blurred disc is computed once (and on resize) and drawn as a gradient instead; until then the CSS blur shows */
+(()=>{
+  const S=110,erf=x=>{const t=1/(1+.3275911*Math.abs(x)),y=1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x<0?-y:y};
+  const Phi=x=>.5*(1+erf(x/Math.SQRT2));
+  // brightness at distance r from the centre of a disc of radius R blurred with a Gaussian of deviation S
+  const at=(r,R)=>{let sum=0;const N=160;for(let k=0;k<N;k++){const y=-R+(k+.5)*2*R/N,h=Math.sqrt(R*R-y*y);sum+=Math.exp(-y*y/(2*S*S))*(Phi((h-r)/S)-Phi((-h-r)/S))}return sum*(2*R/N)/(S*Math.sqrt(2*Math.PI))};
+  const root=document.documentElement;
+  const draw=()=>document.querySelectorAll('.glow').forEach(g=>{
+      const R=(g.offsetWidth-(root.classList.contains('glow-g')?6*S:0))/2;   // the disc's real size in CSS vmax
+      if(Math.abs(R-(g._R||0))<2)return;g._R=R;const E=R+3*S,st=[];
+      for(let i=0;i<=24;i++){const f=i/24;st.push(`color-mix(in srgb,var(--gc) ${(at(f*E,R)*100).toFixed(2)}%,transparent) ${(f*100).toFixed(2)}%`)}
+      g.style.setProperty('--gs',st.join(','));root.classList.add('glow-g')});
+  draw();addEventListener('resize',draw);
+})();
 
 /* page height, measured only when the layout changes size (reading it on every scroll or frame forces a style recalc) */
 let maxScroll=1;const sizeRO=new ResizeObserver(()=>{maxScroll=Math.max(1,document.documentElement.scrollHeight-innerHeight);dispatchEvent(new Event('pagesize'))});sizeRO.observe(document.body);
@@ -709,12 +744,14 @@ if(matchMedia('(hover: hover) and (pointer: fine)').matches){
   document.addEventListener('pointerleave',()=>{on=false;root.classList.remove('dot-on')});
   addEventListener('pointerdown',()=>root.classList.add('dot-down'));
   addEventListener('pointerup',()=>root.classList.remove('dot-down'));
-  (function follow(){
+  let prevT=performance.now();
+  (function follow(now){
     requestAnimationFrame(follow);
-    const vx=x-dx,vy=y-dy;if(Math.abs(vx)+Math.abs(vy)<.01&&dot._still)return;dot._still=Math.abs(vx)+Math.abs(vy)<.01;dx+=vx*.42;dy+=vy*.42;
+    const k=1-Math.pow(.58,Math.min(50,now-prevT)/16.67);prevT=now;   // closes 42% of the gap per 60 Hz frame, at any refresh rate
+    const vx=x-dx,vy=y-dy;if(Math.abs(vx)+Math.abs(vy)<.01&&dot._still)return;dot._still=Math.abs(vx)+Math.abs(vy)<.01;dx+=vx*k;dy+=vy*k;
     const sp=reduced?0:Math.min(1,Math.hypot(vx,vy)/60);
     dot.style.transform=`translate3d(${dx}px,${dy}px,0) rotate(${Math.atan2(vy,vx)}rad) scale(${1+sp*.6},${1-sp*.35})`;
-  })();
+  })(prevT);
 }
 /* cards float out of step with each other; tags are numbered for the ripple */
 document.querySelectorAll('.tool,.contact a,.tl article,.mini,.proj').forEach(c=>{c.style.setProperty('--bd',(6+Math.random()*3).toFixed(2)+'s');c.style.setProperty('--bdl',(-Math.random()*8).toFixed(2)+'s')});
@@ -751,19 +788,35 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
 })();
 
 /* track-names strip: drifts left on its own; grab it with a finger or the mouse to drag it back and forth.
-   Let go and it keeps the speed of your flick, then eases back into its own drift. */
+   Let go and it keeps the speed of your flick, then eases back into its own drift.
+   The steady drift is a Web Animation (run by the GPU compositor, smooth even at 30 fps on the main thread);
+   the script only steps in while the strip is held or still coasting after a flick. */
 (()=>{
   const strip=document.querySelector('.marquee'),track=strip&&strip.firstElementChild;
   if(!track)return;
   track.style.animation='none';
-  let x=0,v=0,period=1,drag=false,lastX=0,lastT=0,shown=true,prev=performance.now();
-  const base=()=>reduced?0:-period/32;   // same pace as before: one full loop every 32 s
-  const measure=()=>{period=track.scrollWidth/2||1};   // the strip holds the list twice
-  measure();v=base();addEventListener('resize',measure);if(document.fonts)document.fonts.ready.then(measure);
-  new IntersectionObserver(es=>{shown=es[0].isIntersecting}).observe(strip);
+  const LOOP=32000;   // same pace as before: one full loop every 32 s
+  let x=0,v=0,period=1,drag=false,lastX=0,lastT=0,shown=true,prev=0,anim=null,coasting=false;
+  const base=()=>reduced?0:-period*1000/LOOP;
+  const wrap=()=>{x=((x%period)+period)%period-period};
+  const drift=()=>{   // hand the drift to the compositor, starting exactly where the strip is now
+    coasting=false;if(reduced)return;wrap();
+    anim=track.animate([{transform:'translate3d(0,0,0)'},{transform:`translate3d(${-period}px,0,0)`}],{duration:LOOP,iterations:Infinity});
+    anim.currentTime=(-x/period)*LOOP;if(!shown)anim.pause()};
+  const hold=()=>{if(!anim)return;x=-((anim.currentTime%LOOP)/LOOP)*period;anim.cancel();anim=null;track.style.transform=`translate3d(${x.toFixed(2)}px,0,0)`};
+  const measure=()=>{const was=!!anim;hold();const f=x/period;period=track.scrollWidth/2||1;x=f*period;if(was)drift()};   // the strip holds the list twice
+  measure();v=base();drift();addEventListener('resize',measure);if(document.fonts)document.fonts.ready.then(measure);
+  new IntersectionObserver(es=>{shown=es[0].isIntersecting;if(anim)shown?anim.play():anim.pause()}).observe(strip);
+  function tick(now){
+    const dt=Math.min(.05,(now-prev)/1000);prev=now;
+    if(!drag){v+=(base()-v)*(1-Math.exp(-dt*1.8));x+=v*dt;if(Math.abs(v-base())<2){drift();return}}
+    wrap();track.style.transform=`translate3d(${x.toFixed(2)}px,0,0)`;
+    requestAnimationFrame(tick);
+  }
   strip.addEventListener('pointerdown',e=>{
     if(e.button>0)return;
-    drag=true;lastX=e.clientX;lastT=performance.now();v=0;
+    hold();drag=true;lastX=e.clientX;lastT=performance.now();v=0;
+    if(!coasting){coasting=true;prev=performance.now();requestAnimationFrame(tick)}
     strip.setPointerCapture(e.pointerId);document.documentElement.classList.add('grabbing');
   });
   strip.addEventListener('pointermove',e=>{
@@ -773,14 +826,6 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
   });
   const release=()=>{if(!drag)return;drag=false;v=Math.max(-3000,Math.min(3000,v));document.documentElement.classList.remove('grabbing')};
   ['pointerup','pointercancel','lostpointercapture'].forEach(t=>strip.addEventListener(t,release));
-  (function tick(now){
-    requestAnimationFrame(tick);
-    const dt=Math.min(.05,(now-prev)/1000);prev=now;
-    if(!shown&&!drag)return;
-    if(!drag){v+=(base()-v)*(1-Math.exp(-dt*1.8));x+=v*dt}
-    x=((x%period)+period)%period-period;
-    track.style.transform=`translate3d(${x.toFixed(2)}px,0,0)`;
-  })(prev);
 })();
 
 /* sound: a quiet space ambience and a low engine rumble when the ship flies past, synthesised with Web Audio (no audio files).
@@ -805,12 +850,12 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
     const n=ctx.createBufferSource(),bp=ctx.createBiquadFilter(),ng=ctx.createGain();n.buffer=noise;n.loop=true;bp.type='bandpass';bp.frequency.value=280;bp.Q.value=.5;ng.gain.value=.1;
     n.connect(bp).connect(ng).connect(master);n.start();
   }
-  function rumble(sec){   // the ship: passes from right to left and drops in pitch as it flies away
+  function rumble(sec,vol=1){   // the ship: passes from right to left and drops in pitch as it flies away
     if(!on||ducked||!ctx)return;
     const t=ctx.currentTime,n=ctx.createBufferSource(),o=ctx.createOscillator(),og=ctx.createGain(),lp=ctx.createBiquadFilter(),g=ctx.createGain();
     n.buffer=noise;n.loop=true;o.type='sawtooth';o.frequency.setValueAtTime(64,t);o.frequency.exponentialRampToValueAtTime(36,t+sec);og.gain.value=.16;
     lp.type='lowpass';lp.frequency.setValueAtTime(900,t);lp.frequency.exponentialRampToValueAtTime(110,t+sec);
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.9,t+.7);g.gain.exponentialRampToValueAtTime(.001,t+sec);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(1.4*vol,t+.7);g.gain.exponentialRampToValueAtTime(.001,t+sec);
     n.connect(lp);o.connect(og).connect(lp);lp.connect(g);
     if(ctx.createStereoPanner){const pan=ctx.createStereoPanner();pan.pan.setValueAtTime(.8,t);pan.pan.linearRampToValueAtTime(-.6,t+sec);g.connect(pan).connect(master)}
     else g.connect(master);
@@ -826,7 +871,7 @@ document.querySelectorAll('main section[id]:not(#void)').forEach(s=>io.observe(s
   function level(){const up=on&&!ducked;if(ctx)master.gain.setTargetAtTime(up?VOL:0,ctx.currentTime,up?.8:.12)}   // fade in slowly, out quickly
   addEventListener('duck',e=>{ducked=!!e.detail;level()});
   btn.addEventListener('click',()=>setSound(!on));
-  addEventListener('shipflyby',e=>rumble(e.detail||8));
+  addEventListener('shipflyby',e=>{const d=e.detail||{};rumble(d.sec||8,d.vol||1)});
   document.addEventListener('visibilitychange',()=>{if(ctx&&on){document.hidden?ctx.suspend():ctx.resume()}});
   if(saved!=='off'){
     const first=e=>{if(btn.contains(e.target))return;off();setSound(true)};
@@ -895,8 +940,8 @@ document.querySelectorAll('.screen video').forEach(v=>{
   const logSent=()=>{try{const a=sentLog();a.push(Date.now());localStorage.setItem('cf-sent',JSON.stringify(a.slice(-10)))}catch(_){}};
   function open(){
     btns.hidden=true;done.hidden=true;form.hidden=false;sayHello.setAttribute('aria-expanded','true');openedAt=Date.now();say('');
-    if(window.gsap&&!reduced)gsap.fromTo(form,{opacity:0,y:24,scale:.98},{opacity:1,y:0,scale:1,duration:.6,ease:'power3.out'});
-    if(lenis)lenis.scrollTo(form,{offset:-110});else form.scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});
+    if(!reduced)form.animate([{opacity:0,transform:'translateY(24px) scale(.98)'},{opacity:1,transform:'none'}],{duration:600,easing:EASE});
+    go(form,-110);
     setTimeout(()=>fName.focus({preventScroll:true}),400);
   }
   function close(){form.hidden=true;done.hidden=true;btns.hidden=false;sayHello.setAttribute('aria-expanded','false');sayHello.focus({preventScroll:true})}
@@ -1187,6 +1232,9 @@ const start=async()=>{
   // finale: each planet's size (in black-hole disk units) and where it starts in the 30 s fall
   await breathe();
   // ---------- spaceship: a giant capital ship that flies out from beside you (right) and away into the upper-left corner ----------
+  // built once the background is already running (its textures and reflections are the heaviest setup step), well before its first fly-by
+  let ship=null,navs=[],fleet=[],shipReady=false;
+  const buildShip=async()=>{
   // hull texture drawn once on a canvas: thousands of steel plates with dark seams, plus rows of tiny lit windows that sell the scale
   const [hullTex,lightTex]=(()=>{
     const make=()=>{const c=document.createElement('canvas');c.width=c.height=1024;return [c,c.getContext('2d')]};
@@ -1199,11 +1247,12 @@ const start=async()=>{
       for(let k=0;k<n;k++)if(Math.random()<.7)e.fillRect(x0+k*7,y,2.4,2.4)}
     return [c1,c2].map((c,i)=>{const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(.32,.32);t.anisotropy=aniso;t.colorSpace=THREE.SRGBColorSpace;return t});
   })();
+  await breathe();
   const shipEnv=new THREE.PMREMGenerator(renderer).fromScene(new RoomEnv(),.04).texture;   // something for the metal to reflect
   const hullMat=new THREE.MeshStandardMaterial({map:hullTex,bumpMap:hullTex,bumpScale:2,metalness:.72,roughness:.48,envMap:shipEnv,envMapIntensity:.85,
     emissiveMap:lightTex,emissive:0xffffff,emissiveIntensity:1.6,flatShading:true});
   const darkMat=new THREE.MeshStandardMaterial({color:0x4b5059,metalness:.8,roughness:.55,envMap:shipEnv,envMapIntensity:.7,flatShading:true});
-  const ship=new THREE.Group();ship.visible=false;pScene.add(ship);
+  ship=new THREE.Group();ship.visible=false;pScene.add(ship);
   // stacked wedge decks: [nose z, half width at the rear, bottom y, thickness]
   const wedge=(nose,half,y0,th)=>{const sh=new THREE.Shape();sh.moveTo(0,nose);sh.lineTo(half,-6);sh.lineTo(-half,-6);sh.closePath();
     const geo=new THREE.ExtrudeGeometry(sh,{depth:th,bevelEnabled:true,bevelThickness:.04,bevelSize:.04,bevelSegments:1});
@@ -1226,21 +1275,34 @@ const start=async()=>{
     const core=new THREE.Mesh(new THREE.CircleGeometry(r*.92,28),new THREE.MeshBasicMaterial({color:new THREE.Color(.7,.9,3.2)}));core.position.set(x,y,-6.62);core.rotation.y=Math.PI;ship.add(core);
     const g=new THREE.Mesh(new THREE.PlaneGeometry(r*7,r*7),glowMat);g.position.set(x,y,-6.75);g.rotation.y=Math.PI;ship.add(g)});
   // navigation lights: red port, green starboard, white at the nose
-  const navs=[[-3.35,-.25,-5.85,0xff3b3b],[3.35,-.25,-5.85,0x3bff7a],[0,-.3,5.9,0xffffff]].map(([x,y,z,c])=>{
+  navs=[[-3.35,-.25,-5.85,0xff3b3b],[3.35,-.25,-5.85,0x3bff7a],[0,-.3,5.9,0xffffff]].map(([x,y,z,c])=>{
     const l=new THREE.Mesh(new THREE.SphereGeometry(.07,10,8),new THREE.MeshBasicMaterial({color:c}));l.position.set(x,y,z);ship.add(l);return l});
+  // two smaller escorts follow the capital ship on the same route, offset to its sides (clones share its geometry and materials)
+  const navIdx=navs.map(l=>ship.children.indexOf(l));
+  fleet=[{g:ship,lag:0,ox:0,oy:0,s:1},{lag:.13,ox:-.32,oy:.26,s:.5},{lag:.24,ox:.26,oy:-.2,s:.42}].map((f,i)=>{
+    if(!i)return {...f,navs};const g=ship.clone();g.scale.setScalar(f.s);g.visible=false;pScene.add(g);return {...f,g,navs:navIdx.map(k=>g.children[k])}});
+  try{await renderer.compileAsync(ship,pCam,pScene)}catch(e){}
+  for(const t of [hullTex,lightTex])await upload(t);   // one per frame, like the planet maps (the reflection map is already on the GPU)
+  shipReady=true;
+  };
   // the fly-by: depth grows exponentially (steady apparent speed) while the screen position eases from the right edge to the upper-left
-  const FLY=10,EVERY=26;let flying=false,flyT=0,nextFly=2.5;
+  const FLY=10,EVERY=26,TAIL=.24;let flying=false,flyT=0,nextFly=2.5;   // TAIL: the last escort's delay, in fractions of a flight
   const shipAt=(u,out)=>{const e=1-Math.pow(1-u,2),d=9*Math.pow(19,u),hd=d*Math.tan(pCam.fov*Math.PI/360);
     return out.set((1.3-2.1*e)*hd*pCam.aspect,(-.5+1.12*e)*hd,-d)};
   const shipP=new THREE.Vector3(),shipN=new THREE.Vector3();
   const flyShip=(t,dt)=>{
-    if(!flying&&!reduced&&stage<.6&&t>nextFly){flying=true;flyT=0;dispatchEvent(new CustomEvent('shipflyby',{detail:FLY}))}
-    if(!flying){ship.visible=false;return}
-    flyT+=dt;const u=flyT/FLY;
-    if(u>=1){flying=false;ship.visible=false;nextFly=t+EVERY;return}
-    ship.visible=true;shipAt(u,shipP);shipAt(Math.min(1,u+.02),shipN);
-    ship.position.copy(shipP);ship.lookAt(shipN);ship.rotateZ(.28-.22*u);   // nose along the path, banking as it turns away
-    navs.forEach((l,i)=>l.visible=Math.sin(t*5+i*2)>.2);
+    if(!flying&&shipReady&&stage<.6&&t>nextFly){flying=true;flyT=0;   // each ship brings its own engine sound, quieter for the smaller ones
+      fleet.forEach(f=>setTimeout(()=>dispatchEvent(new CustomEvent('shipflyby',{detail:{sec:FLY,vol:f.s}})),f.lag*FLY*1000))}
+    if(!flying){fleet.forEach(f=>f.g.visible=false);return}
+    flyT+=dt;const u0=flyT/FLY;
+    if(u0>=1+TAIL){flying=false;fleet.forEach(f=>f.g.visible=false);nextFly=t+EVERY;return}
+    const tanH=Math.tan(pCam.fov*Math.PI/360);
+    for(const f of fleet){const u=u0-f.lag,g=f.g;if(u<0||u>=1){g.visible=false;continue}
+      g.visible=true;shipAt(u,shipP);shipAt(Math.min(1,u+.02),shipN);
+      // escorts keep a fixed place beside the route on screen: their offset grows with distance
+      for(const v of [shipP,shipN]){const hd=-v.z*tanH;v.x+=f.ox*hd*pCam.aspect;v.y+=f.oy*hd}
+      g.position.copy(shipP);g.lookAt(shipN);g.rotateZ(.28-.22*u);   // nose along the path, banking as it turns away
+      f.navs.forEach((l,i)=>l.visible=Math.sin(t*5+i*2)>.2)}
   };
   const SUCK={earth:[.55,0],jupiter:[.8,.2],moon:[.25,.6],mercury:[.3,.8]},tmpV=new THREE.Vector3();
   function place(stage,t=0){
@@ -1294,17 +1356,20 @@ const start=async()=>{
   addEventListener('pointerdown',e=>{if(e.button!==0||e.pointerType==='touch'||busy(e.target))return;grab=true;ax=mx;ay=my;document.documentElement.classList.add('grabbing');e.preventDefault()});
   const drop=()=>{if(!grab)return;grab=false;want.x=want.y=0;kick=1;document.documentElement.classList.remove('grabbing')};
   addEventListener('pointerup',drop);addEventListener('pointercancel',drop);addEventListener('blur',drop);
-  let last=performance.now();
+  let last=performance.now(),shown=false;
   let visible=true;document.addEventListener('visibilitychange',()=>visible=!document.hidden);
   const clock=new THREE.Clock();let sm=0;
   renderer.autoClear=false;
   const render=()=>{if(composer){composer.render();return}renderer.clear();renderer.render(pScene,pCam);renderer.clearDepth();renderer.render(scene,camera);renderer.clearDepth();renderer.render(topScene,pCam)};
   // adaptive quality: a device that keeps missing frames gets a background with fewer pixels, then (laptops) no bloom,
   // then (phones) flat panels instead of glass blur; a device that keeps up never changes
-  // (it waits out the loading phase and needs two slow stretches in a row, so a one-off hitch never lowers the quality)
-  let gN=0,gSlow=0,gBad=0,gHold=performance.now()+8000;const prMin=renderer.getPixelRatio()*.6;
-  const govern=(iv,now)=>{if(uploads.length||now<gHold){gN=gSlow=gBad=0;return}gN++;if(iv>21)gSlow++;if(gN<90)return;
-    gBad=gSlow/gN>.35?gBad+1:0;gN=gSlow=0;if(gBad<2)return;gBad=0;gHold=now+1500;
+  // (it waits out the loading phase and needs two slow stretches in a row, so a one-off hitch never lowers the quality).
+  // "Slow" means missing the device's own steady pace, read from its fastest frames: a phone held at 30 fps by iOS Low Power Mode
+  // (or any capped screen) that keeps that pace is not slow and keeps full quality.
+  let gBad=0,gHold=performance.now()+8000;const gWin=[],prMin=renderer.getPixelRatio()*.6;
+  const govern=(iv,now)=>{if(uploads.length||now<gHold){gWin.length=0;gBad=0;return}gWin.push(iv);if(gWin.length<90)return;
+    const pace=[...gWin].sort((a,b)=>a-b)[18],slow=gWin.filter(v=>v>pace*1.4).length;gWin.length=0;
+    gBad=slow/90>.35?gBad+1:0;if(gBad<2)return;gBad=0;gHold=now+1500;
     const pr=renderer.getPixelRatio();
     if(pr>prMin*1.01){const np=Math.max(prMin,pr*.82);renderer.setPixelRatio(np);composer&&composer.setPixelRatio(np);sky.material.uniforms.uPR.value=np;resize()}
     else if(composer){composer.dispose();composer=null}
@@ -1315,8 +1380,10 @@ const start=async()=>{
     if(iv<10)return;   // 120/144 Hz screens: the background draws 60-72 times a second and leaves the rest of the GPU to the page
     const t=clock.getElapsedTime();uni.uT.value=t;
     const dt=Math.min(.05,iv/1000);last=now;if(iv<250)govern(iv,now);
-    px+=(mx-px)*.25;py+=(my-py)*.25;const ivx=(px-lpx)/Math.max(dt,.001),ivy=(py-lpy)/Math.max(dt,.001);lpx=px;lpy=py;
-    pvx+=(ivx-pvx)*.12;pvy+=(ivy-pvy)*.12;
+    // smoothing factors are per 60 Hz frame, scaled by the real frame time: the same motion at 30, 60 or 120 fps
+    const L=f=>1-Math.pow(1-f,dt*60);
+    const kp=L(.25);px+=(mx-px)*kp;py+=(my-py)*kp;const ivx=(px-lpx)/Math.max(dt,.001),ivy=(py-lpy)/Math.max(dt,.001);lpx=px;lpy=py;
+    const kv=L(.12);pvx+=(ivx-pvx)*kv;pvy+=(ivy-pvy)*kv;
     if(grab){want.x=Math.max(-.8,Math.min(.8,mx-ax));want.y=Math.max(-.6,Math.min(.6,my-ay))}
     const stiff=grab?120:38,damp=grab?16:4.2;   // stiff while held, soft and wobbly once released
     pv.x+=((want.x-pull.x)*stiff-pv.x*damp)*dt;pv.y+=((want.y-pull.y)*stiff-pv.y*damp)*dt;pull.x+=pv.x*dt;pull.y+=pv.y*dt;
@@ -1324,8 +1391,8 @@ const start=async()=>{
     uni.uPtr.value.set(px,py);uni.uPtrVel.value.set(Math.max(-3,Math.min(3,pvx)),Math.max(-3,Math.min(3,pvy)));
     uni.uGrabAt.value.set(ax,ay);uni.uPull.value.set(pull.x,pull.y);uni.uDrag.value.set(pull.x*.35,pull.y*.35);
     uni.uFlex.value=Math.min(1,kick*.6+Math.hypot(pv.x,pv.y)*.25);
-    uni.uMouse.value.x+=(mx-uni.uMouse.value.x)*.04;uni.uMouse.value.y+=(my-uni.uMouse.value.y)*.04;
-    const p=sy/maxScroll;sm+=(p-sm)*.05;uni.uScroll.value=sm*6.;
+    const km=L(.04);uni.uMouse.value.x+=(mx-uni.uMouse.value.x)*km;uni.uMouse.value.y+=(my-uni.uMouse.value.y)*km;
+    const p=sy/maxScroll;sm+=(p-sm)*L(.05);uni.uScroll.value=sm*6.;
     // planets: glide between sections, spin, fade in once their textures arrive, follow the mouse a little
     const yy=sy+h*.4,n=anchors.length-1;let st=n;for(let i=0;i<n;i++){if(yy<tops[i+1]){st=i+Math.max(0,(yy-tops[i])/Math.max(1,tops[i+1]-tops[i]));break}}
     stage+=(st-stage)*Math.min(1,dt*3.5);place(stage,t);
@@ -1336,7 +1403,7 @@ const start=async()=>{
     topHole.position.copy(hole.position);topHole.scale.copy(hole.scale);topHole.visible=hole.position.x<60;
     // fibres soften as you leave the hero so the planets take over
     const fade=Math.min(1,sy/(h*1.1));uni.uGain.value=(touch?2.5:1)*(1-fade*.55)*(1-.8*Math.min(1,Math.max(0,stage-3.2)/.6));
-    render();
+    render();if(!shown){shown=true;canvas.classList.add('on')}
     if(uploads.length){const [tx,ok]=uploads.shift();renderer.initTexture(tx);ok(tx)}   // at most one planet map reaches the GPU per frame
   }
   // compile every shader before the first frame, in the background where the GPU allows it (KHR_parallel_shader_compile),
@@ -1358,9 +1425,12 @@ const start=async()=>{
   const sent=new Set(uploads.map(u=>u[0]));
   for(const s of [pScene,scene,topScene])s.traverse(o=>{const m=o.material;if(!m)return;
     for(const v of [...Object.values(m),...Object.values(m.uniforms||{}).map(u=>u.value)])if(v&&v.isTexture&&!v.isRenderTargetTexture&&!sent.has(v)){sent.add(v);uploads.push([v,()=>{}])}});
-  if(reduced){uni.uT.value=4;holeUni.uT.value=6;place(0);render()}else frame();
+  if(reduced){uni.uT.value=4;holeUni.uT.value=6;place(0);render();canvas.classList.add('on')}
+  else{frame();(window.requestIdleCallback||(f=>setTimeout(f,400)))(buildShip,{timeout:2000})}
 };
-(window.requestIdleCallback||(f=>setTimeout(f,300)))(start,{timeout:1500});
+// the 3D setup starts once the page itself has loaded (or after 3 s at the latest), so it never competes with the first paint
+let started=false;const go3d=()=>{if(started)return;started=true;(window.requestIdleCallback||(f=>setTimeout(f,50)))(start,{timeout:1000})};
+if(document.readyState==='complete')go3d();else{addEventListener('load',go3d,{once:true});setTimeout(go3d,3000)}
 </script>
 </body>
 </html>
