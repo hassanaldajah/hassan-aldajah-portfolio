@@ -11,10 +11,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
-import { makeEyePalette } from './palette.js?v=11';   // keep every ?v in step with VERSION in eye-intro.js
-import { makeSuction, makeStarfield } from './particles.js?v=11';
-import { makeShipShot } from './ship-handoff.js?v=11';
-import { NewsWall } from './news.js?v=11';
+import { makeEyePalette } from './palette.js?v=12';   // keep every ?v in step with VERSION in eye-intro.js
+import { makeSuction, makeStarfield } from './particles.js?v=12';
+import { makeShipShot } from './ship-handoff.js?v=12';
+import { NewsWall } from './news.js?v=12';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
@@ -156,8 +156,8 @@ void main(){
 const quadVert = /* glsl */`varying vec2 vP; void main(){vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 // the pupil: a true black core with a sharp edge
 const pupilFrag = /* glsl */`
-uniform float uR0; varying vec2 vP;
-void main(){float r=length(vP), px=fwidth(r); float a=1.-smoothstep(uR0-px,uR0,r); gl_FragColor=vec4(0.,0.,0.,a);}`;
+uniform float uR0, uWin; varying vec2 vP;
+void main(){float r=length(vP), px=fwidth(r); float a=(1.-smoothstep(uR0-px,uR0,r))*uWin; gl_FragColor=vec4(0.,0.,0.,a);}   // uWin: the core turns into a window onto the dots`;
 // the hero: a 1-2 px event-horizon ring, the accretion glow swirling warm to cool, and the limbus rim
 const rimFrag = /* glsl */`
 uniform vec3 uRim, uHorizon; uniform float uR0, uFlash, uIgnite; varying vec2 vP;
@@ -293,7 +293,8 @@ async function start() {
     fragmentShader: `uniform vec3 uBg; uniform float uIgnite; varying vec2 vP; void main(){float r=length(vP), px=fwidth(r); float a=(1.-smoothstep(1.-px*2.,1.,r))*smoothstep(0.,.4,uIgnite); gl_FragColor=vec4(0.,0.,0.,a);}`,
     transparent: true, depthWrite: false, depthTest: false }));
   backing.position.z = -0.001; backing.renderOrder = 0.5; eye.add(backing);
-  const pupil = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.ShaderMaterial({ uniforms: { uR0: { value: R0 } }, vertexShader: quadVert, fragmentShader: pupilFrag, transparent: true, depthWrite: false, depthTest: false }));
+  const pupilU = { uR0: { value: R0 }, uWin: { value: 1 } };
+  const pupil = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.ShaderMaterial({ uniforms: pupilU, vertexShader: quadVert, fragmentShader: pupilFrag, transparent: true, depthWrite: false, depthTest: false }));
   pupil.position.z = 0.002; pupil.renderOrder = 2; eye.add(pupil);
 
   const rimU = { uRim: { value: C('rim') }, uHorizon: { value: C('horizon') }, uR0: { value: R0 }, uFlash: { value: 0 }, uIgnite: { value: 0 } };
@@ -318,7 +319,7 @@ async function start() {
   const rt = new THREE.WebGLRenderTarget(innerWidth * dpr, innerHeight * dpr, { type: THREE.HalfFloatType, samples: 4 });
   const composer = new EffectComposer(renderer, rt);
   const outerPass = new RenderPass(scene, cam), voidPass = new RenderPass(voidScene, voidCam, null, new THREE.Color(0x000000), 1);
-  composer.addPass(outerPass); composer.addPass(voidPass); voidPass.enabled = false;
+  composer.addPass(voidPass); composer.addPass(outerPass); voidPass.enabled = false; outerPass.clearDepth = true;   // the void underneath, the eye on top
   const fin = new ShaderPass(finalShader); composer.addPass(fin);
   composer.addPass(new OutputPass());
 
@@ -445,10 +446,11 @@ async function start() {
     irisU.uDissolve.value = reduced ? 0 : smooth(0.08, 0.3, p) * 0.8;
     wallDom.setOpacity(Math.min(1, E.wallIn) * (1 - smooth(0.1, 0.28, p)));
     // the journey: suction (0..0.30), the void with the fleet (0.30..0.86), inside the hole (0.86..0.94), out with the fleet (0.94..1)
-    const deep = !reduced && p >= 0.3;
-    outerPass.enabled = !deep; voidPass.enabled = deep;
+    const deep = !reduced && p >= 0.3, seen = !reduced && p >= 0.22;   // the pupil opens onto the dots before it fills the screen: no black hold
+    voidPass.enabled = seen; outerPass.enabled = !deep; outerPass.clear = !seen;
+    pupilU.uWin.value = reduced ? 1 : 1 - smooth(0.22, 0.29, p);
     suction.update(reduced ? 0 : p, time);
-    if (deep) starfield.update(p, time);
+    if (seen) starfield.update(p, time);
     shipShot.update(p, time);
     fin.uniforms.uTime.value = time; fin.uniforms.uBlack.value = E.black;
 
@@ -456,12 +458,12 @@ async function start() {
     hintText.textContent = p < -0.01 ? (touchFirst ? 'Swipe to enter' : 'Scroll to enter') : (touchFirst ? 'Swipe up to zoom in' : 'Scroll to zoom in');
     hint.style.opacity = String(E.hint * (progress < 0 ? 1 : 1 - smooth(0.004, 0.04, progress)));
     skip.style.opacity = String(1 - smooth(0.8, 0.92, progress));
-    root.classList.toggle('eye-intro-hide', progress < 0.92);
+    root.classList.toggle('eye-intro-hide', progress < 0.86);
     if (reduced) {
       if (progress > 0) stage.style.opacity = String(1 - smooth(0.15, 1, progress));
     } else {
-      const open = smooth(0.94, 1, p);
-      el.classList.toggle('ei-open', p > 0.94);
+      const open = smooth(0.87, 0.97, p);
+      el.classList.toggle('ei-open', p > 0.87);   // the exit starts right after the fleet goes in
       el.style.setProperty('--ei-hole', (easeOut(open) * Math.hypot(innerWidth, innerHeight) * 0.86 - 30).toFixed(1) + 'px');
       el.style.setProperty('--ei-ring', String(open > 0 ? Math.sin(Math.PI * open) * 0.9 : 0));
       stage.style.opacity = String(1 - smooth(0.96, 1, p));

@@ -1,6 +1,6 @@
 /* EYE INTRO ship shot: the portfolio's fleet (capital ship + two escorts) carries the journey from the void into the site.
-   0.30-0.86  grey stand-ins of the three ships fly side by side with the dots into the black hole, shrinking to dots
-   0.94       the real fleet starts its flight from the bottom-right, escorts alongside (handoff through the hook in index.html)
+   0.26-0.86  grey stand-ins of the three ships form out of the dots, fly with them and shrink into the black hole's core
+   0.87       the real fleet starts its flight from the bottom-right, escorts alongside (handoff through the hook in index.html)
    Forward only: scrolling back never flies them backward, and once they have gone in they only come back after a reload.
    The stand-ins clone the real ships, so geometry and textures are shared (nothing is downloaded twice). */
 
@@ -31,6 +31,7 @@ export function makeShipShot(THREE, { scene, reduced }) {
         if (!m) { m = o.material.clone(); if ('envMap' in m) m.envMap = null; m.transparent = true; mats.set(o.material, m); }   // the reflection map lives in the other GPU context
         o.material = m;
       });
+      c.traverse(o => { o.renderOrder = 3; });   // drawn after the black hole: it never covers them, they shrink into it
       c.visible = false; scene.add(c); base.push(g.scale.x);
       return c;
     });
@@ -44,19 +45,25 @@ export function makeShipShot(THREE, { scene, reduced }) {
       maxP = Math.max(maxP, p);
       if (p >= 0.86) gone = true;
       if (clones) {
-        const show = !gone && p >= 0.3 && p < 0.86 && p >= maxP - 0.01;   // never shown while scrolling back
-        const v = smooth(0.3, 0.86, p), stretch = 1 + 2.5 * smooth(0.8, 0.86, p), fade = smooth(0.3, 0.36, p);
+        const show = !gone && p >= 0.26 && p < 0.86 && p >= maxP - 0.01;   // never shown while scrolling back
+        const v = smooth(0.26, 0.86, p);
+        const born = 0.02 + 0.98 * (1 - Math.pow(1 - smooth(0.26, 0.38, p), 3));   // specks among the dots that become ships
+        const pull = smooth(0.58, 0.86, p), shrink = 1 - 0.98 * pull * pull;      // power2.in: the hole squeezes them to dots
+        const stretch = 1 + 2 * smooth(0.8, 0.86, p);
+        const fade = smooth(0.26, 0.34, p) * (1 - smooth(0.82, 0.86, p));         // gone exactly as they reach the core
         clones.forEach((c, i) => {
           c.visible = show;
           if (!show) return;
-          const z = -16 * Math.pow(150 / 16, v);                       // big and close, then away into the hole
-          c.position.set(SPREAD[i] * (1 - 0.25 * v), -2.2 * (1 - v) + (i ? 0.6 : 0), z);
-          c.rotation.set(0.04, Math.PI, Math.sin(time * 0.8 + i * 1.7) * 0.04);   // nose toward the hole, a gentle bank
-          c.scale.set(base[i], base[i], base[i] * stretch);              // pulled long right before the horizon
+          const z = -22 * Math.pow(90 / 22, v);                                   // away from us, into the hole
+          const spread = 0.3 + 0.7 * Math.sqrt(shrink);                           // they converge on the centre, but never faster than they shrink
+          c.position.set(SPREAD[i] * spread, (-2.2 + (i ? 0.6 : 0)) * (1 - pull), z);
+          c.rotation.set(0.04, Math.PI, Math.sin(time * 0.8 + i * 1.7) * 0.04);
+          const s = base[i] * born * shrink;
+          c.scale.set(s, s, s * stretch);
         });
         mats.forEach(m => { m.opacity = fade; });
       }
-      if (!handed && p >= 0.94 && api.ready()) handed = api.startFlight(0, HANDOFF_FORMATION);   // the real fleet flies us out
+      if (!handed && p >= 0.87 && api.ready()) handed = api.startFlight(0, HANDOFF_FORMATION);   // the real fleet flies us out, right away
     },
     release() { if (api) api.hold(false); },
   };

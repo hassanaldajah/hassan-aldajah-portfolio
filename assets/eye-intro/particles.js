@@ -97,13 +97,13 @@ void main(){
     points, hole,
     resize(aspect) { hu.uAspect.value = aspect; },
     update(p, time) {
-      const v = smooth(0.3, 0.86, p), inside = smooth(0.86, 0.97, p);
-      u.uTravel.value = smooth(0.3, 0.98, p) * 340 + time * 0.8;   // the camera floats forward the whole way; a slow drift when idle
+      const v = smooth(0.22, 0.86, p), inside = smooth(0.86, 0.92, p);
+      u.uTravel.value = smooth(0.22, 0.92, p) * 340 + time * 0.8;   // the camera floats forward the whole way; a slow drift when idle
       u.uSpin.value = v * 1.4 + inside * 0.6 + time * 0.012;
       u.uPull.value = v;
       u.uTime.value = time;
       // the void, the last dots falling in, then a few dots drifting past inside the hole
-      u.uAmt.value = smooth(0.3, 0.35, p) * (1 - smooth(0.8, 0.86, p)) + 0.25 * smooth(0.86, 0.88, p) * (1 - smooth(0.94, 0.98, p));
+      u.uAmt.value = smooth(0.22, 0.28, p) * (1 - smooth(0.8, 0.86, p)) + 0.25 * smooth(0.86, 0.87, p) * (1 - smooth(0.9, 0.93, p));
       // outside: the hole grows until its core fills the screen; inside: a thin ring at the end of the tunnel opens toward us
       hu.uRad.value = p < 0.86 ? 0.035 + Math.pow(v, 3) * 2.4 : 0.02 + inside * inside * 2.4;
       hu.uFlash.value = Math.sin(Math.PI * smooth(0.84, 0.88, p));
