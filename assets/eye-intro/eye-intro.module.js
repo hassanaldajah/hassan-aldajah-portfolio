@@ -1,8 +1,7 @@
-/* EYE INTRO: "the watcher". A real 3D eye (eyeball, fibrous iris, cornea glint, skin and blinking lids) drawn entirely in
-   mono characters, in the site's colours. Scrolling dilates the pupil and the camera flies through it into a small universe
-   and falls into a black hole: the iris twists, gravity pulls the picture in, the horizon swallows the view and the
-   portfolio opens out of the dark. Scrolling up at the top of the portfolio pulls back out to the eye.
-   Self-contained: no globals, every listener is its own, and once revealed the render loop stops and the scroll lock is gone. */
+/* EYE INTRO: "the watcher". An iris of cybersecurity words, a black pupil, an ember rim like the Nashmi globe, eyelids made of the
+   log wall around it. The wheel / a swipe / the arrow keys dolly the camera into the pupil and the portfolio opens through it;
+   scrolling up at the top of the portfolio pulls back out to the eye. Self-contained: no globals, every listener is its own,
+   and once the portfolio is revealed the render loop stops and the scroll lock is gone. */
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -12,17 +11,17 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
-  cell: 6, cellMobile: 5, cellDive: 4,           // character cell in CSS px: dense, like a terminal printing the eye
-  glyphs: " .`',:;~-_=+<>*rcvxznusoaeyjtfLJCQ0OZwmqpdbkhgXYUMW8&%#@$",   // code characters, light to dense (no tall strokes in the dark tones: they print as stripes)
-  eyeWidth: 0.92,                                 // almond width / screen width (landscape); 0.92 in portrait
-  pupil: [0.12, 0.46],                            // pupil radius at rest and fully dilated (iris = 0.5)
-  gaze: 0.38,                                     // how far the eyeball turns (rad)
-  saccade: { move: [120, 180], hold: [700, 2400] },
+  rings: 10, ringsMobile: 7,          // word bands from pupil to limbus (sized like the reference: readable words at 96vh)
+  wordH: [0.024, 0.036],              // word height, in iris radii
+  pupil: 0.30,                        // pupil radius / iris radius
+  drift: 0.0055,                      // inward flow of the words (iris spans per second)
+  spin: 0.035,                        // ring rotation (rad/s), alternating direction
+  sparks: 220, sparksMobile: 110, streaks: 520,
+  saccade: { range: 0.12, move: [120, 180], hold: [600, 2200] },
   blink: { gap: [2500, 6000], double: 0.15 },
-  stars: 2600, starsMobile: 1400,
-  zoomPerPx: 1 / 1400,
-  bloom: { strength: 0.42, radius: 0.5, threshold: 0.72 },
-  fov: 35, dprMax: 1.75,
+  zoomPerPx: 1 / 1400,                // wheel pixels to progress
+  bloom: { strength: 0.5, radius: 0.5, threshold: 0.6 },
+  fov: 35, camZ: 10, dprMax: 1.75,
 };
 
 const root = document.documentElement;
@@ -35,102 +34,243 @@ function makePalette() {
   const cs = getComputedStyle(root), tok = (n, f) => cs.getPropertyValue(n).trim() || f;
   const bg = new THREE.Color(tok('--bg', '#06070d')), violet = new THREE.Color(tok('--violet', '#7c5cff')),
     cyan = new THREE.Color(tok('--cyan', '#22d3ee')), pink = new THREE.Color(tok('--pink', '#ff4d8d')),
-    text = new THREE.Color(tok('--text', '#e9ebf5'));
+    text = new THREE.Color(tok('--text', '#e9ebf5')), muted = new THREE.Color(tok('--muted', '#9097b3'));
   const deep = (c, desat, dark) => { const h = {}; c.getHSL(h); return new THREE.Color().setHSL(h.h, h.s * (1 - desat), h.l * (1 - dark)); };
   return {
-    bg: bg.clone().lerp(violet, 0.02),
-    skin: new THREE.Color('#6a4632'), skinLight: new THREE.Color('#93664a'), skinDark: new THREE.Color('#140b07'), caruncle: new THREE.Color('#b8675e'),
-    sclera: new THREE.Color('#ebe6e0'), scleraShade: new THREE.Color('#a39388'), vein: new THREE.Color('#a33a36'),
-    irisIn: new THREE.Color('#d39a3f'), irisMid: new THREE.Color('#8c5424'), irisOut: new THREE.Color('#3e2414'), limbus: new THREE.Color('#0e0805'),
-    accent: pink.clone(),
+    bg: bg.clone().lerp(violet, 0.02),          // near-black, tinted with the site's main hue
+    bgDeep: bg.clone().lerp(violet, 0.11),        // the vignette's centre lift
+    ringIn: deep(cyan, 0.15, 0.30),               // inner rings
+    ringOut: deep(violet, 0.15, 0.28),            // outer rings
+    hot: text.clone(),                            // the few white words that flicker
+    accent: pink.clone(),                         // ember: rim, pulsing words, sparks
     accentDeep: deep(pink, 0.15, 0.35),
-    text: text.clone(), violet: violet.clone(), cyan: cyan.clone(),
-    css: { bg: '#' + bg.clone().lerp(violet, 0.02).getHexString(), text: tok('--text', '#e9ebf5'), accent: tok('--pink', '#ff4d8d') },
+    wallText: muted.clone(),
+    css: { bg: '#' + bg.clone().lerp(violet, 0.035).getHexString(), text: tok('--text', '#e9ebf5'), accent: tok('--pink', '#ff4d8d') },
   };
+}
+
+/* ---------- words ---------- */
+const IRIS_WORDS = ['firewall', 'exploit', 'payload', 'zero-day', 'phishing', 'malware', 'ransomware', 'rootkit', 'backdoor', 'botnet', 'CVE', 'XSS', 'SQLi', 'RCE', 'CSRF', 'SSRF', 'MITM', 'DDoS', 'brute-force', 'honeypot', 'sandbox', 'SIEM', 'SOC', 'IDS', 'IPS', 'EDR', 'threat-intel', 'OSINT', 'recon', 'nmap', 'wireshark', 'burp', 'metasploit', 'kali', 'shell', 'root', 'sudo', 'hash', 'SHA-256', 'AES', 'RSA', 'TLS', 'VPN', 'encrypt', 'decrypt', 'keylogger', 'trojan', 'worm', 'spoofing', 'packet', 'port 443', 'port 22', 'CTF', 'pentest', 'red team', 'blue team', 'forensics', 'incident', 'breach', 'patch', 'vuln', 'auth', '2FA', 'token', 'cipher', 'access denied', 'ACCESS GRANTED', '0x7F', '/etc/shadow', 'chmod 777', 'triage', 'yara', 'sigma', 'IOC', 'TTP', 'MFA', 'DNS', 'ARP', 'pcap', 'syslog', 'beacon', 'C2'];
+const ACCENT_WORDS = ['BREACH', 'ZERO-DAY', 'ACCESS GRANTED', 'ROOT', 'ALERT', 'CVE-2026-4471', 'THREAT DETECTED'];
+const FONTS = ['500 44px "IBM Plex Mono"', '400 44px "IBM Plex Mono"', '600 46px "Space Grotesk"'];
+
+let seed = 1337;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+const pick = a => a[Math.floor(rnd() * a.length)];
+const range = (a, b) => a + (b - a) * rnd();
+
+// one atlas for every word: white glyphs, coloured in the shader
+function buildAtlas() {
+  const W = 2048, H = 2048, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.textBaseline = 'middle';
+  const rowH = 60, pad = 10, entries = [];
+  let x = pad, y = pad;
+  const put = (word, font, accent) => {
+    g.font = font; const w = Math.ceil(g.measureText(word).width);
+    if (x + w + pad > W) { x = pad; y += rowH; }
+    if (y + rowH > H) return;
+    g.fillText(word, x, y + rowH / 2);
+    entries.push({ u0: (x - 2) / W, v0: 1 - (y + rowH) / H, u1: (x + w + 2) / W, v1: 1 - y / H, aspect: (w + 4) / rowH, accent });
+    x += w + pad * 2;
+  };
+  for (const f of FONTS) for (const w of IRIS_WORDS) put(w, f, 0);
+  for (const w of ACCENT_WORDS) put(w, FONTS[0], 1);
+  const tex = new THREE.CanvasTexture(c);
+  tex.generateMipmaps = true; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.anisotropy = 8; tex.colorSpace = THREE.NoColorSpace;
+  return { tex, normal: entries.filter(e => !e.accent), accent: entries.filter(e => e.accent) };
+}
+
+// the live threat feed behind the eye. Sample values only: private IP ranges, made-up hosts.
+function buildWall() {
+  const S = 2048, c = document.createElement('canvas'); c.width = S; c.height = S;
+  const g = c.getContext('2d'); g.textBaseline = 'alphabetic';
+  const ip = () => pick([`192.168.${Math.floor(rnd() * 255)}.${Math.floor(rnd() * 254) + 1}`, `10.0.${Math.floor(rnd() * 255)}.${Math.floor(rnd() * 254) + 1}`, `172.16.${Math.floor(rnd() * 31)}.${Math.floor(rnd() * 254) + 1}`]);
+  const port = () => pick([22, 80, 443, 445, 3389, 4444, 8080, 8443, 53, 3306]);
+  const hex = n => Array.from({ length: n }, () => '0123456789abcdef'[Math.floor(rnd() * 16)]).join('');
+  const T = [
+    () => ['[ALERT]', ` brute-force attempt blocked ${ip()}`],
+    () => ['', `nmap -sV -p- target${Math.floor(rnd() * 9)}.local`],
+    () => ['[+]', ' payload delivered to sandbox'],
+    () => ['', `SHA256: ${hex(7)}...${hex(4)}`],
+    () => ['', `GET /admin HTTP/1.1 ${pick([403, 401, 404])}`],
+    () => ['[SOC]', ` incident #${4000 + Math.floor(rnd() * 900)} escalated`],
+    () => ['', `firewall: DROP tcp ${ip()}:${port()}`],
+    () => ['', '$ sudo tcpdump -i eth0 -w capture.pcap'],
+    () => ['[WARN]', ` ${Math.floor(rnd() * 90) + 10} failed logins from ${ip()}`],
+    () => ['', `ssh: accepted publickey for analyst from ${ip()}`],
+    () => ['[IDS]', ` signature match ET-${Math.floor(rnd() * 9e6)} on :${port()}`],
+    () => ['', `CVE-2026-${1000 + Math.floor(rnd() * 8999)} patched on host-${hex(3)}`],
+    () => ['THREAT DETECTED', ` beacon to ${ip()} every 60s`],
+    () => ['', `yara: rule Trojan_${hex(4)} matched in /tmp/${hex(6)}`],
+    () => ['', `[*] scanning ${ip()}/24 ... ${Math.floor(rnd() * 40)} hosts up`],
+    () => ['', `dns: query ${hex(10)}.example.test NXDOMAIN`],
+    () => ['[EDR]', ` process quarantined pid ${1000 + Math.floor(rnd() * 9000)}`],
+    () => ['', `TLS1.3 handshake ok ${ip()}:${port()}`],
+  ];
+  const HEAD = ['ZERO-DAY EXPLOITED IN THE WILD', 'BREACH CONTAINED AT 03:14', 'RANSOMWARE CREW GOES DARK', 'PATCH TUESDAY: 74 FIXES',
+    'PHISHING WAVE HITS INBOXES', 'SOC STOPS LATERAL MOVEMENT', 'BOTNET SINKHOLED OVERNIGHT', 'CVE-2026-4471 RATED CRITICAL', 'INSIDER THREAT FLAGGED',
+    'DDOS PEAKS AT 3.1 TBPS', 'THE WATCHER SEES ALL', 'ROOTKIT FOUND IN FIRMWARE', 'ACCESS DENIED', 'HONEYPOT CATCHES APT'];
+  const COLS = 3, cw = S / COLS, pad = 26, inner = cw - pad * 2;
+  const fit = (txt, max) => { while (txt.length > 4 && g.measureText(txt).width > max) txt = txt.slice(0, -2); return txt; };
+  for (let k = 0; k < COLS; k++) {
+    const x0 = k * cw + pad;
+    g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect((k + 1) * cw - 1, 0, 2, S);   // the column rule
+    let y = rnd() * 40;
+    while (y < S) {
+      // a headline (some in the accent), a thin rule, then the story: live log lines
+      const words = pick(HEAD).split(' '), lines = [];
+      g.font = '700 30px "Space Grotesk"';
+      let cur = '';
+      for (const w of words) { const t = cur ? cur + ' ' + w : w; if (g.measureText(t).width > inner) { lines.push(cur); cur = w; } else cur = t; }
+      lines.push(cur);
+      g.fillStyle = rnd() < 0.35 ? '#ff0000' : '#ffffff';
+      for (const l of lines) { y += 34; g.fillText(l, x0, y); }
+      y += 16; g.fillStyle = 'rgba(255,255,255,.5)'; g.fillRect(x0, y, inner, 2); y += 8;
+      g.font = '400 18px "IBM Plex Mono"';
+      const n = 5 + Math.floor(rnd() * 6);
+      for (let i = 0; i < n; i++) {
+        const [pre, rest] = pick(T)(); y += 26;
+        let x = x0;
+        if (pre) { g.fillStyle = '#ff0000'; g.fillText(pre, x, y); x += g.measureText(pre).width; }   // red channel only: the accent
+        g.fillStyle = '#ffffff'; g.fillText(fit(rest, inner - (x - x0)), x, y);
+      }
+      y += 30;
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.generateMipmaps = true; tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.anisotropy = 8; tex.colorSpace = THREE.NoColorSpace;
+  return tex;
 }
 
 /* ---------- shaders ---------- */
 const NOISE = /* glsl */`
-float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
-float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
-  return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
-float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;}return s;}`;
+float h11(float n){return fract(sin(n)*43758.5453);}
+float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);float n=i.x+i.y*57.;
+  return mix(mix(h11(n),h11(n+1.),f.x),mix(h11(n+57.),h11(n+58.),f.x),f.y);}`;
 
-// the eyeball: sclera, iris fibres, limbus, a pupil that is a real hole (the way into the universe), cornea glint
-const eyeVert = /* glsl */`
-varying vec3 vO; varying vec3 vN; varying vec3 vW;
-void main(){vO=position; vN=normalize(mat3(modelMatrix)*normal); vec4 w=modelMatrix*vec4(position,1.); vW=w.xyz; gl_Position=projectionMatrix*viewMatrix*w;}`;
-const eyeFrag = /* glsl */`
-uniform vec3 uSclera, uShade, uVein, uIrisIn, uIrisMid, uIrisOut, uLimbus, uLight; uniform float uRe, uIris, uPupil, uTime, uOpen;
-varying vec3 vO; varying vec3 vN; varying vec3 vW;
+const irisVert = /* glsl */`
+attribute vec4 aUV; attribute vec4 aP; attribute vec4 aQ;
+uniform float uSpin, uDrift, uStreak, uSquash, uR0, uTime;
+varying vec2 vUv; varying float vRn, vRing, vRand, vAcc, vR;
+void main(){
+  float span=1.-uR0, rn=fract(aP.x-uDrift);
+  float r=uR0+rn*span;
+  float ang=aP.y+aQ.w*uSpin*(.55+.9*aQ.y);
+  vec2 dR=vec2(cos(ang),sin(ang)), dT=vec2(-dR.y,dR.x);
+  float len=aP.z*(1.+uStreak*(5.+aQ.y*9.));
+  vec2 p=dR*(r+uStreak*aQ.y*.8+position.x*len)+dT*(position.y*aP.w);
+  p.y*=uSquash;
+  vUv=mix(aUV.xy,aUV.zw,position.xy+.5);
+  vRn=rn; vRing=aQ.x; vRand=aQ.y; vAcc=aQ.z; vR=r;
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,0.,1.);
+}`;
+const irisFrag = /* glsl */`
+uniform sampler2D uAtlas; uniform vec3 uIn, uOut, uHot, uAcc; uniform float uTime, uGlow, uR0;
+varying vec2 vUv; varying float vRn, vRing, vRand, vAcc, vR;
 ${NOISE}
 void main(){
-  float r=length(vO.xy); float front=step(0.,vO.z);
-  if(front>.5 && r<uPupil){ if(uOpen<.5){ gl_FragColor=vec4(0.,0.,0.,1.); return; } discard; }   // black at rest; once you lean in it opens onto another scene
-  float ang=atan(vO.y,vO.x);
-  vec3 N=normalize(vN), L=normalize(uLight), V=normalize(cameraPosition-vW);
-  float dif=.45+.55*max(dot(N,L),0.);
-  // sclera: white, greying toward the corners, fine red veins
-  float side=smoothstep(.55,1.15,r/uRe);
-  vec3 col=mix(uSclera,uShade,side*.7);                              // soft: a steep gradient prints as rings of characters
-  float v1=smoothstep(.72,.95,fbm(vec2(ang*5.,r*7.)+3.)), v2=smoothstep(.8,.97,fbm(vec2(ang*14.,r*20.)));
-  col=mix(col,uVein,(v1*.35+v2*.25)*side);
-  // iris: radial fibres, crypts, a golden collarette, a dark limbal ring
-  float edge=smoothstep(uIris+.006,uIris-.012,r)*front;
-  if(edge>0.){
-    float t=clamp((r-uPupil)/(uIris-uPupil),0.,1.);
-    float fib=fbm(vec2(ang*40.,t*2.5))*.6+fbm(vec2(ang*110.,t*8.))*.5;
-    vec3 ic=mix(uIrisIn,uIrisMid,smoothstep(.05,.42,t)); ic=mix(ic,uIrisOut,smoothstep(.45,.92,t));
-    ic*=.55+.8*fib;
-    float crypt=smoothstep(.62,.8,fbm(vec2(ang*9.,t*6.)+7.))*smoothstep(.2,.35,t)*(1.-smoothstep(.6,.78,t));
-    ic*=1.-.55*crypt;
-    ic+=uIrisIn*.4*exp(-pow((t-.3)/.05,2.))*fib;
-    ic=mix(ic,uLimbus,smoothstep(.8,1.,t));
-    ic*=mix(.3,1.,smoothstep(0.,.07,t));
-    col=mix(col,ic,edge);
-  }
-  col*=dif;
-  col*=1.-.55*smoothstep(.05,.45,vW.y)-.18*smoothstep(-.15,-.45,vW.y);  // the lids shade the eyeball
-  // cornea: a window-like glint and a wet sheen
-  vec3 H=normalize(L+V); float spec=pow(max(dot(N,H),0.),140.);
-  col+=vec3(1.)*spec*2.4*front+uSclera*pow(1.-max(dot(N,V),0.),4.)*.08;
+  float a=texture2D(uAtlas,vUv).a;
+  float fade=smoothstep(0.,.07,vRn)*(1.-smoothstep(.84,1.,vRn));
+  a*=fade; if(a<.01) discard;
+  float t=clamp(vRing+(vnoise(vec2(vRand*40.,uTime*.15))-.5)*.35,0.,1.);
+  vec3 col=mix(uIn,uOut,t)*mix(1.35,.62,vRn);
+  float nz=sqrt(max(0.,1.-vR*vR*.92));                 // the iris as a shallow dome: fresnel at the limbus
+  col+=uAcc*pow(1.-nz,3.)*.35;
+  float hot=step(.97,fract(vRand*13.7+uTime*.1));       // ~3% hot white words that flicker
+  col=mix(col,uHot*1.5,hot*(.7+.3*sin(uTime*23.+vRand*50.)));
+  float pulse=.55+.45*sin(uTime*2.1+vRand*6.283);
+  col=mix(col,uAcc*(.8+.75*pulse),vAcc);               // the accent words burn like the globe's red words
+  col*=uGlow;
+  gl_FragColor=vec4(col,a);
+}`;
+
+const quadVert = /* glsl */`varying vec2 vP; void main(){vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+const pupilFrag = /* glsl */`
+uniform vec3 uBg; uniform float uR0; varying vec2 vP;
+void main(){float r=length(vP); float a=1.-smoothstep(uR0*.84,uR0*1.12,r); gl_FragColor=vec4(vec3(0.),a);}`;
+const rimFrag = /* glsl */`
+uniform vec3 uAcc, uDeep; uniform float uTime, uR0, uGlow; varying vec2 vP;
+void main(){
+  float r=length(vP), ang=atan(vP.y,vP.x);
+  float burn=.7+.3*sin(ang*7.+uTime*1.3)*sin(ang*3.-uTime*.7);
+  float d=r-1.;
+  float lim=exp(-d*d/(d<0.?.0011:.00018))*.48+exp(-d*d/(d<0.?.02:.002))*.1;   // strongest at the rim, fading inward
+  float dp=r-uR0;
+  float pr=exp(-dp*dp/.00006)*.42+exp(-dp*dp/.0012)*.07;
+  vec3 col=(uAcc*lim*burn+uAcc*pr*(.8+.2*burn))*uGlow;
+  col+=uDeep*exp(-d*d/.05)*.035;
   gl_FragColor=vec4(col,1.);
 }`;
 
-// the face around the eye: skin with pores, an almond opening, lid crease, lashes; blinking closes the almond
-const faceVert = /* glsl */`varying vec2 vP; void main(){vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const faceFrag = /* glsl */`
-uniform vec3 uSkin, uLight2, uDark, uCar; uniform float uW, uH, uBlink, uMeet;
-varying vec2 vP;
-${NOISE}
+const sparkVert = /* glsl */`
+attribute vec4 aS; attribute vec4 aUV;
+uniform float uTime; varying float vA; varying vec2 vUv, vQ; varying float vWord;
 void main(){
-  float x=vP.x/uW, xx=clamp(1.-x*x,0.,1.), tilt=.07*x;                  // x<0: inner corner (lower, rounder); x>0: outer corner (lifted)
-  float upper=uH*pow(xx,.55)*(1.-.1*x)+tilt, lower=-uH*.7*pow(xx,.9)+tilt*.5-.02;
-  float yu=mix(upper,uMeet,uBlink), yl=mix(lower,uMeet,uBlink);
-  float inside=step(yl,vP.y)*step(vP.y,yu)*step(abs(x),1.);
-  float car=inside*smoothstep(-.8,-.95,x);                              // the pink caruncle in the inner corner
-  if(inside>.5 && car<.5 && uBlink<.995) discard;
-  float du=vP.y-yu, dl=yl-vP.y;
-  float d=inside>.5?0.:(abs(x)<1.?(du>0.?du:dl):length(vec2(abs(vP.x)-uW,vP.y-tilt)));
-  vec3 col=uSkin*(.8+.4*fbm(vP*14.))*(.9+.2*fbm(vP*3.+5.));
-  float up=step(0.,du)*step(abs(x),1.12), lo=step(0.,dl)*step(abs(x),1.12);
-  float fold=.2*xx+.05;
-  col=mix(col,uLight2*(.85+.3*fbm(vP*20.)),up*exp(-pow((du/fold-.45)/.35,2.))*.75);   // the lit, rounded upper lid
-  col*=1.-.6*exp(-pow((du-fold)/.03,2.))*up;                                          // the crease
-  col*=1.-.8*exp(-d*26.);                                                              // shadow where skin meets the eye
-  float lashes=up*(1.-smoothstep(0.,.11*xx+.01,du))*step(.62,h21(vec2(floor((vP.x+du*(.6+.9*x))*130.),3.)));
-  col=mix(col,uDark,max(lashes,up*(1.-smoothstep(0.,.012,du))));
-  col+=uLight2*.25*exp(-pow((dl-.03)/.03,2.))*lo;                                     // the moist lower rim catches light
-  col*=1.-.3*exp(-pow((dl-.17*xx)/.07,2.))*lo;                                        // under-eye shadow
-  if(car>.5) col=uCar*(.7+.4*fbm(vP*40.));
-  col*=1.-.85*smoothstep(1.25,3.1,length(vP/vec2(uW,uW*.62)));                        // the face falls into darkness
+  float life=fract(uTime/aS.z+aS.w*7.31);
+  float ang=aS.x+life*.25;
+  vec2 dR=vec2(cos(ang),sin(ang));
+  vec2 vel=dR*aS.y+vec2(.35,.04);                       // a soft wind to the right, like the sparks off the globe
+  vec2 p=dR*(1.+.015*sin(aS.w*40.))+vel*life*1.1;
+  vec2 dir=normalize(vel), nrm=vec2(-dir.y,dir.x);
+  float word=step(.8,fract(aS.w*91.7));
+  float L=word>.5?.05:.012+.09*aS.y, Wd=word>.5?.012:.0035;
+  p+=dir*position.x*L+nrm*position.y*Wd;
+  vA=sin(3.1416*life)*(1.-life*.6); vUv=mix(aUV.xy,aUV.zw,position.xy+.5); vQ=position.xy; vWord=word;
+  gl_Position=projectionMatrix*modelViewMatrix*vec4(p,.004,1.);
+}`;
+const sparkFrag = /* glsl */`
+uniform sampler2D uAtlas; uniform vec3 uAcc; uniform float uGlow; varying float vA, vWord; varying vec2 vUv, vQ;
+void main(){
+  float m=vWord>.5?texture2D(uAtlas,vUv).a:(1.-smoothstep(.0,.5,abs(vQ.y)*2.))*smoothstep(.5,-.3,vQ.x);
+  gl_FragColor=vec4(uAcc*1.25*uGlow*m*vA*vA,1.);
+}`;
+
+const wallVert = /* glsl */`varying vec2 vW; void main(){vec4 w=modelMatrix*vec4(position,1.); vW=w.xy; gl_Position=projectionMatrix*viewMatrix*w;}`;
+const wallFrag = /* glsl */`
+uniform sampler2D uWall; uniform vec3 uText, uAcc, uBg; uniform float uScale, uTime, uOpacity; varying vec2 vW;
+vec2 press(vec2 uv, float t){
+  float col=floor(uv.x*3.), dir=mod(col,2.)<.5?1.:-1.;
+  return uv+vec2(0.,t*(.012+.02*fract(sin(col*91.7)*437.5))*dir);
+}
+void main(){
+  vec2 uv=press(vW/uScale,uTime);
+  vec3 t=texture2D(uWall,uv).rgb;
+  float acc=clamp(t.r-t.g,0.,1.), txt=t.g;
+  float flick=.85+.15*sin(uTime*1.7+floor(uv.y*64.)*3.1);
+  vec3 col=uBg+(uText*txt+uAcc*acc*.55)*uOpacity*flick;
   gl_FragColor=vec4(col,1.);
+}`;
+
+const lidFrag = /* glsl */`
+uniform sampler2D uWall; uniform vec3 uText, uAcc, uBg; uniform float uBlink, uScale, uTime, uOpacity, uYu, uYl; varying vec2 vP;
+vec2 press(vec2 uv, float t){
+  float col=floor(uv.x*3.), dir=mod(col,2.)<.5?1.:-1.;
+  return uv+vec2(0.,t*(.012+.02*fract(sin(col*91.7)*437.5))*dir);
+}
+void main(){
+  float c=.36, x2=vP.x*vP.x;
+  float eu=uYu-c*x2, el=uYl+c*x2;                       // almond lid edges: the upper arches, the lower cups
+  float up=step(eu,vP.y), lo=step(vP.y,el), m=max(up,lo);
+  float d=up>.5?vP.y-eu:el-vP.y;                        // distance from the lid edge, on the lid
+  vec2 uv=press(vP/uScale+vec2(.31,(up>.5?uYu:uYl)*.12),uTime);   // the lid's text slides with the lid
+  vec3 t=texture2D(uWall,uv).rgb;
+  vec3 col=uBg*.5+(uText*t.g+uAcc*clamp(t.r-t.g,0.,1.)*.4)*uOpacity*.45;   // darker than the wall: the lids read as solid
+  col*=.35+.65*smoothstep(0.,.2,d)*(1.-.35*smoothstep(.25,.6,d));       // rounded: dark at the edge, lit across, falling off again
+  float crease=exp(-pow((vP.y-(eu+.17-.05*x2))/.014,2.))*up; // the fold above the upper lid
+  float open=step(el,eu);                                 // the edges only exist where the eye is open (no lines past the corners)
+  float rim=(exp(-pow((vP.y-eu)/.011,2.))+exp(-pow((vP.y-el)/.011,2.)))*open;
+  vec3 rc=uAcc*(rim*1.05+crease*.22*smoothstep(1.45,1.,abs(vP.x)));
+  gl_FragColor=vec4(col*m+rc,max(m,clamp(rim,0.,1.)));
 }`;
 
 const ringVert = /* glsl */`varying vec2 vP; void main(){vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const diskFrag = /* glsl */`
 uniform vec3 uHot, uMid, uCold; uniform float uIn, uOut, uTime, uHeat; varying vec2 vP;
-${NOISE}
+float h21(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+  return mix(mix(h21(i),h21(i+vec2(1,0)),f.x),mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*vn(p);p*=2.03;a*=.5;}return s;}
 void main(){
   float r=length(vP), t=(r-uIn)/(uOut-uIn); if(t<0.||t>1.) discard;
   float a=atan(vP.y,vP.x), sw=a+uTime*(.9/(.25+t));                       // the inner disk races, the outer drifts
@@ -143,55 +283,71 @@ void main(){
   gl_FragColor=vec4(c*I*edge,1.);
 }`;
 
-// gravity: the picture twists and is pulled toward the centre, colours split at the edges, and a darkness grows in the middle
+const streakVert = /* glsl */`
+attribute vec4 aS; attribute vec4 aUV; uniform float uTime, uAspect, uAmt;
+varying vec2 vUv; varying float vA, vC;
+void main(){
+  float t=fract(uTime*aS.z+aS.w);
+  float rho=mix(aS.y,1.9,t*t);
+  vec2 d=vec2(cos(aS.x),sin(aS.x)), n=vec2(-d.y,d.x);
+  float L=(.03+.75*t*t)*(.4+uAmt), Wd=.004+.018*t;
+  vec2 p=d*(rho+position.x*L)+n*position.y*Wd;
+  p.x/=uAspect;
+  vUv=mix(aUV.xy,aUV.zw,position.xy+.5); vA=uAmt*t*(1.-t)*4.; vC=fract(aS.w*17.);
+  gl_Position=vec4(p,0.,1.);
+}`;
+const streakFrag = /* glsl */`
+uniform sampler2D uAtlas; uniform vec3 uIn, uOut, uAcc; varying vec2 vUv; varying float vA, vC;
+void main(){float a=texture2D(uAtlas,vUv).a*vA; vec3 c=vC>.92?uAcc*1.4:mix(uIn,uOut,vC)*1.6; gl_FragColor=vec4(c*a,1.);}`;
+
 const lensShader = {
-  uniforms: { tDiffuse: { value: null }, uAspect: { value: 1 }, uSwirl: { value: 0 }, uPull: { value: 0 }, uShadow: { value: 0 }, uShake: { value: new THREE.Vector2() } },
+  uniforms: { tDiffuse: { value: null }, uAspect: { value: 1 }, uSwirl: { value: 0 }, uPull: { value: 0 }, uShadow: { value: 0 } },
   vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
   fragmentShader: /* glsl */`
-uniform sampler2D tDiffuse; uniform float uAspect, uSwirl, uPull, uShadow; uniform vec2 uShake; varying vec2 vUv;
+uniform sampler2D tDiffuse; uniform float uAspect, uSwirl, uPull, uShadow; varying vec2 vUv;
 void main(){
-  vec2 d=vUv-.5+uShake; d.x*=uAspect; float r=length(d);
+  vec2 d=vUv-.5; d.x*=uAspect; float r=length(d);
   float tw=uSwirl*exp(-r*2.2); float c=cos(tw), s=sin(tw); d=mat2(c,-s,s,c)*d;
-  d*=1.+uPull*.6*exp(-r*3.);
+  d*=1.+uPull*.7*exp(-r*2.6);
   vec2 uv=d; uv.x/=uAspect; uv+=.5;
   vec2 dir=normalize(d+1e-5); dir.x/=uAspect; float ca=uPull*.006/(r+.2);
   vec3 col=vec3(texture2D(tDiffuse,uv+dir*ca).r,texture2D(tDiffuse,uv).g,texture2D(tDiffuse,uv-dir*ca).b);
-  col*=smoothstep(uShadow*.85,uShadow*1.15+.001,r);
+  col*=smoothstep(uShadow*.8,uShadow*1.2+.001,r);
   gl_FragColor=vec4(col,1.);
 }`,
 };
 
-// characters: every cell takes the colour of what is under it and the glyph of its brightness
-const asciiShader = {
-  uniforms: { tDiffuse: { value: null }, uGlyphs: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uCell: { value: 10 }, uCount: { value: 16 }, uMix: { value: 0 }, uFloor: { value: new THREE.Color() } },
-  vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader: /* glsl */`
-uniform sampler2D tDiffuse, uGlyphs; uniform vec2 uRes; uniform float uCell, uCount, uMix; uniform vec3 uFloor; varying vec2 vUv;
+// everything falls in: dust and fragments spiral down into the hole and vanish at the horizon
+const suckVert = /* glsl */`
+attribute vec4 aS; uniform float uTime; uniform vec3 uHole; varying float vA;
 void main(){
-  vec2 px=vUv*uRes, cell=floor(px/uCell), c0=cell*uCell;
-  vec3 col=vec3(0.);
-  col+=texture2D(tDiffuse,(c0+uCell*vec2(.3,.3))/uRes).rgb; col+=texture2D(tDiffuse,(c0+uCell*vec2(.7,.3))/uRes).rgb;
-  col+=texture2D(tDiffuse,(c0+uCell*vec2(.3,.7))/uRes).rgb; col+=texture2D(tDiffuse,(c0+uCell*vec2(.7,.7))/uRes).rgb;
-  col*=.25;
-  float lum=pow(clamp(dot(col,vec3(.2126,.7152,.0722)),0.,1.),1./2.2);
-  float gi=floor(clamp((lum-.035)*1.25,0.,.999)*uCount);            // near-black stays empty: no dot grid on the background
-  vec2 f=fract(px/uCell);
-  float g=texture2D(uGlyphs,vec2((gi+f.x)/uCount,f.y)).r;
-  float mx=max(max(col.r,col.g),max(col.b,1e-4));
-  vec3 hue=col/mx;
-  vec3 ascii=hue*mix(.4,1.35,lum)*g*(1.25+lum*.8)+uFloor;
-  vec3 real=texture2D(tDiffuse,vUv).rgb;
-  gl_FragColor=vec4(mix(ascii,real,uMix),1.);
-}`,
-};
+  float f=fract(uTime*aS.z+aS.w);
+  float r=mix(aS.y,4.05,f*f);
+  float ang=aS.x+f*f*7.+uTime*.2;
+  vec3 p=uHole+vec3(cos(ang)*r,(fract(aS.w*31.)-.5)*r*.12*(1.-f),sin(ang)*r);
+  vA=smoothstep(0.,.15,f)*(1.-smoothstep(.88,1.,f));
+  vec4 mv=modelViewMatrix*vec4(p,1.);
+  gl_PointSize=clamp(2.4*(1.+f*2.)*(60./-mv.z),1.,6.);
+  gl_Position=projectionMatrix*mv;
+}`;
+const suckFrag = /* glsl */`
+uniform vec3 uCol; uniform float uAmt; varying float vA;
+void main(){vec2 q=gl_PointCoord-.5; float m=1.-smoothstep(.15,.5,length(q)); gl_FragColor=vec4(uCol*m*vA*uAmt,1.);}`;
 
 const finalShader = {
-  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uNoise: { value: 0.03 } },
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uNoise: { value: 0.03 }, uLift: { value: new THREE.Color() }, uLiftAmt: { value: 1 } },
   vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
   fragmentShader: /* glsl */`
-uniform sampler2D tDiffuse; uniform float uTime, uNoise; varying vec2 vUv;
-void main(){vec4 c=texture2D(tDiffuse,vUv); float d=distance(vUv,vec2(.5)); c.rgb*=mix(.55,1.,smoothstep(.85,.3,d));
-  float n=fract(sin(dot(vUv*vec2(1920.,1080.)+fract(uTime)*97.,vec2(12.9898,78.233)))*43758.5453); c.rgb+=(n-.5)*uNoise; gl_FragColor=c;}`,
+uniform sampler2D tDiffuse; uniform float uTime, uNoise, uLiftAmt; uniform vec3 uLift; varying vec2 vUv;
+void main(){
+  vec4 c=texture2D(tDiffuse,vUv);
+  float d=distance(vUv,vec2(.5));
+  c.rgb+=uLift*smoothstep(.75,.45,d)*smoothstep(.2,.45,d)*.3*uLiftAmt;   // a navy halo around the eye, never over the pupil
+  c.rgb*=mix(.5,1.,smoothstep(.9,.3,d));
+  float n=fract(sin(dot(vUv*vec2(1920.,1080.)+fract(uTime)*97.,vec2(12.9898,78.233)))*43758.5453);
+  c.rgb+=(n-.5)*uNoise;
+  gl_FragColor=c;
+}`,
 };
 
 /* ---------- helpers ---------- */
@@ -201,26 +357,28 @@ const easeIO = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easeIn = t => t * t * t;
 const lerp = (a, b, t) => a + (b - a) * t;
-const range = (a, b) => a + (b - a) * Math.random();
 
-function glyphAtlas(chars) {
-  const n = chars.length, S = 48, c = document.createElement('canvas'); c.width = S * n; c.height = S;
-  const g = c.getContext('2d'); g.fillStyle = '#000'; g.fillRect(0, 0, c.width, S);
-  g.fillStyle = '#fff'; g.font = '500 40px "IBM Plex Mono", ui-monospace, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  [...chars].forEach((ch, i) => g.fillText(ch, i * S + S / 2, S / 2 + 2));
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.NoColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false;
-  return t;
+function instanced(count, attrs) {
+  const g = new THREE.InstancedBufferGeometry();
+  const base = new THREE.PlaneGeometry(1, 1);
+  g.index = base.index; g.setAttribute('position', base.getAttribute('position'));
+  for (const k in attrs) g.setAttribute(k, new THREE.InstancedBufferAttribute(attrs[k], 4));
+  g.instanceCount = count;
+  return g;
 }
 
 /* ---------- build ---------- */
 async function start() {
-  await Promise.race([document.fonts.load('500 52px "IBM Plex Mono"'), new Promise(r => setTimeout(r, 1500))]).catch(() => {});
+  // the atlas needs the site's fonts; never wait more than 1.5 s for them
+  await Promise.race([Promise.all(FONTS.concat('400 18px "IBM Plex Mono"', '700 30px "Space Grotesk"').map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]).catch(() => {});
+
   const pal = makePalette();
   const mobile = innerWidth < 760 || touchFirst;
 
   /* DOM */
   const el = document.createElement('div');
-  el.id = 'eye-intro'; el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Intro');
+  el.id = 'eye-intro';
+  el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Intro');
   el.style.setProperty('--ei-bg', pal.css.bg); el.style.setProperty('--ei-text', pal.css.text); el.style.setProperty('--ei-accent', pal.css.accent);
   el.innerHTML = '<div class="ei-stage"><div class="ei-ring"></div></div><div class="ei-hint" aria-hidden="true"><span class="ei-line"></span><span class="ei-text"></span></div><button type="button" class="ei-skip">Skip intro</button>';
   const stage = el.querySelector('.ei-stage'), hint = el.querySelector('.ei-hint'), hintText = el.querySelector('.ei-hint .ei-text'), skip = el.querySelector('.ei-skip');
@@ -230,82 +388,138 @@ async function start() {
   toast.innerHTML = '<span class="ei-line"></span><span class="ei-text">Scroll up to zoom out</span>';
 
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' }); } catch (e) { return fail(); }
-  const dpr = Math.min(devicePixelRatio, KNOBS.dprMax);
-  renderer.setPixelRatio(dpr);
+  try {
+    renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' });
+  } catch (e) { return fail(); }
+  renderer.setPixelRatio(Math.min(devicePixelRatio, KNOBS.dprMax));
   renderer.setClearColor(pal.bg, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   stage.prepend(renderer.domElement);
   renderer.domElement.setAttribute('aria-hidden', 'true');
   document.body.append(el, toast);
 
-  /* ---------- the outside: the eye ---------- */
-  const Re = 1.8, IRIS = 0.5, W = 1.15, H = 0.44, FACE_Z = 1.72, PUPIL_Z = Re;
   const scene = new THREE.Scene();
-  const cam = new THREE.PerspectiveCamera(KNOBS.fov, innerWidth / innerHeight, 0.001, 100);
-  const eyeU = {
-    uSclera: { value: pal.sclera }, uShade: { value: pal.scleraShade }, uVein: { value: pal.vein },
-    uIrisIn: { value: pal.irisIn }, uIrisMid: { value: pal.irisMid }, uIrisOut: { value: pal.irisOut }, uLimbus: { value: pal.limbus },
-    uLight: { value: new THREE.Vector3(-0.55, 0.65, 1) }, uRe: { value: Re }, uIris: { value: IRIS }, uPupil: { value: KNOBS.pupil[0] }, uTime: { value: 0 }, uOpen: { value: 0 },
-  };
-  const eyeball = new THREE.Mesh(new THREE.SphereGeometry(Re, 128, 96), new THREE.ShaderMaterial({ uniforms: eyeU, vertexShader: eyeVert, fragmentShader: eyeFrag, depthTest: false, depthWrite: false }));
-  eyeball.renderOrder = 1; scene.add(eyeball);
-  const faceU = { uSkin: { value: pal.skin }, uLight2: { value: pal.skinLight }, uDark: { value: pal.skinDark }, uCar: { value: pal.caruncle }, uW: { value: W }, uH: { value: H }, uBlink: { value: 0 }, uMeet: { value: -0.1 } };
-  const face = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShaderMaterial({ uniforms: faceU, vertexShader: faceVert, fragmentShader: faceFrag, depthTest: false, depthWrite: false }));
-  face.position.z = FACE_Z; face.renderOrder = 2; scene.add(face);
+  const cam = new THREE.PerspectiveCamera(KNOBS.fov, innerWidth / innerHeight, 0.005, 400);
+  const eye = new THREE.Group(), lids = new THREE.Group();
+  scene.add(eye, lids);
 
-  /* ---------- the inside: a small universe behind the pupil ---------- */
+  const atlas = buildAtlas(), wallTex = buildWall();
+  const R0 = KNOBS.pupil;
+
+  /* iris: every word in one instanced draw */
+  const bands = mobile ? KNOBS.ringsMobile : KNOBS.rings, span = 1 - R0, recs = [];
+  for (let b = 0; b < bands; b++) {
+    const inner = b / bands, w = span / bands, dir = b % 2 ? 1 : -1;
+    for (let a = rnd() * 0.2; a < Math.PI * 2;) {
+      const isAcc = rnd() < 0.012, maxLen = w * range(0.62, 0.97);
+      let h = range(KNOBS.wordH[0], KNOBS.wordH[1]) * (b < 2 ? 0.8 : 1), e;
+      // a word that is too long for its band is swapped for a shorter one, so no word shrinks into an unreadable sliver
+      for (let k = 0; k < 6; k++) { e = isAcc ? pick(atlas.accent) : pick(atlas.normal); if (h * e.aspect <= maxLen) break; }
+      let len = h * e.aspect;
+      if (len > maxLen) { len = maxLen; h = len / e.aspect; }
+      const rc = R0 + (inner * span) + (len / 2) + rnd() * Math.max(0, w - len);
+      const rn = (rc - R0) / span;
+      const da = (h * 1.32) / rc;
+      recs.push([e.u0, e.v0, e.u1, e.v1, rn, a + da / 2, len, h, b / (bands - 1), rnd(), isAcc ? 1 : 0, dir]);
+      a += da;
+    }
+  }
+  const N = recs.length, aUV = new Float32Array(N * 4), aP = new Float32Array(N * 4), aQ = new Float32Array(N * 4);
+  recs.forEach((r, i) => { aUV.set(r.slice(0, 4), i * 4); aP.set(r.slice(4, 8), i * 4); aQ.set(r.slice(8, 12), i * 4); });
+  const irisU = {
+    uAtlas: { value: atlas.tex }, uIn: { value: pal.ringIn }, uOut: { value: pal.ringOut }, uHot: { value: pal.hot }, uAcc: { value: pal.accent },
+    uTime: { value: 0 }, uSpin: { value: 0 }, uDrift: { value: 0 }, uStreak: { value: 0 }, uSquash: { value: 1 }, uGlow: { value: 1 }, uR0: { value: R0 },
+  };
+  const iris = new THREE.Mesh(instanced(N, { aUV, aP, aQ }), new THREE.ShaderMaterial({ uniforms: irisU, vertexShader: irisVert, fragmentShader: irisFrag, transparent: true, depthWrite: false, depthTest: false }));
+  iris.frustumCulled = false; iris.renderOrder = 1; eye.add(iris);
+
+  const pupil = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.8), new THREE.ShaderMaterial({ uniforms: { uBg: { value: pal.bg }, uR0: { value: R0 } }, vertexShader: quadVert, fragmentShader: pupilFrag, transparent: true, depthWrite: false, depthTest: false }));
+  pupil.position.z = 0.002; pupil.renderOrder = 2; eye.add(pupil);
+
+  const rimU = { uAcc: { value: pal.accent }, uDeep: { value: pal.accentDeep }, uTime: { value: 0 }, uR0: { value: R0 }, uGlow: { value: 1 } };
+  const rim = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 2.8), new THREE.ShaderMaterial({ uniforms: rimU, vertexShader: quadVert, fragmentShader: rimFrag, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+  rim.position.z = 0.003; rim.renderOrder = 3; eye.add(rim);
+
+  /* sparks: dust and word fragments shed off the limbus (stateless: all motion is in the shader) */
+  const NS = mobile ? KNOBS.sparksMobile : KNOBS.sparks, sS = new Float32Array(NS * 4), sUV = new Float32Array(NS * 4);
+  for (let i = 0; i < NS; i++) {
+    // biased toward the right side, like the trail off the globe
+    const a = rnd() < 0.6 ? range(-1.1, 1.1) : rnd() * Math.PI * 2;
+    sS.set([a, range(0.08, 0.5), range(1.6, 3.4), rnd()], i * 4);
+    const e = pick(atlas.normal), cut = range(0.25, 0.55);
+    sUV.set([e.u0, e.v0, lerp(e.u0, e.u1, cut), e.v1], i * 4);
+  }
+  const sparkU = { uAtlas: { value: atlas.tex }, uAcc: { value: pal.accent }, uTime: { value: 0 }, uGlow: { value: 1 } };
+  const sparks = new THREE.Mesh(instanced(NS, { aS: sS, aUV: sUV }), new THREE.ShaderMaterial({ uniforms: sparkU, vertexShader: sparkVert, fragmentShader: sparkFrag, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+  sparks.frustumCulled = false; sparks.renderOrder = 4; eye.add(sparks);
+
+  /* the log wall: tilted like a screen, always covering the whole view */
+  const wallU = { uWall: { value: wallTex }, uText: { value: pal.wallText }, uAcc: { value: pal.accent }, uBg: { value: pal.bg }, uScale: { value: 1 }, uTime: { value: 0 }, uOpacity: { value: 0.16 } };
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShaderMaterial({ uniforms: wallU, vertexShader: wallVert, fragmentShader: wallFrag, depthWrite: false, depthTest: false }));
+  wall.rotation.set(-0.16, 0.2, 0.02); wall.renderOrder = 0; scene.add(wall);
+
+  /* eyelids, made of the same wall text, with an ember edge */
+  const lidU = { uWall: { value: wallTex }, uText: { value: pal.wallText }, uAcc: { value: pal.accent }, uBg: { value: pal.bg }, uBlink: { value: 0 }, uScale: { value: 2.7 }, uTime: { value: 0 }, uOpacity: { value: 0.2 }, uYu: { value: 0.8 }, uYl: { value: -0.74 } };
+  const lid = new THREE.Mesh(new THREE.PlaneGeometry(14, 12), new THREE.ShaderMaterial({ uniforms: lidU, vertexShader: quadVert, fragmentShader: lidFrag, transparent: true, depthWrite: false, depthTest: false }));
+  lid.position.z = 0.02; lid.renderOrder = 5; lids.add(lid);
+
+  /* inside the pupil: darkness, then a black hole with a burning disk, in true-black space */
   const inner = new THREE.Scene();
   const innerCam = new THREE.PerspectiveCamera(KNOBS.fov, innerWidth / innerHeight, 0.1, 2000);
-  const NS = mobile ? KNOBS.starsMobile : KNOBS.stars, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
-  const starCols = [pal.text, pal.cyan, pal.violet, pal.accent];
-  for (let i = 0; i < NS; i++) {
-    const u = Math.random() * 2 - 1, th = Math.random() * Math.PI * 2, rr = range(120, 700), s = Math.sqrt(1 - u * u);
-    sp.set([Math.cos(th) * s * rr, Math.sin(th) * s * rr, u * rr], i * 3);
-    const c = starCols[Math.random() < 0.7 ? 0 : 1 + Math.floor(Math.random() * 3)]; sc.set([c.r, c.g, c.b], i * 3);
+  const NSt = mobile ? 1200 : 2400, stp = new Float32Array(NSt * 3), stc = new Float32Array(NSt * 3);
+  for (let i = 0; i < NSt; i++) {
+    const u = rnd() * 2 - 1, th = rnd() * Math.PI * 2, rr = range(120, 700), sq = Math.sqrt(1 - u * u);
+    stp.set([Math.cos(th) * sq * rr, Math.sin(th) * sq * rr, u * rr], i * 3);
+    const c = rnd() < 0.75 ? pal.hot : rnd() < 0.5 ? pal.ringIn : pal.ringOut; stc.set([c.r, c.g, c.b], i * 3);
   }
-  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(sp, 3)); sg.setAttribute('color', new THREE.BufferAttribute(sc, 3));
-  inner.add(new THREE.Points(sg, new THREE.PointsMaterial({ size: 2.2, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false })));
-  // behind the pupil: a black hole with a burning accretion disk (the site's own finale, seen from inside the eye)
+  const stg = new THREE.BufferGeometry(); stg.setAttribute('position', new THREE.BufferAttribute(stp, 3)); stg.setAttribute('color', new THREE.BufferAttribute(stc, 3));
+  inner.add(new THREE.Points(stg, new THREE.PointsMaterial({ size: 1.8, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false })));
   const HOLE = new THREE.Vector3(0, 0, -60);
   const horizon = new THREE.Mesh(new THREE.SphereGeometry(4, 64, 48), new THREE.MeshBasicMaterial({ color: 0x000000 }));
   horizon.position.copy(HOLE); inner.add(horizon);
-  const diskU = { uHot: { value: pal.text.clone().lerp(pal.accent, 0.35) }, uMid: { value: pal.accent.clone() }, uCold: { value: pal.violet.clone().multiplyScalar(0.55) }, uIn: { value: 4.6 }, uOut: { value: 24 }, uTime: { value: 0 }, uHeat: { value: 1 } };
+  const diskU = { uHot: { value: new THREE.Color('#3a3540') }, uMid: { value: new THREE.Color('#17131c') }, uCold: { value: new THREE.Color('#050407') }, uIn: { value: 4.6 }, uOut: { value: 24 }, uTime: { value: 0 }, uHeat: { value: 0 } };
   const diskMat = u => new THREE.ShaderMaterial({ uniforms: u, vertexShader: ringVert, fragmentShader: diskFrag, transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
   const disk = new THREE.Mesh(new THREE.RingGeometry(4.6, 24, 256, 8), diskMat(diskU));
   disk.position.copy(HOLE); disk.rotation.x = -Math.PI / 2 + 0.2; inner.add(disk);
   // the far side of the disk, bent by gravity into a halo around the hole; it always faces the camera
   const halo = new THREE.Mesh(new THREE.RingGeometry(4.15, 8, 256, 4), diskMat({ ...diskU, uIn: { value: 4.15 }, uOut: { value: 8 } }));
   halo.position.copy(HOLE); inner.add(halo);
+  const NSk = mobile ? 1600 : 3200, sk = new Float32Array(NSk * 4);
+  for (let i = 0; i < NSk; i++) sk.set([rnd() * Math.PI * 2, range(8, 40), range(0.05, 0.16), rnd()], i * 4);
+  const skG = new THREE.BufferGeometry(); skG.setAttribute('position', new THREE.BufferAttribute(new Float32Array(NSk * 3), 3)); skG.setAttribute('aS', new THREE.BufferAttribute(sk, 4));
+  const suckU = { uTime: { value: 0 }, uHole: { value: HOLE }, uCol: { value: pal.hot.clone().multiplyScalar(0.55) }, uAmt: { value: 0 } };
+  const suck = new THREE.Points(skG, new THREE.ShaderMaterial({ uniforms: suckU, vertexShader: suckVert, fragmentShader: suckFrag, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+  suck.frustumCulled = false; inner.add(suck);
 
-  /* ---------- post: two scenes into one image, then characters, then a soft glow ---------- */
+  /* post: bloom only catches what is bright (rim, accent words, sparks); text stays crisp */
   const composer = new EffectComposer(renderer);
-  const innerPass = new RenderPass(inner, innerCam, null, new THREE.Color(0x000000), 1);   // space behind the pupil is truly black
-  const outerPass = new RenderPass(scene, cam); outerPass.clear = false; outerPass.clearDepth = true;
-  composer.addPass(innerPass); composer.addPass(outerPass);
+  const outerPass = new RenderPass(scene, cam), innerPass = new RenderPass(inner, innerCam, null, new THREE.Color(0x000000), 1);
+  composer.addPass(outerPass); composer.addPass(innerPass); innerPass.enabled = false;
   const lens = new ShaderPass(lensShader); composer.addPass(lens);
-  const ascii = new ShaderPass(asciiShader);
-  ascii.uniforms.uGlyphs.value = glyphAtlas(KNOBS.glyphs); ascii.uniforms.uCount.value = KNOBS.glyphs.length;
-  ascii.uniforms.uFloor.value.copy(pal.bg).multiplyScalar(0.12);
-  composer.addPass(ascii);
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), KNOBS.bloom.strength, KNOBS.bloom.radius, KNOBS.bloom.threshold);
   composer.addPass(bloom);
-  const fin = new ShaderPass(finalShader); composer.addPass(fin);
+  const fin = new ShaderPass(finalShader); fin.uniforms.uLift.value.copy(pal.bgDeep).sub(pal.bg);
+  composer.addPass(fin);
   composer.addPass(new OutputPass());
 
-  /* fit: the almond fills 86% of the width (92% in portrait), in world units at the pupil's depth */
-  let camZ0 = 4, aspect = 1;
-  const tanH = deg => Math.tan(THREE.MathUtils.degToRad(deg / 2));
+  /* fit: iris diameter = 96% of the height (92% of the width in portrait), computed in world units */
+  let R = 1, aspect = 1, Z0 = KNOBS.camZ, zEnd = 0.2;
+  const tanH = () => Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
   function fit() {
     const w = innerWidth, h = innerHeight; aspect = w / h;
-    renderer.setSize(w, h, false); composer.setSize(w, h); bloom.resolution.set(w / 2, h / 2);
-    cam.aspect = innerCam.aspect = aspect; innerCam.updateProjectionMatrix();
-    const share = aspect < 1 ? 0.92 : KNOBS.eyeWidth;
-    const visW = (2 * W) / share;
-    let visH = visW / aspect;
-    if (aspect >= 1 && visH < 2 * H * 2.1) visH = 2 * H * 2.1;   // short, wide screens keep some skin above and below
-    camZ0 = PUPIL_Z + visH / (2 * tanH(KNOBS.fov));
-    ascii.uniforms.uRes.value.set(w * dpr, h * dpr); lens.uniforms.uAspect.value = aspect;
+    renderer.setSize(w, h, false); composer.setSize(w, h);
+    bloom.resolution.set(w / 2, h / 2);
+    cam.aspect = aspect;
+    const t = Math.tan(THREE.MathUtils.degToRad(KNOBS.fov / 2)), visH = 2 * Z0 * t, visW = visH * aspect;
+    R = aspect < 1 ? 0.46 * visW : 0.48 * visH;
+    eye.scale.setScalar(R); lids.scale.setScalar(R);
+    // the closest point of the dolly: the pupil covers the corners of the screen
+    zEnd = (0.82 * R0 * R) / (Math.tan(THREE.MathUtils.degToRad(30 / 2)) * Math.hypot(1, aspect));
+    // the wall covers the widest framing (progress -0.15 plus saccades and tilt), scaled with max(w, h)
+    const wz = 0.55 * R, dist = Z0 / 0.85 + wz, wh = 2 * dist * t * 1.35;
+    wall.position.z = -wz; wall.scale.set(wh * Math.max(aspect, 1), wh * Math.max(1 / aspect, 1), 1);
+    wallU.uScale.value = 2.7 * R; lidU.uScale.value = 2.7;
+    innerCam.aspect = aspect; innerCam.updateProjectionMatrix(); lens.uniforms.uAspect.value = aspect;
   }
   fit();
   let fitQueued = false;
@@ -314,110 +528,126 @@ async function start() {
 
   /* ---------- state ---------- */
   let active = true, progress = 0, target = 0, lastInput = 0, lastDir = 1, skipping = false, running = false, raf = 0, last = performance.now(), time = 0;
+  let spinPhase = 0, driftPhase = 0;
   const mouse = new THREE.Vector2();
+  // saccades
   const sac = { x: 0, y: 0, fx: 0, fy: 0, tx: 0, ty: 0, t0: 0, dur: 150, holdUntil: 0 };
-  const blink = { v: 0, phase: 'open', t0: 0, close: 80, hold: 40, open: 150, next: performance.now() + range(4500, 6500), double: false };   // the first look is with open eyes
+  // blinks
+  const blink = { v: 0, phase: 'open', t0: 0, close: 80, hold: 40, open: 150, next: performance.now() + range(1500, 3500), double: false };
 
   function planSaccade(now) {
+    const rg = KNOBS.saccade.range;
     sac.fx = sac.x; sac.fy = sac.y;
-    if (!touchFirst && Math.random() < 0.45 && (mouse.x || mouse.y)) { sac.tx = mouse.x; sac.ty = mouse.y; }   // it watches the cursor
-    else { sac.tx = range(-0.8, 0.8); sac.ty = range(-0.5, 0.5); }
+    if (!touchFirst && rnd() < 0.3 && (mouse.x || mouse.y)) { sac.tx = mouse.x * rg * 0.9; sac.ty = mouse.y * rg * 0.5; }   // a glance toward the cursor
+    else { sac.tx = range(-rg, rg); sac.ty = range(-rg, rg) * 0.35; }
     sac.t0 = now; sac.dur = range(...KNOBS.saccade.move);
     sac.holdUntil = now + sac.dur + range(...KNOBS.saccade.hold);
-    if (Math.hypot(sac.tx - sac.fx, sac.ty - sac.fy) > 0.9 && Math.random() < 0.35) blink.next = Math.min(blink.next, now + sac.dur + 40);
+    if (Math.hypot(sac.tx - sac.fx, sac.ty - sac.fy) > rg * 1.1 && rnd() < 0.35) blink.next = Math.min(blink.next, now + sac.dur + 40);   // big saccades often bring a blink
+  }
+  function startBlink(now) {
+    blink.phase = 'closing'; blink.t0 = now;
+    blink.close = reduced ? 320 : range(70, 90); blink.hold = reduced ? 80 : range(30, 50); blink.open = reduced ? 520 : range(120, 180);
   }
   function updateBlink(now, allowed) {
     if (blink.phase === 'open') {
       blink.v = 0;
-      if (allowed && now >= blink.next) { blink.phase = 'closing'; blink.t0 = now; blink.close = reduced ? 320 : range(70, 90); blink.hold = reduced ? 80 : range(30, 50); blink.open = reduced ? 520 : range(120, 180); }
+      if (allowed && now >= blink.next) startBlink(now);
       return;
     }
     const e = now - blink.t0;
     if (blink.phase === 'closing') { blink.v = easeIn(clamp(e / blink.close, 0, 1)); if (e >= blink.close) { blink.phase = 'closed'; blink.t0 = now; } }
     else if (blink.phase === 'closed') { blink.v = 1; if (e >= blink.hold) { blink.phase = 'opening'; blink.t0 = now; } }
-    else {
+    else if (blink.phase === 'opening') {
       blink.v = 1 - easeOut(clamp(e / blink.open, 0, 1));
       if (e >= blink.open) {
         blink.phase = 'open'; blink.v = 0;
-        if (!blink.double && Math.random() < KNOBS.blink.double && !reduced) { blink.double = true; blink.next = now + range(90, 160); }
+        if (!blink.double && rnd() < KNOBS.blink.double && !reduced) { blink.double = true; blink.next = now + range(90, 160); }
         else { blink.double = false; blink.next = now + (reduced ? range(6000, 9000) : range(...KNOBS.blink.gap)); }
       }
     }
   }
 
   /* ---------- frame ---------- */
-  const cellBase = mobile ? KNOBS.cellMobile : KNOBS.cell;
   function frame(now) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.1, (now - last) / 1000); last = now; time += dt;
 
+    // the lens springs back from a pull-out; a stop inside the black always finishes the dive
     const idle = now - lastInput;
     if (target < 0 && idle > 160) target += (0 - target) * (1 - Math.exp(-dt * 5));
     if (lastDir > 0 && target > 0.86 && target < 1 && idle > 320) target = 1;   // only when heading in, never while pulling out
-    if (skipping) progress = Math.min(1, Math.max(progress, 0.88) + dt * 0.3);
-    else progress += (target - progress) * (1 - Math.exp(-dt * 5));
+    if (skipping) progress = Math.min(1, Math.max(progress, 0.88) + dt * 0.3);   // skip: a short, steady exit
+    else progress += (target - progress) * (1 - Math.exp(-dt * 6));
     if (Math.abs(target - progress) < 0.0004) progress = target;
-    const p = reduced ? Math.min(progress, 0) : progress;
+    const p = progress;
 
-    // outer camera: a pull-back below 0, then a dolly into the pupil that reaches it at 0.5
-    const d0 = camZ0 - PUPIL_Z, dEnd = 0.004;
-    let d;
-    if (p < 0) d = d0 / (1 + p);
-    else { const e = easeIO(clamp(p / 0.5, 0, 1)); d = d0 * Math.pow(dEnd / d0, e); }
-    const fov = KNOBS.fov - 5 * smooth(0.1, 0.5, p);
-    cam.fov = innerCam.fov = fov; cam.position.set(0, 0, PUPIL_Z + d); cam.lookAt(0, 0, PUPIL_Z); cam.updateProjectionMatrix(); innerCam.updateProjectionMatrix();
-    outerPass.enabled = p < 0.5 && d > dEnd * 1.5;
+    // camera
+    let camZ = Z0, fov = KNOBS.fov, streak = 0, zoomE = 0;
+    if (reduced) camZ = p < 0 ? Z0 / (1 + p) : Z0;
+    else if (p < 0) camZ = Z0 / (1 + p);
+    else if (p <= 0.55) { zoomE = easeIO(p / 0.55); camZ = Z0 * Math.pow(zEnd / Z0, zoomE); fov = lerp(KNOBS.fov, 30, zoomE); }
+    else { zoomE = 1; camZ = zEnd * Math.pow(0.35, smooth(0.55, 0.6, p)); fov = 30; }
+    if (cam.fov !== fov) { cam.fov = fov; }
+    cam.position.set(0, 0, camZ); cam.updateProjectionMatrix();
 
-    // the pupil dilates as you lean in (and makes room to pass)
-    eyeU.uPupil.value = lerp(KNOBS.pupil[0], KNOBS.pupil[1], smooth(0.04, 0.42, p)) * (1 + 0.04 * Math.sin(time * 0.9));
-
-    // gaze: saccades toward the cursor or around the room; centred before the dive
-    const gazeOn = !reduced && p <= 0.12;
-    if (gazeOn) {
+    // saccades + parallax (off once the dive starts: the pupil stays centred)
+    const sacOn = !reduced && p <= 0.15 && p >= -0.15;
+    if (sacOn) {
       if (now >= sac.holdUntil) planSaccade(now);
       const k = easeOut(clamp((now - sac.t0) / sac.dur, 0, 1));
       sac.x = lerp(sac.fx, sac.tx, k); sac.y = lerp(sac.fy, sac.ty, k);
-    }
-    const gfade = gazeOn ? 1 - smooth(0.02, 0.12, p) : 0;
-    const jit = gazeOn && now > sac.t0 + sac.dur ? 0.012 : 0;
-    const gx = (sac.x + Math.sin(time * 37.1) * Math.sin(time * 13.3) * jit) * gfade, gy = (sac.y + Math.sin(time * 29.7) * Math.sin(time * 17.9) * jit) * gfade;
-    const gk = gazeOn ? 1 : 1 - Math.exp(-dt * 6);
-    eyeball.rotation.y += (gx * KNOBS.gaze - eyeball.rotation.y) * gk;
-    eyeball.rotation.x += (-gy * KNOBS.gaze * 0.7 - eyeball.rotation.x) * gk;
+    } else { sac.x *= 0.85; sac.y *= 0.85; }
+    const fade = sacOn ? 1 - smooth(0.05, 0.15, p) : 0;
+    const jit = sacOn && now > sac.t0 + sac.dur ? 0.0035 : 0;
+    const ox = (sac.x + (Math.sin(time * 37.1) * Math.sin(time * 13.3)) * jit + mouse.x * 0.03) * fade;
+    const oy = (sac.y + (Math.sin(time * 29.7) * Math.sin(time * 17.9)) * jit + mouse.y * 0.03) * fade;
+    eye.position.set(ox * R, oy * R, 0);
 
     // blinks: never during the dive
     updateBlink(now, p <= 0.0001 && p >= -0.15);
-    if (p > 0.05) { blink.phase = 'open'; blink.v = 0; }
-    faceU.uBlink.value = blink.v; faceU.uMeet.value = -0.1 + gy * 0.05;
-    eyeU.uTime.value = time; eyeU.uOpen.value = p > 0.03 ? 1 : 0;
+    if (p > 0.1) { blink.phase = 'open'; blink.v = 0; }
+    const bv = blink.v;
+    const meet = -0.32;
+    lidU.uBlink.value = bv;
+    lidU.uYu.value = lerp(0.8, meet, bv); lidU.uYl.value = lerp(-0.74, meet, bv);
 
-    // the fall: through the pupil a tiny burning ring waits; the camera spirals down onto it until the horizon swallows the view
-    const q = easeIO(smooth(0.3, 0.93, p)), fall = smooth(0.5, 0.9, p);
-    const dist = 70 * Math.pow(5.4 / 70, q), az = q * 1.7, elev = lerp(0.06, 0.3, q);
-    innerCam.position.set(HOLE.x + Math.sin(az) * Math.cos(elev) * dist, HOLE.y + Math.sin(elev) * dist, HOLE.z + Math.cos(az) * Math.cos(elev) * dist);
-    const roll = q * 0.9 + (reduced ? 0 : Math.sin(time * 1.3) * 0.05 * fall);
-    innerCam.up.set(Math.sin(roll), Math.cos(roll), 0); innerCam.lookAt(HOLE);
-    halo.quaternion.copy(innerCam.quaternion);
-    diskU.uTime.value = time; diskU.uHeat.value = smooth(0.04, 0.3, p) * (1 + 0.8 * fall);   // a real, black pupil at rest; the fire wakes as you lean in
-    // gravity on the picture: the iris starts to twist into the pupil, then everything is pulled in and goes dark
-    lens.uniforms.uShake.value.set(0, 0);
-    lens.uniforms.uSwirl.value = reduced ? 0 : fall * 1.2;   // only gravity near the hole bends the picture
-    lens.uniforms.uPull.value = reduced ? 0 : fall * 0.6;
-    lens.uniforms.uShadow.value = smooth(0.8, 0.95, p) * 1.1;
-
-    // characters: finer as we fall in, then they resolve into the picture
-    ascii.uniforms.uCell.value = Math.max(3, Math.round(lerp(cellBase, KNOBS.cellDive, smooth(0.15, 0.75, p)) * dpr));   // whole pixels: no moire bands
-    ascii.uniforms.uMix.value = 0;   // it stays in characters to the end: the dark takes it, not a fade
-    bloom.strength = KNOBS.bloom.strength * (1 + 0.5 * smooth(0.3, 0.8, p));
-    fin.uniforms.uTime.value = time;
+    // iris
+    spinPhase += dt * KNOBS.spin * (reduced ? 0.4 : 1 + 7 * zoomE);
+    driftPhase += dt * KNOBS.drift * (reduced ? 0.3 : 1 + 2 * zoomE);
+    irisU.uSpin.value = spinPhase; irisU.uDrift.value = driftPhase; irisU.uTime.value = time;
+    irisU.uStreak.value = streak; irisU.uSquash.value = lerp(1, 0.97, bv);
+    const glow = (1 - 0.35 * bv) * (1 + 0.5 * zoomE);
+    irisU.uGlow.value = 1 - 0.35 * bv; rimU.uGlow.value = glow; sparkU.uGlow.value = glow;
+    rimU.uTime.value = time; sparkU.uTime.value = time; wallU.uTime.value = time; lidU.uTime.value = time;
+    // the fall: out of the black a burning ring appears; the camera spirals down until the horizon swallows the view
+    const deep = !reduced && p >= 0.6;
+    outerPass.enabled = !deep; innerPass.enabled = deep;
+    if (deep) {
+      const q = easeIO(smooth(0.6, 0.93, p)), fall = smooth(0.72, 0.92, p);
+      const dist = 70 * Math.pow(5.4 / 70, q), az = q * 1.7, elev = lerp(0.06, 0.3, q);
+      innerCam.position.set(HOLE.x + Math.sin(az) * Math.cos(elev) * dist, HOLE.y + Math.sin(elev) * dist, HOLE.z + Math.cos(az) * Math.cos(elev) * dist);
+      const roll = q * 0.9;
+      innerCam.up.set(Math.sin(roll), Math.cos(roll), 0); innerCam.lookAt(HOLE);
+      halo.quaternion.copy(innerCam.quaternion);
+      diskU.uTime.value = time; diskU.uHeat.value = smooth(0.6, 0.7, p) * 0.9;
+      suckU.uTime.value = time; suckU.uAmt.value = smooth(0.6, 0.68, p);
+    }
+    sparks.visible = !reduced;
+    bloom.strength = KNOBS.bloom.strength * (p >= 0.6 ? 0.8 : 1 + 0.6 * zoomE);
+    fin.uniforms.uTime.value = time; fin.uniforms.uLiftAmt.value = 1 - zoomE;
 
     // DOM: hint, skip, the hole that opens on the portfolio
     hintText.textContent = p < -0.01 ? (touchFirst ? 'Swipe to enter' : 'Scroll to enter') : (touchFirst ? 'Swipe up to zoom in' : 'Scroll to zoom in');
-    hint.style.opacity = String(progress < 0 ? 1 : 1 - smooth(0.004, 0.04, progress));   // gone with the first scroll in; back for 'scroll to enter'
-    skip.style.opacity = String(1 - smooth(0.8, 0.92, progress));
-    root.classList.toggle('eye-intro-hide', progress < 0.86);
+    const pullEye = reduced ? 0 : smooth(0.32, 0.58, p) * (1 - smooth(0.58, 0.6, p));
+    const pullIn = reduced ? 0 : smooth(0.62, 0.92, p);
+    lens.uniforms.uSwirl.value = pullEye * 1.8 + pullIn * 2.4;
+    lens.uniforms.uPull.value = pullEye * 0.55 + pullIn * 0.9;
+    lens.uniforms.uShadow.value = smooth(0.8, 0.95, p) * 1.15;
+    hint.style.opacity = String(progress < 0 ? 1 : 1 - smooth(0.004, 0.04, progress));   // gone with the first scroll in
+    skip.style.opacity = String(1 - smooth(0.8, 0.92, p));
+    root.classList.toggle('eye-intro-hide', p < 0.86);
     if (reduced) {
-      stage.style.opacity = String(1 - smooth(0.15, 1, progress));
+      stage.style.opacity = String(1 - smooth(0.15, 1, p));
     } else {
       const open = smooth(0.9, 1, p);
       el.classList.toggle('ei-open', p > 0.9);
@@ -427,7 +657,8 @@ async function start() {
     }
 
     composer.render(dt);
-    if (target >= 1 && progress >= 0.997) reveal();
+
+    if (target >= 1 && p >= 0.997) reveal();
   }
 
   function play() { if (running) return; running = true; last = performance.now(); raf = requestAnimationFrame(frame); }
@@ -435,7 +666,7 @@ async function start() {
 
   /* ---------- input while the intro is on screen ---------- */
   const norm = e => e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1);
-  const bump = dd => { target = clamp(target + dd, -0.15, 1); lastInput = performance.now(); if (dd) lastDir = Math.sign(dd); };
+  const bump = d => { target = clamp(target + d, -0.15, 1); lastInput = performance.now(); if (d) lastDir = Math.sign(d); };
   const onWheel = e => { if (e.ctrlKey) return; e.preventDefault(); e.stopImmediatePropagation(); bump(clamp(norm(e), -240, 240) * KNOBS.zoomPerPx); };
   let ty = 0;
   const onTouchStart = e => { ty = e.touches[0].clientY; };
@@ -470,7 +701,7 @@ async function start() {
   }
   function reenter() {
     if (active) return;
-    active = true; progress = target = 1; lastInput = performance.now(); lastDir = -1;
+    active = true; progress = target = 1; lastInput = performance.now();
     clearTimeout(toastTimer); toast.classList.remove('ei-show');
     el.hidden = false; lock(true); play();
   }
@@ -486,6 +717,7 @@ async function start() {
 
   skip.addEventListener('click', () => { target = 1; lastDir = 1; skipping = true; setTimeout(() => { if (active && skipping) reveal(); }, 700); });   // a slow GPU never holds the visitor
 
+  // the GPU context can be lost on phones: fall back to the site
   renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); pause(); lock(false); root.classList.remove('eye-intro-hide'); el.hidden = true; active = false; }, { once: true });
 
   lock(true);
