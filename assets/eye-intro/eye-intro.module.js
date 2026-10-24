@@ -11,10 +11,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
-import { makeEyePalette } from './palette.js?v=12';   // keep every ?v in step with VERSION in eye-intro.js
-import { makeSuction, makeStarfield } from './particles.js?v=12';
-import { makeShipShot } from './ship-handoff.js?v=12';
-import { NewsWall } from './news.js?v=12';
+import { makeEyePalette } from './palette.js?v=13';   // keep every ?v in step with VERSION in eye-intro.js
+import { makeSuction, makeStarfield } from './particles.js?v=13';
+import { makeShipShot } from './ship-handoff.js?v=13';
+import { NewsWall } from './news.js?v=13';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
@@ -509,7 +509,13 @@ async function start() {
     root.classList.remove('eye-intro-hide');
     el.hidden = true; el.classList.remove('ei-open');
     topSince = performance.now();
-    if (!toastShown) { toastShown = true; toast.classList.add('ei-show'); toastTimer = setTimeout(() => toast.classList.remove('ei-show'), 2600); }
+    if (!toastShown) {
+      toastShown = true; toast.classList.add('ei-show');
+      const EV = ['wheel', 'touchmove', 'keydown'];   // the visitor's own input only (the site fires scroll events by itself)
+      const hide = () => { toast.classList.remove('ei-show'); clearTimeout(toastTimer); EV.forEach(t => removeEventListener(t, hide)); };
+      toastTimer = setTimeout(hide, 2600);
+      setTimeout(() => { if (toast.classList.contains('ei-show')) EV.forEach(t => addEventListener(t, hide, { passive: true })); }, 300);   // gone with the visitor's first scroll
+    }
   }
   function reenter() {
     if (active) return;
