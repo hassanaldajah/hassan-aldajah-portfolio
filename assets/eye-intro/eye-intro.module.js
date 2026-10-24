@@ -1,7 +1,7 @@
 /* EYE INTRO: "the watcher". A real 3D eye (eyeball, fibrous iris, cornea glint, skin and blinking lids) drawn entirely in
    mono characters, in the site's colours. Scrolling dilates the pupil and the camera flies through it into a small universe
-   (stars, a ringed planet, the Earth and the Moon, from the site's own planet maps); the characters resolve into the real
-   image and the portfolio opens out of it. Scrolling up at the top of the portfolio pulls back out to the eye.
+   and falls into a black hole: the iris twists, gravity pulls the picture in, the horizon swallows the view and the
+   portfolio opens out of the dark. Scrolling up at the top of the portfolio pulls back out to the eye.
    Self-contained: no globals, every listener is its own, and once revealed the render loop stops and the scroll lock is gone. */
 import * as THREE from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
@@ -130,13 +130,38 @@ void main(){
 }`;
 
 const ringVert = /* glsl */`varying vec2 vP; void main(){vP=position.xy; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
-const ringFrag = /* glsl */`
-uniform vec3 uA, uB; uniform float uIn, uOut; varying vec2 vP;
+const diskFrag = /* glsl */`
+uniform vec3 uHot, uMid, uCold; uniform float uIn, uOut, uTime, uHeat; varying vec2 vP;
 ${NOISE}
-void main(){float r=length(vP), t=(r-uIn)/(uOut-uIn); if(t<0.||t>1.) discard;
-  float bands=.55+.45*sin(t*70.+vn(vec2(t*40.,1.))*4.); float gap=smoothstep(.56,.6,t)*(1.-smoothstep(.62,.66,t));
-  float a=bands*(1.-gap*.9)*smoothstep(0.,.06,t)*(1.-smoothstep(.9,1.,t))*.5;
-  gl_FragColor=vec4(mix(uA,uB,t)*bands,a);}`;
+void main(){
+  float r=length(vP), t=(r-uIn)/(uOut-uIn); if(t<0.||t>1.) discard;
+  float a=atan(vP.y,vP.x), sw=a+uTime*(.9/(.25+t));                       // the inner disk races, the outer drifts
+  float n=fbm(vec2(sw*3.,t*14.-uTime*.4))*.7+fbm(vec2(sw*9.,t*30.))*.4;
+  float heat=pow(1.-t,2.2);
+  vec3 c=mix(uCold,uMid,smoothstep(0.,.6,heat)); c=mix(c,uHot,smoothstep(.55,1.,heat));
+  float dop=.5+.5*cos(a-.6);                                               // the side rushing toward us burns brighter
+  float I=(heat*2.2+.06)*(.35+.9*n)*(.25+.75*dop)*uHeat;
+  float edge=smoothstep(0.,.04,t)*(1.-smoothstep(.75,1.,t));
+  gl_FragColor=vec4(c*I*edge,1.);
+}`;
+
+// gravity: the picture twists and is pulled toward the centre, colours split at the edges, and a darkness grows in the middle
+const lensShader = {
+  uniforms: { tDiffuse: { value: null }, uAspect: { value: 1 }, uSwirl: { value: 0 }, uPull: { value: 0 }, uShadow: { value: 0 }, uShake: { value: new THREE.Vector2() } },
+  vertexShader: `varying vec2 vUv; void main(){vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader: /* glsl */`
+uniform sampler2D tDiffuse; uniform float uAspect, uSwirl, uPull, uShadow; uniform vec2 uShake; varying vec2 vUv;
+void main(){
+  vec2 d=vUv-.5+uShake; d.x*=uAspect; float r=length(d);
+  float tw=uSwirl*exp(-r*2.2); float c=cos(tw), s=sin(tw); d=mat2(c,-s,s,c)*d;
+  d*=1.+uPull*.6*exp(-r*3.);
+  vec2 uv=d; uv.x/=uAspect; uv+=.5;
+  vec2 dir=normalize(d+1e-5); dir.x/=uAspect; float ca=uPull*.006/(r+.2);
+  vec3 col=vec3(texture2D(tDiffuse,uv+dir*ca).r,texture2D(tDiffuse,uv).g,texture2D(tDiffuse,uv-dir*ca).b);
+  col*=smoothstep(uShadow*.85,uShadow*1.15+.001,r);
+  gl_FragColor=vec4(col,1.);
+}`,
+};
 
 // characters: every cell takes the colour of what is under it and the glyph of its brightness
 const asciiShader = {
@@ -233,8 +258,6 @@ async function start() {
   /* ---------- the inside: a small universe behind the pupil ---------- */
   const inner = new THREE.Scene();
   const innerCam = new THREE.PerspectiveCamera(KNOBS.fov, innerWidth / innerHeight, 0.1, 2000);
-  inner.add(new THREE.AmbientLight(0xffffff, 0.12));
-  const sun = new THREE.DirectionalLight(0xffffff, 3.2); sun.position.set(30, 12, 20); inner.add(sun);
   const NS = mobile ? KNOBS.starsMobile : KNOBS.stars, sp = new Float32Array(NS * 3), sc = new Float32Array(NS * 3);
   const starCols = [pal.text, pal.cyan, pal.violet, pal.accent];
   for (let i = 0; i < NS; i++) {
@@ -244,23 +267,24 @@ async function start() {
   }
   const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(sp, 3)); sg.setAttribute('color', new THREE.BufferAttribute(sc, 3));
   inner.add(new THREE.Points(sg, new THREE.PointsMaterial({ size: 2.2, sizeAttenuation: false, vertexColors: true, transparent: true, opacity: 0.9, depthWrite: false })));
-  const loader = new THREE.TextureLoader();
-  const map = name => { const t = loader.load('assets/planets/' + name); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
-  const giant = new THREE.Mesh(new THREE.SphereGeometry(6, 96, 64), new THREE.MeshStandardMaterial({ map: map('jupiter-sd.jpg'), roughness: 1, metalness: 0 }));
-  giant.position.set(0, 0, -60); giant.rotation.set(0.12, 0, 0.42); inner.add(giant);
-  const ringU = { uA: { value: pal.text.clone().multiplyScalar(0.55) }, uB: { value: pal.violet.clone().multiplyScalar(0.5) }, uIn: { value: 8 }, uOut: { value: 15 } };
-  const ring = new THREE.Mesh(new THREE.RingGeometry(8, 15, 160, 1), new THREE.ShaderMaterial({ uniforms: ringU, vertexShader: ringVert, fragmentShader: ringFrag, transparent: true, side: THREE.DoubleSide, depthWrite: false }));
-  ring.rotation.x = -Math.PI / 2 + 0.22; giant.add(ring);
-  const earth = new THREE.Mesh(new THREE.SphereGeometry(2.2, 64, 48), new THREE.MeshStandardMaterial({ map: map('earth-day-sd.jpg'), roughness: 0.9 }));
-  earth.position.set(-11, 4, -22); earth.rotation.z = 0.41; inner.add(earth);
-  const moon = new THREE.Mesh(new THREE.SphereGeometry(0.6, 48, 32), new THREE.MeshStandardMaterial({ map: map('moon-sd.jpg'), roughness: 1 }));
-  moon.position.set(-7.5, 5.6, -18); inner.add(moon);
+  // behind the pupil: a black hole with a burning accretion disk (the site's own finale, seen from inside the eye)
+  const HOLE = new THREE.Vector3(0, 0, -60);
+  const horizon = new THREE.Mesh(new THREE.SphereGeometry(4, 64, 48), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+  horizon.position.copy(HOLE); inner.add(horizon);
+  const diskU = { uHot: { value: pal.text.clone().lerp(pal.accent, 0.35) }, uMid: { value: pal.accent.clone() }, uCold: { value: pal.violet.clone().multiplyScalar(0.55) }, uIn: { value: 4.6 }, uOut: { value: 24 }, uTime: { value: 0 }, uHeat: { value: 1 } };
+  const diskMat = u => new THREE.ShaderMaterial({ uniforms: u, vertexShader: ringVert, fragmentShader: diskFrag, transparent: true, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
+  const disk = new THREE.Mesh(new THREE.RingGeometry(4.6, 24, 256, 8), diskMat(diskU));
+  disk.position.copy(HOLE); disk.rotation.x = -Math.PI / 2 + 0.2; inner.add(disk);
+  // the far side of the disk, bent by gravity into a halo around the hole; it always faces the camera
+  const halo = new THREE.Mesh(new THREE.RingGeometry(4.15, 8, 256, 4), diskMat({ ...diskU, uIn: { value: 4.15 }, uOut: { value: 8 } }));
+  halo.position.copy(HOLE); inner.add(halo);
 
   /* ---------- post: two scenes into one image, then characters, then a soft glow ---------- */
   const composer = new EffectComposer(renderer);
   const innerPass = new RenderPass(inner, innerCam);
   const outerPass = new RenderPass(scene, cam); outerPass.clear = false; outerPass.clearDepth = true;
   composer.addPass(innerPass); composer.addPass(outerPass);
+  const lens = new ShaderPass(lensShader); composer.addPass(lens);
   const ascii = new ShaderPass(asciiShader);
   ascii.uniforms.uGlyphs.value = glyphAtlas(KNOBS.glyphs); ascii.uniforms.uCount.value = KNOBS.glyphs.length;
   ascii.uniforms.uFloor.value.copy(pal.bg).multiplyScalar(0.35);
@@ -282,7 +306,7 @@ async function start() {
     let visH = visW / aspect;
     if (aspect >= 1 && visH < 2 * H * 2.1) visH = 2 * H * 2.1;   // short, wide screens keep some skin above and below
     camZ0 = PUPIL_Z + visH / (2 * tanH(KNOBS.fov));
-    ascii.uniforms.uRes.value.set(w * dpr, h * dpr);
+    ascii.uniforms.uRes.value.set(w * dpr, h * dpr); lens.uniforms.uAspect.value = aspect;
   }
   fit();
   let fitQueued = false;
@@ -368,21 +392,30 @@ async function start() {
     faceU.uBlink.value = blink.v; faceU.uMeet.value = -0.12 + gy * 0.06;
     eyeU.uTime.value = time; eyeU.uGlow.value = (1 - 0.35 * blink.v) * (1 + smooth(0.1, 0.45, p));
 
-    // inner camera: waits far away (stars and a tiny planet seen through the pupil), then flies past the Earth to the giant
-    const q = easeIO(smooth(0.3, 0.95, p));
-    innerCam.position.set(lerp(0, 5.5, q) - Math.sin(q * Math.PI) * 6, lerp(0, 1.6, q), lerp(40, -40, q));
-    innerCam.lookAt(lerp(0, -1, q), 0, -60);
-    giant.rotation.y += dt * 0.05; earth.rotation.y += dt * 0.08;
+    // the fall: through the pupil a tiny burning ring waits; the camera spirals down onto it until the horizon swallows the view
+    const q = easeIO(smooth(0.3, 0.93, p)), fall = smooth(0.5, 0.9, p);
+    const dist = 100 * Math.pow(5.4 / 100, q), az = q * 1.7, elev = lerp(0.06, 0.3, q);
+    innerCam.position.set(HOLE.x + Math.sin(az) * Math.cos(elev) * dist, HOLE.y + Math.sin(elev) * dist, HOLE.z + Math.cos(az) * Math.cos(elev) * dist);
+    const roll = q * 0.9 + (reduced ? 0 : Math.sin(time * 1.3) * 0.05 * fall);
+    innerCam.up.set(Math.sin(roll), Math.cos(roll), 0); innerCam.lookAt(HOLE);
+    halo.quaternion.copy(innerCam.quaternion);
+    diskU.uTime.value = time; diskU.uHeat.value = 1 + 0.8 * fall;
+    // gravity on the picture: the iris starts to twist into the pupil, then everything is pulled in and goes dark
+    const shake = reduced ? 0 : fall * 0.005 + smooth(0.38, 0.5, p) * 0.0025;
+    lens.uniforms.uShake.value.set((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+    lens.uniforms.uSwirl.value = reduced ? 0 : smooth(0.1, 0.5, p) * 2.4 + fall * 2.6;
+    lens.uniforms.uPull.value = reduced ? 0 : smooth(0.12, 0.5, p) * 0.45 + fall * 0.9;
+    lens.uniforms.uShadow.value = smooth(0.8, 0.95, p) * 1.1;
 
     // characters: finer as we fall in, then they resolve into the picture
     ascii.uniforms.uCell.value = Math.max(3, Math.round(lerp(cellBase, KNOBS.cellDive, smooth(0.15, 0.75, p)) * dpr));   // whole pixels: no moire bands
-    ascii.uniforms.uMix.value = reduced ? 0 : smooth(0.72, 0.93, p);
+    ascii.uniforms.uMix.value = 0;   // it stays in characters to the end: the dark takes it, not a fade
     bloom.strength = KNOBS.bloom.strength * (1 + 0.5 * smooth(0.3, 0.8, p));
     fin.uniforms.uTime.value = time;
 
     // DOM: hint, skip, the hole that opens on the portfolio
     hintText.textContent = p < -0.01 ? (touchFirst ? 'Swipe to enter' : 'Scroll to enter') : (touchFirst ? 'Swipe up to zoom in' : 'Scroll to zoom in');
-    hint.style.opacity = String(1 - smooth(0.05, 0.2, progress));
+    hint.style.opacity = String(progress < 0 ? 1 : 1 - smooth(0.004, 0.04, progress));   // gone with the first scroll in; back for 'scroll to enter'
     skip.style.opacity = String(1 - smooth(0.8, 0.92, progress));
     root.classList.toggle('eye-intro-hide', progress < 0.86);
     if (reduced) {
