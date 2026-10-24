@@ -11,7 +11,7 @@
 <link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
-<!-- EYE INTRO --><script src="assets/eye-intro/eye-intro.js?v=14"></script>
+<!-- EYE INTRO --><script src="assets/eye-intro/eye-intro.js?v=15"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -1344,6 +1344,7 @@ const start=async()=>{
       fleet.forEach((f,i)=>Object.assign(f,{lag:0},form&&form[i]));flying=true;flyT=u*FLY;
       fleet.forEach(f=>dispatchEvent(new CustomEvent('shipflyby',{detail:{sec:(1-u)*FLY,vol:f.s}})));
       setTimeout(()=>fleet.forEach((f,i)=>Object.assign(f,keep[i])),((1-u)*FLY+.5)*1000);return true}};
+  let holeHeard=false;
   const SUCK={earth:[.55,0],jupiter:[.8,.2],moon:[.25,.6],mercury:[.3,.8]},tmpV=new THREE.Vector3();
   function place(stage,t=0){
     const asp=pCam.aspect,tanH=Math.tan(pCam.fov*Math.PI/360),halfH=DEPTH*tanH,K=asp<.9?KP:KL;
@@ -1351,6 +1352,8 @@ const start=async()=>{
     const H=asp<.9?HP:HL,hA0=H[i],hB0=H[i+1];
     hole.position.set((hA0[0]+(hB0[0]-hA0[0])*f)*halfH*asp,(hA0[1]+(hB0[1]-hA0[1])*f)*halfH,-DEPTH);hole.scale.setScalar((hA0[2]+(hB0[2]-hA0[2])*f)*halfH/4);
     const pull=Math.min(1,Math.max(0,(stage-last-.25)/.6));   // 0 until the finale, then the planets belong to the black hole
+    if(pull>.3&&!holeHeard){holeHeard=true;[1,.7,.7].forEach((v,i)=>setTimeout(()=>dispatchEvent(new CustomEvent('shipflyby',{detail:{sec:9,vol:v}})),i*1200))}   // the fleet's engines, as after the eye
+    else if(pull===0)holeHeard=false;
     sunDir.copy(SUN[i]).lerp(SUN[i+1],f).normalize();sunL.position.copy(sunDir);
     const mx=uni.uMouse.value.x,my=uni.uMouse.value.y;
     const X=v=>v[0]??-1+(v[2]*1.11+.09)/asp;   // room for the atmosphere, the orbit loop and the mouse shift
@@ -1362,7 +1365,7 @@ const start=async()=>{
       P.g.position.set((ax+(bx-ax)*fe)*hd*asp+Math.cos(a)*O[0]*halfH-mx*par*hd,(A[1]+(B[1]-A[1])*fe)*hd-near*O[0]*.6*halfH-my*par*.6*hd,-d);
       P.g.scale.setScalar(r*halfH);P.g.rotation.z=near*O[3]*.016;P.near=Math.max(0,near);
       if(pull>0){   // spiral in, faster and smaller as it falls, until the shadow swallows it; then it starts again from the outside
-        const S=SUCK[k],q=(t/30+S[1])%1,rr=6.5-5.4*Math.pow(q,1.35),ang=S[1]*6.2832+6.2832*2.2*Math.pow(q,1.8);
+        const S=SUCK[k],q=(t/60+S[1])%1,rr=6.5-5.4*Math.pow(q,1.35),ang=S[1]*6.2832+6.2832*2.2*Math.pow(q,1.8);
         tmpV.set(Math.cos(ang)*rr,0,Math.sin(ang)*rr).applyEuler(holeTilt.rotation).multiplyScalar(hole.scale.x).add(hole.position);
         P.g.position.lerp(tmpV,pull);P.g.scale.setScalar(r*halfH+(S[0]*hole.scale.x*Math.pow(1-q,.55)-r*halfH)*pull);P.near=Math.max(P.near,q*pull)}
     }
@@ -1436,7 +1439,7 @@ const start=async()=>{
     // planets: glide between sections, spin, fade in once their textures arrive, follow the mouse a little
     const yy=sy+h*.4,n=anchors.length-1;let st=n;for(let i=0;i<n;i++){if(yy<tops[i+1]){st=i+Math.max(0,(yy-tops[i])/Math.max(1,tops[i+1]-tops[i]));break}}
     stage+=(st-stage)*Math.min(1,dt*3.5);place(stage,t);
-    skyPivot.rotation.z=-(t*.021+sm*.9);holeUni.uT.value=t;flyShip(t,dt);
+    skyPivot.rotation.z=-(t*.021+sm*.9);holeUni.uT.value=t*.5;flyShip(t,dt);
     for(const k in planets){const P=planets[k],turn=P.spin*dt*(1+1.6*(P.near||0));P.body.rotation.y+=turn;if(P.extra)P.extra.rotation.y+=turn*.35;if(P.ready&&P.a<1){P.a=Math.min(1,P.a+dt*.7);applyFade(P)}}
     pCam.rotation.set(uni.uMouse.value.y*.012,-uni.uMouse.value.x*.02,0);pCam.updateMatrixWorld();
     holeUni.uC.value.copy(hole.position).applyMatrix4(pCam.matrixWorldInverse);holeUni.uRE.value=1.45*hole.scale.x;holeUni.uRS.value=1.3*hole.scale.x;

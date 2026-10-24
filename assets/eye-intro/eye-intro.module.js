@@ -11,10 +11,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
-import { makeEyePalette } from './palette.js?v=14';   // keep every ?v in step with VERSION in eye-intro.js
-import { makeSuction, makeStarfield } from './particles.js?v=14';
-import { makeShipShot } from './ship-handoff.js?v=14';
-import { NewsWall } from './news.js?v=14';
+import { makeEyePalette } from './palette.js?v=15';   // keep every ?v in step with VERSION in eye-intro.js
+import { makeSuction, makeStarfield } from './particles.js?v=15';
+import { makeShipShot } from './ship-handoff.js?v=15';
+import { NewsWall } from './news.js?v=15';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
@@ -469,6 +469,7 @@ async function start() {
       stage.style.opacity = String(1 - smooth(0.96, 1, p));
     }
 
+    renderer.setClearColor(0x000000, 0);   // three's RenderPass leaves the clear alpha at 1 after the void pass: keep the canvas see-through so the wall shows when you come back
     composer.render(dt);
     if (target >= 1 && progress >= 0.997) reveal();
   }
