@@ -7,14 +7,17 @@ html.eye-intro-hide body{visibility:hidden}
 #eye-intro[hidden]{display:none}
 #eye-intro .ei-stage{position:absolute;inset:0;z-index:0;background:var(--ei-bg)}   /* its own layer: the canvas and the wall never cover the hint or Skip */
 #eye-intro .ei-stage canvas{position:relative;z-index:1;display:block;width:100%;height:100%}
-/* the typing wall: cyber logs under the transparent canvas, grey on black, the active line lighter, old lines fade upward */
-#eye-intro .ei-wall{position:absolute;inset:0;z-index:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4vw;padding:0 3vw;overflow:hidden;pointer-events:none;opacity:0;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 35%);mask-image:linear-gradient(to bottom,transparent,#000 35%)}
-#eye-intro .ei-log{align-self:end;display:flex;flex-direction:column;justify-content:flex-end;font:400 12.5px/20px 'IBM Plex Mono',ui-monospace,monospace;color:var(--ei-wall,#6E6E6E);white-space:nowrap;will-change:transform}
-#eye-intro .ei-row{height:20px;overflow:hidden}
-#eye-intro .ei-log:last-child:not(:first-child){align-items:flex-end;text-align:right}   /* the right column hugs the right edge, clear of the eye */
-#eye-intro .ei-row.ei-active{color:var(--ei-wall-active,#BDBDBD)}
-#eye-intro .ei-cursor{margin-left:1px;animation:ei-cursor 1s steps(1) infinite}
-@keyframes ei-cursor{50%{opacity:0}}
+/* the news wall: columns of cyber headlines and logs under the transparent canvas, sliding up and down, grey on black */
+#eye-intro .ei-news{position:absolute;inset:0;z-index:0;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:28px;padding:0 24px;overflow:hidden;pointer-events:none;opacity:0;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 14%,#000 86%,transparent)}
+#eye-intro .ei-col{position:relative;overflow:hidden;border-right:1px solid var(--ei-line,#2A2A2A)}
+#eye-intro .ei-col:last-child{border-right:0}
+#eye-intro .ei-track{animation:ei-press-up 90s linear infinite;will-change:transform}
+#eye-intro .ei-news h4{margin:22px 0 8px;font:700 19px/1.15 'Space Grotesk',system-ui,sans-serif;letter-spacing:-.01em;text-transform:uppercase;color:var(--ei-wall-active,#BDBDBD)}
+#eye-intro .ei-news hr{border:0;border-top:1px solid var(--ei-line,#2A2A2A);margin:0 0 8px}
+#eye-intro .ei-news p{margin:0;font:400 12px/19px 'IBM Plex Mono',ui-monospace,monospace;color:var(--ei-wall,#6E6E6E);white-space:nowrap;overflow:hidden;text-overflow:clip}
+#eye-intro .ei-news.ei-paused .ei-track,#eye-intro .ei-news.ei-still .ei-track{animation-play-state:paused}
+@keyframes ei-press-up{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@keyframes ei-press-down{from{transform:translateY(-50%)}to{transform:translateY(0)}}
 /* the way out: a hole that grows from the pupil and shows the portfolio underneath */
 #eye-intro.ei-open .ei-stage{-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px));mask-image:radial-gradient(circle at 50% 50%,transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px))}
 #eye-intro .ei-ring{position:absolute;left:50%;top:50%;width:calc(var(--ei-hole) * 2 + 56px);height:calc(var(--ei-hole) * 2 + 56px);transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 1px var(--ei-accent);opacity:0;pointer-events:none}
@@ -36,4 +39,4 @@ html.eye-intro-hide body{visibility:hidden}
 #eye-intro-toast .ei-text{writing-mode:vertical-rl;letter-spacing:.35em;text-transform:uppercase;color:color-mix(in srgb,var(--ei-text,#e9ebf5) 60%,transparent);white-space:nowrap}
 
 @media (max-width:640px){#eye-intro .ei-hint .ei-line{height:44px}#eye-intro .ei-hint .ei-text,#eye-intro-toast .ei-text{font-size:10px}}
-@media (prefers-reduced-motion:reduce){#eye-intro .ei-hint .ei-line,#eye-intro .ei-cursor{animation:none}}
+@media (prefers-reduced-motion:reduce){#eye-intro .ei-hint .ei-line,#eye-intro .ei-track{animation:none}}

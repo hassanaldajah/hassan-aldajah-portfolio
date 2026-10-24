@@ -1,5 +1,5 @@
 /* EYE INTRO: "the watcher", in black and white. A black iris of white cybersecurity words around a pure-black pupil,
-   framed by eyelids, over a wall of cyber logs that type themselves in. It opens like a film title (one GSAP timeline),
+   framed by eyelids, over a cyber-news wall whose columns slide up and down. It opens like a film title (one GSAP timeline),
    then watches: alert glances, blinks, rings turning in alternate directions. Scrolling is one continuous shot: dots are
    sucked into the pupil, the camera floats through a void of white stars toward a growing black hole, the core fills the
    screen, the ring flashes, and the portfolio opens. Everything runs in reverse on scroll back.
@@ -11,9 +11,9 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
-import { makeEyePalette } from './palette.js?v=9';   // keep every ?v in step with VERSION in eye-intro.js
-import { makeSuction, makeStarfield } from './particles.js?v=9';
-import { TypingWall } from './typing.js?v=9';
+import { makeEyePalette } from './palette.js?v=10';   // keep every ?v in step with VERSION in eye-intro.js
+import { makeSuction, makeStarfield } from './particles.js?v=10';
+import { NewsWall } from './news.js?v=10';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
@@ -165,7 +165,7 @@ void main(){
   float ring=1.-smoothstep(px*.5,px*(1.6+uFlash*1.5),abs(r-uR0-px*.4));
   float lim=1.-smoothstep(px*.4,px*1.4,abs(r-1.));
   vec3 col=uHorizon*ring*smoothstep(0.,.35,uIgnite)+uRim*lim*uIgnite;
-  gl_FragColor=vec4(col,1.);
+  gl_FragColor=vec4(col,max(col.r,max(col.g,col.b)));   // alpha only where there is light: the rest stays see-through
 }`;
 
 // the eyelids: their own layer over the eye only (inside the socket), solid and rounded, with a crisp ember edge
@@ -177,6 +177,7 @@ void main(){
   float socket=1.-smoothstep(.82,1.,length(vec2(vP.x/1.6,vP.y/1.2)));   // lids live around the eye, then dissolve into the wall
   float up=step(eu,vP.y), lo=step(vP.y,el), m=max(up,lo)*socket;
   float d=up>.5?vP.y-eu:el-vP.y;
+  m*=max(1.-smoothstep(1.,1.1,length(vP)),1.-smoothstep(0.,.16,d));   // solid only over the iris; elsewhere the lid fades into the news behind it
   vec3 col=uLid+uSheen*smoothstep(0.,.18,d)*(1.-smoothstep(.2,.55,d));  // rounded: dark at the edge, a soft sheen across
   float px=fwidth(vP.y), open=step(el-px,eu);
   float edgeU=1.-smoothstep(px*.5,px*1.6,abs(vP.y-eu)), edgeL=1.-smoothstep(px*.5,px*1.6,abs(vP.y-el));
@@ -229,7 +230,7 @@ async function start() {
   const el = document.createElement('div');
   el.id = 'eye-intro'; el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Intro');
   el.style.setProperty('--ei-bg', P.bg.hex); el.style.setProperty('--ei-text', P.hot.hex); el.style.setProperty('--ei-accent', P.mid.hex);
-  el.style.setProperty('--ei-wall', P.wallText.hex); el.style.setProperty('--ei-wall-active', P.wallActive.hex);
+  el.style.setProperty('--ei-wall', P.wallText.hex); el.style.setProperty('--ei-line', P.rim.hex); el.style.setProperty('--ei-wall-active', P.wallActive.hex);
   el.innerHTML = '<div class="ei-stage"><div class="ei-ring"></div></div><div class="ei-hint" aria-hidden="true"><span class="ei-line"></span><span class="ei-text"></span></div><button type="button" class="ei-skip">Skip intro</button>';
   const stage = el.querySelector('.ei-stage'), hint = el.querySelector('.ei-hint'), hintText = el.querySelector('.ei-hint .ei-text'), skip = el.querySelector('.ei-skip');
   hint.style.opacity = '0';
@@ -247,7 +248,7 @@ async function start() {
   renderer.toneMapping = THREE.NoToneMapping;   // white stays #FFFFFF
   const maxAniso = renderer.capabilities.getMaxAnisotropy();
   stage.prepend(renderer.domElement);
-  const wallDom = new TypingWall(stage, { reduced }); wallDom.setOpacity(0);
+  const wallDom = new NewsWall(stage, { reduced }); wallDom.setOpacity(0);
   renderer.domElement.setAttribute('aria-hidden', 'true');
   document.body.append(el, toast);
 
@@ -294,7 +295,7 @@ async function start() {
   pupil.position.z = 0.002; pupil.renderOrder = 2; eye.add(pupil);
 
   const rimU = { uRim: { value: C('rim') }, uHorizon: { value: C('horizon') }, uR0: { value: R0 }, uFlash: { value: 0 }, uIgnite: { value: 0 } };
-  const rim = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 2.8), new THREE.ShaderMaterial({ uniforms: rimU, vertexShader: quadVert, fragmentShader: rimFrag, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+  const rim = new THREE.Mesh(new THREE.PlaneGeometry(2.8, 2.8), new THREE.ShaderMaterial({ uniforms: rimU, vertexShader: quadVert, fragmentShader: rimFrag, transparent: true, premultipliedAlpha: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
   rim.position.z = 0.003; rim.renderOrder = 3; eye.add(rim);
 
   const lidU = { uLid: { value: C('lid') }, uSheen: { value: C('lidSheen') }, uRim: { value: C('rim') }, uYu: { value: 0.8 }, uYl: { value: -0.74 }, uMeet: { value: -0.32 }, uOpen: { value: 0 } };
