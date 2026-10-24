@@ -19,8 +19,8 @@ html.eye-intro-hide body{visibility:hidden}
 @keyframes ei-press-up{from{transform:translateY(0)}to{transform:translateY(-50%)}}
 @keyframes ei-press-down{from{transform:translateY(-50%)}to{transform:translateY(0)}}
 /* the way out: a hole that grows from the pupil and shows the portfolio underneath */
-#eye-intro.ei-open .ei-stage{-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px));mask-image:radial-gradient(circle at 50% 50%,transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px))}
-#eye-intro .ei-ring{position:absolute;left:50%;top:50%;width:calc(var(--ei-hole) * 2 + 56px);height:calc(var(--ei-hole) * 2 + 56px);transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 1px var(--ei-accent);opacity:0;pointer-events:none}
+#eye-intro.ei-open .ei-stage{-webkit-mask-image:radial-gradient(circle at var(--ei-hx,50%) var(--ei-hy,50%),transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px));mask-image:radial-gradient(circle at var(--ei-hx,50%) var(--ei-hy,50%),transparent var(--ei-hole),#000 calc(var(--ei-hole) + 56px))}
+#eye-intro .ei-ring{position:absolute;left:var(--ei-hx,50%);top:var(--ei-hy,50%);width:calc(var(--ei-hole) * 2 + 56px);height:calc(var(--ei-hole) * 2 + 56px);transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 1px var(--ei-accent);opacity:0;pointer-events:none}
 #eye-intro.ei-open .ei-ring{opacity:var(--ei-ring,0)}
 
 /* hint on the right edge */

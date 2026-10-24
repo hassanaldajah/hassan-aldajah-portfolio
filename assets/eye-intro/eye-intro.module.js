@@ -11,9 +11,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.12.5/index.js';
-import { makeEyePalette } from './palette.js?v=10';   // keep every ?v in step with VERSION in eye-intro.js
-import { makeSuction, makeStarfield } from './particles.js?v=10';
-import { NewsWall } from './news.js?v=10';
+import { makeEyePalette } from './palette.js?v=11';   // keep every ?v in step with VERSION in eye-intro.js
+import { makeSuction, makeStarfield } from './particles.js?v=11';
+import { makeShipShot } from './ship-handoff.js?v=11';
+import { NewsWall } from './news.js?v=11';
 
 /* ---------- knobs ---------- */
 const KNOBS = {
@@ -193,7 +194,7 @@ const finalShader = {
   fragmentShader: /* glsl */`
 uniform sampler2D tDiffuse; uniform float uTime, uNoise, uBlack; varying vec2 vUv;
 void main(){
-  vec4 t=texture2D(tDiffuse,vUv); vec3 c=t.rgb;
+  vec4 t=texture2D(tDiffuse,vUv); vec3 c=vec3(dot(t.rgb,vec3(.2126,.7152,.0722)));   // black and white: even the ships go grey in here
   float d=distance(vUv,vec2(.5)); c*=mix(.6,1.,smoothstep(.9,.35,d));
   float n=fract(sin(dot(gl_FragCoord.xy+fract(uTime)*97.,vec2(12.9898,78.233)))*43758.5453);
   c+=(n-.5)*uNoise*t.a;
@@ -230,6 +231,7 @@ async function start() {
   const el = document.createElement('div');
   el.id = 'eye-intro'; el.setAttribute('role', 'region'); el.setAttribute('aria-label', 'Intro');
   el.style.setProperty('--ei-bg', P.bg.hex); el.style.setProperty('--ei-text', P.hot.hex); el.style.setProperty('--ei-accent', P.mid.hex);
+  el.style.setProperty('--ei-hx', '78%'); el.style.setProperty('--ei-hy', '80%');   // the exit opens where the fleet flies out
   el.style.setProperty('--ei-wall', P.wallText.hex); el.style.setProperty('--ei-line', P.rim.hex); el.style.setProperty('--ei-wall-active', P.wallActive.hex);
   el.innerHTML = '<div class="ei-stage"><div class="ei-ring"></div></div><div class="ei-hint" aria-hidden="true"><span class="ei-line"></span><span class="ei-text"></span></div><button type="button" class="ei-skip">Skip intro</button>';
   const stage = el.querySelector('.ei-stage'), hint = el.querySelector('.ei-hint'), hintText = el.querySelector('.ei-hint .ei-text'), skip = el.querySelector('.ei-skip');
@@ -310,6 +312,7 @@ async function start() {
   const voidCam = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 0.1, 400);
   const starfield = makeStarfield(THREE, { count: Math.round((mobile ? D.starsMobile : D.stars) * few), dpr, color: C('hot') });
   voidScene.add(starfield.points, starfield.hole);
+  const shipShot = makeShipShot(THREE, { scene: voidScene, reduced });
 
   /* post: MSAA at full pixel ratio, then a restrained glow, gravity, finishing */
   const rt = new THREE.WebGLRenderTarget(innerWidth * dpr, innerHeight * dpr, { type: THREE.HalfFloatType, samples: 4 });
@@ -410,7 +413,7 @@ async function start() {
     let camZ = Z0, fov = KNOBS.fov, zoomE = 0;
     if (reduced) camZ = p < 0 ? Z0 / (1 + p) : Z0;
     else if (p < 0) camZ = Z0 / (1 + p);
-    else if (p <= 0.45) { zoomE = easeIO(p / 0.45); camZ = Z0 * Math.pow(zEnd * 0.6 / Z0, zoomE); fov = lerp(KNOBS.fov, 30, zoomE); }   // into the pupil by 0.45
+    else if (p <= 0.3) { zoomE = easeIO(p / 0.3); camZ = Z0 * Math.pow(zEnd * 0.6 / Z0, zoomE); fov = lerp(KNOBS.fov, 30, zoomE); }   // into the pupil by 0.30
     else { zoomE = 1; camZ = zEnd * 0.6; fov = 30; }
     camZ *= 1 - 0.025 * E.push * (1 - zoomE);
     cam.fov = fov; cam.position.set(0, 0, camZ); cam.updateProjectionMatrix();
@@ -439,26 +442,27 @@ async function start() {
     irisU.uSquash.value = lerp(1, 0.97, bv); irisU.uGlow.value = 1 - 0.25 * bv;
     irisU.uIgnite.value = E.ignite; irisU.uDecode.value = E.decode;
     rimU.uFlash.value = E.flash; rimU.uIgnite.value = E.ignite;
-    irisU.uDissolve.value = reduced ? 0 : smooth(0.12, 0.45, p) * 0.8;
+    irisU.uDissolve.value = reduced ? 0 : smooth(0.08, 0.3, p) * 0.8;
     wallDom.setOpacity(Math.min(1, E.wallIn) * (1 - smooth(0.1, 0.28, p)));
-    // the journey: suction in the pupil (0..0.45), then the void and the black hole (0.45..0.9)
-    const deep = !reduced && p >= 0.45;
+    // the journey: suction (0..0.30), the void with the fleet (0.30..0.86), inside the hole (0.86..0.94), out with the fleet (0.94..1)
+    const deep = !reduced && p >= 0.3;
     outerPass.enabled = !deep; voidPass.enabled = deep;
     suction.update(reduced ? 0 : p, time);
     if (deep) starfield.update(p, time);
+    shipShot.update(p, time);
     fin.uniforms.uTime.value = time; fin.uniforms.uBlack.value = E.black;
 
     // DOM: hint, skip, the hole that opens on the portfolio
     hintText.textContent = p < -0.01 ? (touchFirst ? 'Swipe to enter' : 'Scroll to enter') : (touchFirst ? 'Swipe up to zoom in' : 'Scroll to zoom in');
     hint.style.opacity = String(E.hint * (progress < 0 ? 1 : 1 - smooth(0.004, 0.04, progress)));
     skip.style.opacity = String(1 - smooth(0.8, 0.92, progress));
-    root.classList.toggle('eye-intro-hide', progress < 0.86);
+    root.classList.toggle('eye-intro-hide', progress < 0.92);
     if (reduced) {
       if (progress > 0) stage.style.opacity = String(1 - smooth(0.15, 1, progress));
     } else {
-      const open = smooth(0.9, 1, p);
-      el.classList.toggle('ei-open', p > 0.9);
-      el.style.setProperty('--ei-hole', (easeOut(open) * Math.hypot(innerWidth, innerHeight) * 0.56 - 30).toFixed(1) + 'px');
+      const open = smooth(0.94, 1, p);
+      el.classList.toggle('ei-open', p > 0.94);
+      el.style.setProperty('--ei-hole', (easeOut(open) * Math.hypot(innerWidth, innerHeight) * 0.86 - 30).toFixed(1) + 'px');
       el.style.setProperty('--ei-ring', String(open > 0 ? Math.sin(Math.PI * open) * 0.9 : 0));
       stage.style.opacity = String(1 - smooth(0.96, 1, p));
     }
@@ -499,7 +503,7 @@ async function start() {
   let toastShown = false, topSince = performance.now(), toastTimer = 0;
   function reveal() {
     active = false; progress = target = 1; skipping = false;
-    pause(); lock(false); wallDom.pause();
+    pause(); lock(false); wallDom.pause(); shipShot.release();
     root.classList.remove('eye-intro-hide');
     el.hidden = true; el.classList.remove('ei-open');
     topSince = performance.now();

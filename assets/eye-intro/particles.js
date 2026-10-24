@@ -45,7 +45,7 @@ void main(){
   points.frustumCulled = false;
   return {
     points,
-    update(p, time) { u.uPhase.value = smooth(0, 0.45, p); u.uTime.value = time; points.visible = p > 0.002 && p < 0.47; },
+    update(p, time) { u.uPhase.value = smooth(0, 0.3, p); u.uTime.value = time; points.visible = p > 0.002 && p < 0.32; },
   };
 }
 
@@ -97,14 +97,16 @@ void main(){
     points, hole,
     resize(aspect) { hu.uAspect.value = aspect; },
     update(p, time) {
-      const v = smooth(0.45, 0.88, p);
-      u.uTravel.value = v * 300 + time * 0.8;                  // the camera floats forward; a slow drift when idle
-      u.uSpin.value = v * 1.4 + time * 0.012;
+      const v = smooth(0.3, 0.86, p), inside = smooth(0.86, 0.97, p);
+      u.uTravel.value = smooth(0.3, 0.98, p) * 340 + time * 0.8;   // the camera floats forward the whole way; a slow drift when idle
+      u.uSpin.value = v * 1.4 + inside * 0.6 + time * 0.012;
       u.uPull.value = v;
       u.uTime.value = time;
-      u.uAmt.value = smooth(0.45, 0.5, p) * (1 - smooth(0.85, 0.895, p));   // the last dots fall in
-      hu.uRad.value = 0.035 + Math.pow(v, 3) * 2.3 + smooth(0.85, 0.9, p) * 0.6;
-      hu.uFlash.value = Math.sin(Math.PI * smooth(0.85, 0.9, p));
+      // the void, the last dots falling in, then a few dots drifting past inside the hole
+      u.uAmt.value = smooth(0.3, 0.35, p) * (1 - smooth(0.8, 0.86, p)) + 0.25 * smooth(0.86, 0.88, p) * (1 - smooth(0.94, 0.98, p));
+      // outside: the hole grows until its core fills the screen; inside: a thin ring at the end of the tunnel opens toward us
+      hu.uRad.value = p < 0.86 ? 0.035 + Math.pow(v, 3) * 2.4 : 0.02 + inside * inside * 2.4;
+      hu.uFlash.value = Math.sin(Math.PI * smooth(0.84, 0.88, p));
     },
   };
 }
