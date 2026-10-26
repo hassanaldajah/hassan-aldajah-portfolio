@@ -627,6 +627,33 @@ html.dot-field .cdot{opacity:0}
     </div>
   <span class="ring" aria-hidden="true"><i></i></span></article>
 
+  <!-- FACE & BIOMETRIC DETECTION TRACKER -->
+  <article class="proj alt rv" style="--c:#f5b301" data-video="facescan">
+    <div class="info">
+      <img decoding="async" class="pico" src="assets/img/icon-facescan.svg" alt="Face + Gesture Unlock logo" width="64" height="64"><div class="num">06 · BIOMETRIC SECURITY LAB</div>
+      <h3>Face + Gesture <span class="g">Unlock</span></h3>
+      <div class="tagline">Break the lock, then read the log. A biometric security lab in your browser.</div>
+      <p>Face match, liveness check and hand-gesture unlock, with a red-team mode and a SOC-style event log. It runs 100% in your browser: no uploads, no analytics.</p>
+      <ul class="feat">
+        <li>Random liveness challenge (blink, turn, open mouth) that stops photo and replay attacks, with rate limiting after 5 failed attempts</li>
+        <li>Red team / blue team lab with a threat-model table, plus an audit trail exportable as ECS-style JSON for a SIEM</li>
+        <li>Encrypted vault: PBKDF2-SHA256 (600,000 rounds) into AES-256-GCM, so bypassing the lock only reveals ciphertext</li>
+      </ul>
+      <div class="tags"><span>Face Matching</span><span>Liveness</span><span>Hand Gestures</span><span>AES-256-GCM</span><span>PBKDF2</span><span>Browser-only</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://face.al-hassan.dev/" target="_blank" rel="noopener">Open live demo ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/face-unlock-demo" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="media duo">
+      <div class="logo-banner" style="background:#0b0802"><img decoding="async" src="assets/img/facescan-banner.svg" alt="Face + Gesture Unlock" loading="lazy" style="object-fit:contain"></div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>face.al-hassan.dev</span></div>
+          <div class="screen"><img decoding="async" src="assets/img/facescan-ui.svg" alt="Face + Gesture Unlock: face match, liveness and hand gesture steps" loading="lazy" style="object-fit:contain;background:#080703"></div></div>
+      </div>
+    </div>
+  </article>
+
   <div class="mini-grid">
     <div class="mini rv" style="--c:#22d3ee"><h3>Threat Eye <span class="g mini-g" style="--g1:#22d3ee;--g2:#10b981">SOC Detection</span></h3><p>Threat-intelligence-driven SOC pipeline in Splunk Enterprise: 957,674+ network-flow events and a Random Forest classifier for AI-based correlation.</p><div class="tags"><span>Splunk</span><span>Python</span><span>scikit-learn</span><span>REST API</span></div><a class="btn sm" href="Soc Ope Final Report.pdf" target="_blank" rel="noopener">Project report (PDF) ↗</a></div>
     <div class="mini rv" style="--c:#d65cff"><h3>MedCare Horizon <span class="g mini-g" style="--g1:#8b6bff;--g2:#ff4d8d">Strategy</span></h3><p>Security strategy for a 350-bed hospital: RBAC, IoT segmentation, a 5-goal enterprise plan and an ISO/IEC 27001 gap assessment.</p><div class="tags"><span>Security Strategy</span><span>ISO/IEC 27001</span><span>Risk Assessment</span></div><a class="btn sm" href="information sec.pdf" target="_blank" rel="noopener">Case study (PDF) ↗</a></div>
