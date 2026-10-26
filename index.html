@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self' blob:; connect-src 'self' https://formsubmit.co https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self' https://formsubmit.co">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Hassan Aldajah | Cybersecurity &amp; SOC Analyst Portfolio</title>
-<meta name="description" content="Hassan Aldajah: cybersecurity student and SOC analyst. Projects: Nashmi AI security agent, Pixel image studio, FC file converter, SafeShare.">
+<meta name="description" content="Hassan Aldajah: cybersecurity student and SOC analyst. Projects: Nashmi AI security agent, Pixel image studio, SafeShare, NULL SIGNAL forensics game, FC file converter.">
 <meta name="theme-color" content="#06070d">
 <link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml">
@@ -214,6 +214,28 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .media.duo{display:grid;grid-template-rows:1fr 1fr;gap:18px}
 .proj.safe{grid-template-columns:.8fr 1.2fr}
 .proj.safe .screen img{object-position:50% 40%}
+/* NULL SIGNAL: black and white like GitHub on the links page: dark at rest, white light under the pointer */
+.proj.null{grid-template-columns:1.2fr .8fr}
+.proj.null::before{opacity:.5;background:radial-gradient(circle closest-side,#000,rgba(0,0,0,.6) 45%,transparent)}
+.proj.null:hover,.proj.null.lit{box-shadow:0 0 0 1px rgba(255,255,255,.85),0 0 60px -12px rgba(255,255,255,.55),inset 0 0 80px -44px rgba(255,255,255,.45)}
+.proj.null .device{box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4),0 0 80px -20px #000;transition:transform .25s ease-out,box-shadow .5s}
+.proj.null:hover .device,.proj.null.lit .device{box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.18),0 0 80px -22px rgba(255,255,255,.5)}
+.proj.null .logo-banner{border-color:rgba(255,255,255,.12);box-shadow:0 0 60px -20px #000;transition:border-color .5s,box-shadow .5s}
+.proj.null:hover .logo-banner,.proj.null.lit .logo-banner{border-color:rgba(255,255,255,.45);box-shadow:0 0 60px -22px rgba(255,255,255,.5)}
+.proj.null .pico{filter:drop-shadow(0 8px 22px rgba(0,0,0,.9));transition:filter .5s}
+.proj.null:hover .pico,.proj.null.lit .pico{filter:drop-shadow(0 8px 22px rgba(255,255,255,.35))}
+.btn.soon{cursor:default;color:var(--muted);border-style:dashed;border-color:rgba(255,255,255,.22)}
+.btn.soon:hover{transform:none;background:var(--panel)}
+.g-mono{background:linear-gradient(120deg,#fff,#8b91a7 55%,#fff);-webkit-background-clip:text;background-clip:text}
+.ns-banner svg{position:absolute;inset:0;width:100%;height:100%}
+.ns-banner text{font-family:var(--display);font-weight:700;letter-spacing:.06em}
+.ns-banner .ns-sub{font:500 13px var(--mono);letter-spacing:.32em;fill:rgba(255,255,255,.5)}
+.ns-banner .echo{fill:#fff;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.ns-banner .e1{opacity:.16;transform:translateX(-3px)}
+.ns-banner .e2{opacity:.1;transform:translate(3px,1px)}
+.proj.null:hover .ns-banner .e1,.proj.null.lit .ns-banner .e1{opacity:.3;transform:translateX(-7px)}
+.proj.null:hover .ns-banner .e2,.proj.null.lit .ns-banner .e2{opacity:.18;transform:translate(7px,2px)}
+@media (prefers-reduced-motion:reduce){.ns-banner .echo{transition:none}}
 /* every project icon sits in the same 80px-tall slot at its own shape: nothing is cropped or framed */
 .pico{display:block;width:auto;height:80px;max-width:96px;object-fit:contain;margin-bottom:14px;filter:drop-shadow(0 8px 22px color-mix(in srgb,var(--c) 45%,transparent))}
 .pico.fox{filter:drop-shadow(0 8px 24px rgba(229,72,77,.45))}
@@ -265,7 +287,7 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .mini .btn{margin-top:auto;align-self:flex-start}
 @media(max-width:600px){.float-card{display:none}}
 @media(max-width:900px){
-  .proj,.proj.alt,.proj.nashmi,.proj.compact,.proj.safe{grid-template-columns:1fr}
+  .proj,.proj.alt,.proj.nashmi,.proj.compact,.proj.safe,.proj.null{grid-template-columns:1fr}
   .proj.alt .info{order:0}
   .fc1{left:4px}
   .fc2{right:4px}
@@ -542,10 +564,52 @@ html.dot-field .cdot{opacity:0}
     </div>
   </article>
 
-  <!-- FC -->
-  <article class="proj multi compact alt rv" data-video="fc">
+  <!-- NULL SIGNAL -->
+  <article class="proj null alt rv" style="--c:#ffffff" data-video="nullsignal">
     <div class="info">
-      <img decoding="async" class="pico" src="assets/img/icon-fc.png" alt="FC logo" width="64" height="64"><div class="num">04 · FILE CONVERTER</div>
+      <img decoding="async" class="pico" src="assets/img/icon-nullsignal.svg" alt="NULL SIGNAL logo" width="64" height="64"><div class="num">04 · CYBER INVESTIGATION GAME</div>
+      <h3>NULL <span class="g g-mono">SIGNAL</span></h3>
+      <div class="tagline">A detective game where you investigate a breach instead of causing one.</div>
+      <p>You play the defender on a simulated forensic desktop, in Arabic or English, and follow one fictional intrusion from the first phishing email to the attacker's name.</p>
+      <ul class="feat">
+        <li>A simulated forensic shell (grep, find, xxd, exiftool, sha256sum) over a read-only virtual disk: nothing touches a real system</li>
+        <li>27 levels in 6 acts: Linux basics, phishing, passwords, logs and timelines, file forensics and the final unmasking</li>
+        <li>Every level ends with a debrief: the concept, real defensive tools and a source (NIST, MITRE ATT&amp;CK, RFCs)</li>
+      </ul>
+      <div class="tags"><span>React</span><span>TypeScript</span><span>Three.js</span><span>xterm.js</span><span>Blender</span><span>Arabic / English</span></div>
+      <div class="btns">
+        <!-- until the game is live: then "Play the game ↗" (https://nullsignal.al-hassan.dev) and GitHub (https://github.com/hassanaldajah/null-signal) -->
+        <span class="btn sm soon" aria-disabled="true">Launching soon</span>
+      </div>
+    </div>
+    <div class="media duo">
+      <div class="logo-banner ns-banner" style="background:#000">
+        <svg viewBox="0 0 640 360" role="img" aria-label="NULL SIGNAL logo">
+          <defs><pattern id="nsScan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#fff" fill-opacity=".035"/></pattern></defs>
+          <rect width="640" height="360" fill="url(#nsScan)"/>
+          <g transform="translate(272 52)">
+            <rect x="1" y="1" width="94" height="94" rx="20" fill="#000" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
+            <path class="echo e1" d="M21 69V27l27 42V27" stroke="#fff" stroke-width="7.5" fill="none" stroke-linecap="square"/>
+            <path d="M21 69V27l27 42V27M57 69h18" stroke="#fff" stroke-width="7.5" fill="none" stroke-linecap="square"/>
+            <rect x="57" y="27" width="18" height="7.5" fill="#fff" fill-opacity=".45"/>
+          </g>
+          <text class="echo e1" x="320" y="226" text-anchor="middle" font-size="58">NULL SIGNAL</text>
+          <text class="echo e2" x="320" y="226" text-anchor="middle" font-size="58">NULL SIGNAL</text>
+          <text x="320" y="226" text-anchor="middle" font-size="58" fill="#fff">NULL SIGNAL</text>
+          <text class="ns-sub" x="320" y="272" text-anchor="middle">DIGITAL FORENSICS GAME · AR / EN</text>
+        </svg>
+      </div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nullsignal.al-hassan.dev</span></div>
+          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/nullsignal-poster.jpg" data-src="assets/video/nullsignal.mp4"></video></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- FC -->
+  <article class="proj multi compact rv" data-video="fc">
+    <div class="info">
+      <img decoding="async" class="pico" src="assets/img/icon-fc.png" alt="FC logo" width="64" height="64"><div class="num">05 · FILE CONVERTER</div>
       <h3>FC <span class="g">File Converter</span></h3>
       <div class="tagline">Every file tool, one glass octagon on your screen.</div>
       <p>Drop files on it, or select them in File Explorer and press Ctrl+Alt+C. The octagon turns into the right tools for those files. Originals are never overwritten.</p>
