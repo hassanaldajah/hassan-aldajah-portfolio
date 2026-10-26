@@ -224,8 +224,6 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj.null:hover .logo-banner,.proj.null.lit .logo-banner{border-color:rgba(255,255,255,.45);box-shadow:0 0 60px -22px rgba(255,255,255,.5)}
 .proj.null .pico{filter:drop-shadow(0 8px 22px rgba(0,0,0,.9));transition:filter .5s}
 .proj.null:hover .pico,.proj.null.lit .pico{filter:drop-shadow(0 8px 22px rgba(255,255,255,.35))}
-.btn.soon{cursor:default;color:var(--muted);border-style:dashed;border-color:rgba(255,255,255,.22)}
-.btn.soon:hover{transform:none;background:var(--panel)}
 .g-mono{background:linear-gradient(120deg,#fff,#8b91a7 55%,#fff);-webkit-background-clip:text;background-clip:text}
 .ns-banner svg{position:absolute;inset:0;width:100%;height:100%}
 .ns-banner text{font-family:var(--display);font-weight:700;letter-spacing:.06em}
@@ -578,8 +576,8 @@ html.dot-field .cdot{opacity:0}
       </ul>
       <div class="tags"><span>React</span><span>TypeScript</span><span>Three.js</span><span>xterm.js</span><span>Blender</span><span>Arabic / English</span></div>
       <div class="btns">
-        <!-- until the game is live: then "Play the game ↗" (https://nullsignal.al-hassan.dev) and GitHub (https://github.com/hassanaldajah/null-signal) -->
-        <span class="btn sm soon" aria-disabled="true">Launching soon</span>
+        <a class="btn primary sm" href="https://nullsignal.al-hassan.dev" target="_blank" rel="noopener">Play the game ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/null-signal" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
     <div class="media duo">
