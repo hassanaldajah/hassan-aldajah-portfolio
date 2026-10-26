@@ -201,21 +201,15 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj.multi:hover,.proj.multi.lit{border-color:transparent;box-shadow:0 0 60px -12px #c04cff,0 0 80px -20px #4cc9ff,0 0 90px -30px #3be07a}
 .proj.multi>.ring{inset:0;--rg:#c04cff,#4cc9ff,#3be07a,#c04cff;--rd:6s;opacity:0;transition:opacity .5s}
 .proj.multi:hover>.ring,.proj.multi.lit>.ring{opacity:1}
-.proj.alt{grid-template-columns:1.1fr 1fr}
-.proj.alt .info{order:2}
-.proj.compact{grid-template-columns:.8fr 1.2fr;gap:clamp(20px,3vw,40px);padding:clamp(16px,2.4vw,26px) clamp(18px,3vw,34px)}
 .proj.compact h3{font-size:clamp(26px,3vw,38px)}
 .proj.compact .pico{width:52px;height:52px;margin-bottom:10px}
 .proj.compact p{margin-bottom:14px}
 .proj.compact .tags{margin-bottom:16px}
-.proj.nashmi{grid-template-columns:.85fr 1.15fr}
 /* logo panel on top, 16:9 video window below, same height each */
 .proj:has(.media.duo){align-items:start}
 .media.duo{display:grid;grid-template-rows:1fr 1fr;gap:18px}
-.proj.safe{grid-template-columns:.8fr 1.2fr}
 .proj.safe .screen img{object-position:50% 40%}
 /* NULL SIGNAL: black and white like GitHub on the links page: dark at rest, white light under the pointer */
-.proj.null{grid-template-columns:1.2fr .8fr}
 .proj.null::before{opacity:.5;background:radial-gradient(circle closest-side,#000,rgba(0,0,0,.6) 45%,transparent)}
 .proj.null:hover,.proj.null.lit{box-shadow:0 0 0 1px rgba(255,255,255,.85),0 0 60px -12px rgba(255,255,255,.55),inset 0 0 80px -44px rgba(255,255,255,.45)}
 .proj.null .device{box-shadow:0 40px 90px -30px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4),0 0 80px -20px #000;transition:transform .25s ease-out,box-shadow .5s}
@@ -285,8 +279,7 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .mini .btn{margin-top:auto;align-self:flex-start}
 @media(max-width:600px){.float-card{display:none}}
 @media(max-width:900px){
-  .proj,.proj.alt,.proj.nashmi,.proj.compact,.proj.safe,.proj.null{grid-template-columns:1fr}
-  .proj.alt .info{order:0}
+  .proj{grid-template-columns:1fr}
   .fc1{left:4px}
   .fc2{right:4px}
 }
@@ -508,7 +501,7 @@ html.dot-field .cdot{opacity:0}
   </article>
 
   <!-- PIXEL -->
-  <article class="proj alt rv" style="--c:#1e90ff" data-video="pixel">
+  <article class="proj rv" style="--c:#1e90ff" data-video="pixel">
     <div class="info">
       <div class="num">02 · DESKTOP APP</div>
       <h3>Pixel <span class="g">image studio</span></h3>
@@ -563,7 +556,7 @@ html.dot-field .cdot{opacity:0}
   </article>
 
   <!-- NULL SIGNAL -->
-  <article class="proj null alt rv" style="--c:#ffffff" data-video="nullsignal">
+  <article class="proj null rv" style="--c:#ffffff" data-video="nullsignal">
     <div class="info">
       <img decoding="async" class="pico" src="assets/img/icon-nullsignal.svg" alt="NULL SIGNAL logo" width="64" height="64"><div class="num">04 · CYBER INVESTIGATION GAME</div>
       <h3>NULL <span class="g g-mono">SIGNAL</span></h3>
@@ -628,7 +621,7 @@ html.dot-field .cdot{opacity:0}
   <span class="ring" aria-hidden="true"><i></i></span></article>
 
   <!-- FACE & BIOMETRIC DETECTION TRACKER -->
-  <article class="proj alt rv" style="--c:#f5b301" data-video="facescan">
+  <article class="proj rv" style="--c:#f5b301" data-video="facescan">
     <div class="info">
       <img decoding="async" class="pico" src="assets/img/icon-facescan.svg" alt="Face + Gesture Unlock logo" width="64" height="64"><div class="num">06 · BIOMETRIC SECURITY LAB</div>
       <h3>Face + Gesture <span class="g">Unlock</span></h3>
@@ -649,7 +642,7 @@ html.dot-field .cdot{opacity:0}
       <div class="logo-banner" style="background:#0b0802"><img decoding="async" src="assets/img/facescan-banner.svg" alt="Face + Gesture Unlock" loading="lazy" style="object-fit:contain"></div>
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>face.al-hassan.dev</span></div>
-          <div class="screen"></div></div>
+          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/facescan-poster.jpg" data-src="assets/video/facescan.mp4"></video></div></div>
       </div>
     </div>
   </article>
