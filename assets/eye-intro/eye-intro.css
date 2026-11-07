@@ -2,6 +2,7 @@
 html.eye-intro-lock,html.eye-intro-lock body{overflow:hidden!important;overscroll-behavior:none}
 html.eye-intro-hide{background:#05060c}
 html.eye-intro-hide body{visibility:hidden}
+html.eye-intro-hide .cdot{visibility:visible}   /* the site's white paint-dot cursor stays visible over the eye while the page under it is hidden */
 
 #eye-intro{--ei-bg:#05060c;--ei-text:#e9ebf5;--ei-accent:#ff4d8d;--ei-hole:0px;position:fixed;inset:0;width:100vw;height:100vh;height:100dvh;z-index:9000;visibility:visible;font-family:'IBM Plex Mono',ui-monospace,monospace;color:var(--ei-text);touch-action:none;user-select:none;-webkit-user-select:none}
 #eye-intro[hidden]{display:none}
