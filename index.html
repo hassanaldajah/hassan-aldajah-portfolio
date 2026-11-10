@@ -234,6 +234,7 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj.null .pico{filter:drop-shadow(0 8px 22px rgba(0,0,0,.9));transition:filter .5s}
 .proj.null:hover .pico,.proj.null.lit .pico{filter:drop-shadow(0 8px 22px rgba(255,255,255,.35))}
 .g-mono{background:linear-gradient(120deg,#fff,#8b91a7 55%,#fff);-webkit-background-clip:text;background-clip:text}
+.g-red{background:linear-gradient(120deg,#ff5a6a,#ff3b4e 50%,#ff8a5c);-webkit-background-clip:text;background-clip:text}
 .ns-banner svg{position:absolute;inset:0;width:100%;height:100%}
 .ns-banner text{font-family:var(--display);font-weight:700;letter-spacing:.06em}
 .ns-banner .ns-sub{font:500 13px var(--mono);letter-spacing:.32em;fill:rgba(255,255,255,.5)}
@@ -243,6 +244,15 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj.null:hover .ns-banner .e1,.proj.null.lit .ns-banner .e1{opacity:.3;transform:translateX(-7px)}
 .proj.null:hover .ns-banner .e2,.proj.null.lit .ns-banner .e2{opacity:.18;transform:translate(7px,2px)}
 @media (prefers-reduced-motion:reduce){.ns-banner .echo{transition:none}}
+/* PLUM HOP: the plum bounces while the card is hovered */
+.ps-banner svg{position:absolute;inset:0;width:100%;height:100%}
+.ps-banner text{font-family:var(--display);font-weight:700;letter-spacing:.04em}
+.ps-banner .ps-sub{font:500 13px var(--mono);letter-spacing:.3em;fill:rgba(255,255,255,.55)}
+.ps-ball{transform-box:fill-box;transform-origin:50% 100%}
+@keyframes psbounce{0%,100%{transform:translateY(0) scale(1.12,.88)}50%{transform:translateY(-30px) scale(.96,1.06)}}
+.proj.plum:hover .ps-ball,.proj.plum.lit .ps-ball{animation:psbounce .75s cubic-bezier(.3,.1,.5,1) infinite}
+.screen>a{position:absolute;inset:0;z-index:1}
+@media (prefers-reduced-motion:reduce){.proj.plum:hover .ps-ball,.proj.plum.lit .ps-ball{animation:none}}
 /* every project icon sits in the same 80px-tall slot at its own shape: nothing is cropped or framed */
 .pico{display:block;width:auto;height:80px;max-width:96px;object-fit:contain;margin-bottom:14px;filter:drop-shadow(0 8px 22px color-mix(in srgb,var(--c) 45%,transparent))}
 .pico.fox{filter:drop-shadow(0 8px 24px rgba(229,72,77,.45))}
@@ -658,6 +668,40 @@ html.dot-field .cdot{opacity:0}
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>face.al-hassan.dev</span></div>
           <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/facescan-poster.jpg" data-src="assets/video/facescan.mp4"></video></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- PLUM HOP -->
+  <article class="proj plum rv" style="--c:#ff3b4e">
+    <div class="info">
+      <img decoding="async" class="pico" src="assets/img/icon-plumhop.svg" alt="Plum Hop logo" width="64" height="64"><div class="num">07 · BROWSER GAME</div>
+      <h3>Plum <span class="g g-red">Hop</span></h3>
+      <div class="tagline">A bouncing platformer you can play on your phone or your desktop.</div>
+      <p>A red plum that never stops hopping through four worlds: meadow, forest, snowy caves and a sunset sky. One HTML file, no libraries, and it remembers where you stopped.</p>
+      <ul class="feat">
+        <li>20 hand-built levels with 30 gems each, real slopes and curved hills, ice, wind, springs, crumbling logs, water, switches and gates</li>
+        <li>All graphics are drawn in code and all sound is generated with the Web Audio API: no image or audio files</li>
+        <li>Multi-touch controls for phones and keyboard for desktop; an automated solver checks that every level can be finished with all 30 gems</li>
+      </ul>
+      <div class="tags"><span>HTML5 Canvas</span><span>JavaScript</span><span>Web Audio</span><span>Cloudflare</span><span>Mobile-first</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://plumhop.al-hassan.dev" target="_blank" rel="noopener">Play the game ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/plum-hop" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="media duo">
+      <div class="logo-banner ps-banner" style="background:radial-gradient(ellipse at 50% 0%,#1d3f8a,#0a1433 75%)">
+        <svg viewBox="0 0 640 360" role="img" aria-label="Plum Hop logo">
+          <ellipse cx="320" cy="150" rx="40" ry="7" fill="#000" fill-opacity=".35"/>
+          <g class="ps-ball"><circle cx="320" cy="104" r="44" fill="#ee3338"/><circle cx="320" cy="104" r="44" fill="none" stroke="#7a0a14" stroke-width="3"/><path d="M320 62v-14" stroke="#5a3414" stroke-width="6" stroke-linecap="round"/><path d="M320 60c8-22 32-26 46-14-10 14-32 20-46 14z" fill="#58d14a"/><ellipse cx="298" cy="84" rx="11" ry="6.5" transform="rotate(-35 298 84)" fill="#fff" fill-opacity=".75"/><circle cx="305" cy="104" r="11" fill="#fff"/><circle cx="337" cy="104" r="11" fill="#fff"/><circle cx="309" cy="106" r="5.5" fill="#1b1030"/><circle cx="341" cy="106" r="5.5" fill="#1b1030"/></g>
+          <text x="320" y="238" text-anchor="middle" font-size="66" fill="#ffd23e">PLUM HOP</text>
+          <text class="ps-sub" x="320" y="280" text-anchor="middle">4 WORLDS · 20 LEVELS</text>
+        </svg>
+      </div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>plumhop.al-hassan.dev</span></div>
+          <div class="screen"><img decoding="async" src="assets/img/plumhop-poster.jpg" alt="Three Plum Hop levels: meadow, forest and snow" loading="lazy" width="1280" height="720"><a href="https://plumhop.al-hassan.dev" target="_blank" rel="noopener" aria-label="Play Plum Hop"></a></div></div>
       </div>
     </div>
   </article>
