@@ -253,6 +253,20 @@ h2{font:700 clamp(32px,5.2vw,64px)/1.08 var(--display);letter-spacing:-.03em;max
 .proj.plum:hover .ps-ball,.proj.plum.lit .ps-ball{animation:psbounce .75s cubic-bezier(.3,.1,.5,1) infinite}
 .screen>a{position:absolute;inset:0;z-index:1}
 @media (prefers-reduced-motion:reduce){.proj.plum:hover .ps-ball,.proj.plum.lit .ps-ball{animation:none}}
+
+/* JACKAROO + the "Games for fun" group heading */
+.games-title{margin:64px 0 28px;text-align:center;font:700 clamp(28px,4vw,44px)/1.2 var(--display)}
+.games-title span:not(.g){color:#e8cf8a;opacity:.7;font-size:.6em;vertical-align:middle;margin-inline:10px}
+.g-gold{background:linear-gradient(120deg,#f3e2a6,#e8cf8a 50%,#c9a24b);-webkit-background-clip:text;background-clip:text}
+.jk-banner svg{position:absolute;inset:0;width:100%;height:100%}
+.jk-banner text{font-family:var(--display);font-weight:700;letter-spacing:.06em}
+.jk-banner .jk-sub{font:500 13px var(--mono);letter-spacing:.28em;fill:rgba(255,255,255,.55)}
+.jk-m{transform-box:fill-box;transform-origin:center;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.proj.jk:hover .jk-m.m1,.proj.jk.lit .jk-m.m1{transform:translateX(14px)}
+.proj.jk:hover .jk-m.m2,.proj.jk.lit .jk-m.m2{transform:translateX(-14px)}
+.proj.jk:hover .jk-m.m3,.proj.jk.lit .jk-m.m3{transform:translateY(14px)}
+.proj.jk:hover .jk-m.m4,.proj.jk.lit .jk-m.m4{transform:translateY(-14px)}
+@media (prefers-reduced-motion:reduce){.jk-m{transition:none}}
 /* every project icon sits in the same 80px-tall slot at its own shape: nothing is cropped or framed */
 .pico{display:block;width:auto;height:80px;max-width:96px;object-fit:contain;margin-bottom:14px;filter:drop-shadow(0 8px 22px color-mix(in srgb,var(--c) 45%,transparent))}
 .pico.fox{filter:drop-shadow(0 8px 24px rgba(229,72,77,.45))}
@@ -580,52 +594,10 @@ html.dot-field .cdot{opacity:0}
     </div>
   </article>
 
-  <!-- NULL SIGNAL -->
-  <article class="proj null rv" style="--c:#ffffff" data-video="nullsignal">
-    <div class="info">
-      <img decoding="async" class="pico" src="assets/img/icon-nullsignal.svg" alt="NULL SIGNAL logo" width="64" height="64"><div class="num">04 · CYBER INVESTIGATION GAME</div>
-      <h3>NULL <span class="g g-mono">SIGNAL</span></h3>
-      <div class="tagline">A detective game where you investigate a breach instead of causing one.</div>
-      <p>You play the defender on a simulated forensic desktop, in Arabic or English, and follow one fictional intrusion from the first phishing email to the attacker's name.</p>
-      <ul class="feat">
-        <li>A simulated forensic shell (grep, find, xxd, exiftool, sha256sum) over a read-only virtual disk: nothing touches a real system</li>
-        <li>27 levels in 6 acts: Linux basics, phishing, passwords, logs and timelines, file forensics and the final unmasking</li>
-        <li>Every level ends with a debrief: the concept, real defensive tools and a source (NIST, MITRE ATT&amp;CK, RFCs)</li>
-      </ul>
-      <div class="tags"><span>React</span><span>TypeScript</span><span>Three.js</span><span>xterm.js</span><span>Blender</span><span>Arabic / English</span></div>
-      <div class="btns">
-        <a class="btn primary sm" href="https://nullsignal.al-hassan.dev" target="_blank" rel="noopener">Play the game ↗</a>
-        <a class="btn sm" href="https://github.com/hassanaldajah/null-signal" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-    <div class="media duo">
-      <div class="logo-banner ns-banner" style="background:#000">
-        <svg viewBox="0 0 640 360" role="img" aria-label="NULL SIGNAL logo">
-          <defs><pattern id="nsScan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#fff" fill-opacity=".035"/></pattern></defs>
-          <rect width="640" height="360" fill="url(#nsScan)"/>
-          <g transform="translate(272 52)">
-            <rect x="1" y="1" width="94" height="94" rx="20" fill="#000" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
-            <path class="echo e1" d="M21 69V27l27 42V27" stroke="#fff" stroke-width="7.5" fill="none" stroke-linecap="square"/>
-            <path d="M21 69V27l27 42V27M57 69h18" stroke="#fff" stroke-width="7.5" fill="none" stroke-linecap="square"/>
-            <rect x="57" y="27" width="18" height="7.5" fill="#fff" fill-opacity=".45"/>
-          </g>
-          <text class="echo e1" x="320" y="226" text-anchor="middle" font-size="58">NULL SIGNAL</text>
-          <text class="echo e2" x="320" y="226" text-anchor="middle" font-size="58">NULL SIGNAL</text>
-          <text x="320" y="226" text-anchor="middle" font-size="58" fill="#fff">NULL SIGNAL</text>
-          <text class="ns-sub" x="320" y="272" text-anchor="middle">DIGITAL FORENSICS GAME · AR / EN</text>
-        </svg>
-      </div>
-      <div class="devwrap">
-        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nullsignal.al-hassan.dev</span></div>
-          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/nullsignal-poster.jpg" data-src="assets/video/nullsignal.mp4"></video></div></div>
-      </div>
-    </div>
-  </article>
-
   <!-- FC -->
   <article class="proj multi compact rv" data-video="fc">
     <div class="info">
-      <img decoding="async" class="pico" src="assets/img/icon-fc.png" alt="FC logo" width="64" height="64"><div class="num">05 · FILE CONVERTER</div>
+      <img decoding="async" class="pico" src="assets/img/icon-fc.png" alt="FC logo" width="64" height="64"><div class="num">04 · FILE CONVERTER</div>
       <h3>FC <span class="g">File Converter</span></h3>
       <div class="tagline">Every file tool, one glass octagon on your screen.</div>
       <p>Drop files on it, or select them in File Explorer and press Ctrl+Alt+C. The octagon turns into the right tools for those files. Originals are never overwritten.</p>
@@ -648,7 +620,7 @@ html.dot-field .cdot{opacity:0}
   <!-- FACE & BIOMETRIC DETECTION TRACKER -->
   <article class="proj rv" style="--c:#f5b301" data-video="facescan">
     <div class="info">
-      <img decoding="async" class="pico" src="assets/img/icon-facescan.svg" alt="Face + Gesture Unlock logo" width="64" height="64"><div class="num">06 · BIOMETRIC SECURITY LAB</div>
+      <img decoding="async" class="pico" src="assets/img/icon-facescan.svg" alt="Face + Gesture Unlock logo" width="64" height="64"><div class="num">05 · BIOMETRIC SECURITY LAB</div>
       <h3>Face + Gesture <span class="g">Unlock</span></h3>
       <div class="tagline">Break the lock, then read the log. A biometric security lab in your browser.</div>
       <p>Face match, liveness check and hand-gesture unlock, with a red-team mode and a SOC-style event log. It runs 100% in your browser: no uploads, no analytics.</p>
@@ -668,6 +640,53 @@ html.dot-field .cdot{opacity:0}
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>face.al-hassan.dev</span></div>
           <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/facescan-poster.jpg" data-src="assets/video/facescan.mp4"></video></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- GAMES FOR FUN -->
+  <h3 class="games-title rv"><span aria-hidden="true">&#10022;</span> Games for <span class="g">fun</span> <span aria-hidden="true">&#10022;</span></h3>
+
+  <!-- JACKAROO -->
+  <article class="proj jk rv" style="--c:#e8cf8a">
+    <div class="info">
+      <img decoding="async" class="pico" src="assets/img/icon-jackaroo.svg" alt="Jackaroo logo" width="64" height="64"><div class="num">06 &middot; MULTIPLAYER GAME</div>
+      <h3>Online <span class="g g-gold">Jackaroo</span></h3>
+      <div class="tagline">A private, friends-only online card-and-marble game with a 3D caf&eacute; table.</div>
+      <p>Four players, two teams, one square table: play cards to race your marbles around the board. The server is the referee, so nobody can cheat, and everything is in Arabic, right to left, built for phones first.</p>
+      <ul class="feat">
+        <li>Server-authoritative engine on Cloudflare Workers and a SQLite Durable Object: one room, hibernating WebSockets, rate limits and a signed login cookie</li>
+        <li>3D caf&eacute; scene in Three.js with an orbit camera, marbles you move yourself, live voice chat over WebRTC and a shared music queue</li>
+        <li>Passphrase-protected, voice is never recorded, and the rules are covered by more than 200 automated tests</li>
+      </ul>
+      <div class="tags"><span>TypeScript</span><span>Three.js</span><span>Cloudflare Workers</span><span>Durable Objects</span><span>WebRTC</span><span>Arabic RTL</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://github.com/hassanaldajah/alhushmen-jackaroo" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="media duo">
+      <div class="logo-banner jk-banner" style="background:radial-gradient(ellipse at 50% 0%,#6b4e1a,#1e140d 75%)">
+        <svg viewBox="0 0 640 360" role="img" aria-label="Jackaroo logo">
+          <g transform="translate(272 36)">
+            <rect x="1" y="1" width="94" height="94" rx="14" fill="#3b2818" stroke="#e8cf8a" stroke-opacity=".6" stroke-width="2"/>
+            <path d="M16 48h64M48 16v64" stroke="#e8cf8a" stroke-opacity=".55" stroke-width="10" stroke-linecap="round"/>
+            <circle class="jk-m m1" cx="16" cy="48" r="9" fill="#d9a441"/><circle class="jk-m m2" cx="80" cy="48" r="9" fill="#e6e1d3"/>
+            <circle class="jk-m m3" cx="48" cy="16" r="9" fill="#b3322e"/><circle class="jk-m m4" cx="48" cy="80" r="9" fill="#3b6fd9"/>
+          </g>
+          <text x="320" y="214" text-anchor="middle" font-size="62" fill="#e8cf8a">JACKAROO</text>
+          <text class="jk-sub" x="320" y="262" text-anchor="middle">4 PLAYERS &middot; 2 TEAMS &middot; AR / RTL</text>
+        </svg>
+      </div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>3D table &middot; friends only</span></div>
+          <div class="screen"><svg viewBox="0 0 640 360" role="img" aria-label="Square Jackaroo table with a snake-like marble track" style="display:block;width:100%;height:100%;background:radial-gradient(ellipse at 50% 30%,#6b4e1a,#1e140d)">
+            <rect x="170" y="30" width="300" height="300" rx="22" fill="#3a2a0f" stroke="#e8cf8a" stroke-opacity=".55" stroke-width="3"/>
+            <path d="M200 180h240M320 60v240" stroke="#8a6a26" stroke-width="30" stroke-linecap="round" fill="none"/>
+            <path d="M200 180h240M320 60v240" stroke="#e8cf8a" stroke-opacity=".35" stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round" fill="none"/>
+            <circle cx="220" cy="180" r="13" fill="#d9a441"/><circle cx="420" cy="180" r="13" fill="#e6e1d3"/>
+            <circle cx="320" cy="80" r="13" fill="#b3322e"/><circle cx="320" cy="280" r="13" fill="#3b6fd9"/>
+            <circle cx="214" cy="174" r="4" fill="#fff" fill-opacity=".7"/><circle cx="414" cy="174" r="4" fill="#fff" fill-opacity=".7"/><circle cx="314" cy="74" r="4" fill="#fff" fill-opacity=".7"/><circle cx="314" cy="274" r="4" fill="#fff" fill-opacity=".7"/>
+          </svg></div></div>
       </div>
     </div>
   </article>
@@ -702,6 +721,48 @@ html.dot-field .cdot{opacity:0}
       <div class="devwrap">
         <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>plumhop.al-hassan.dev</span></div>
           <div class="screen"><img decoding="async" src="assets/img/plumhop-poster.jpg" alt="Three Plum Hop levels: meadow, forest and snow" loading="lazy" width="1280" height="720"><a href="https://plumhop.al-hassan.dev" target="_blank" rel="noopener" aria-label="Play Plum Hop"></a></div></div>
+      </div>
+    </div>
+  </article>
+
+  <!-- NULL SIGNAL -->
+  <article class="proj null rv" style="--c:#ffffff" data-video="nullsignal">
+    <div class="info">
+      <img decoding="async" class="pico" src="assets/img/icon-nullsignal.svg" alt="NULL SIGNAL logo" width="64" height="64"><div class="num">08 · CYBER INVESTIGATION GAME</div>
+      <h3>NULL <span class="g g-mono">SIGNAL</span></h3>
+      <div class="tagline">A detective game where you investigate a breach instead of causing one.</div>
+      <p>You play the defender on a simulated forensic desktop, in Arabic or English, and follow one fictional intrusion from the first phishing email to the attacker's name.</p>
+      <ul class="feat">
+        <li>A simulated forensic shell (grep, find, xxd, exiftool, sha256sum) over a read-only virtual disk: nothing touches a real system</li>
+        <li>27 levels in 6 acts: Linux basics, phishing, passwords, logs and timelines, file forensics and the final unmasking</li>
+        <li>Every level ends with a debrief: the concept, real defensive tools and a source (NIST, MITRE ATT&amp;CK, RFCs)</li>
+      </ul>
+      <div class="tags"><span>React</span><span>TypeScript</span><span>Three.js</span><span>xterm.js</span><span>Blender</span><span>Arabic / English</span></div>
+      <div class="btns">
+        <a class="btn primary sm" href="https://nullsignal.al-hassan.dev" target="_blank" rel="noopener">Play the game ↗</a>
+        <a class="btn sm" href="https://github.com/hassanaldajah/null-signal" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <div class="media duo">
+      <div class="logo-banner ns-banner" style="background:#000">
+        <svg viewBox="0 0 640 360" role="img" aria-label="NULL SIGNAL logo">
+          <defs><pattern id="nsScan" width="4" height="4" patternUnits="userSpaceOnUse"><rect width="4" height="1" fill="#fff" fill-opacity=".035"/></pattern></defs>
+          <rect width="640" height="360" fill="url(#nsScan)"/>
+          <g transform="translate(272 52)">
+            <rect x="1" y="1" width="94" height="94" rx="20" fill="#000" stroke="#fff" stroke-opacity=".28" stroke-width="2"/>
+            <path class="echo e1" d="M21 69V27l27 42V27" stroke="#fff" stroke-width="7.5" fill="none" stroke-linecap="square"/>
+            <path d="M21 69V27l27 42V27M57 69h18" stroke="#fff" stroke-width="7.5" fill="none" stroke-linecap="square"/>
+            <rect x="57" y="27" width="18" height="7.5" fill="#fff" fill-opacity=".45"/>
+          </g>
+          <text class="echo e1" x="320" y="226" text-anchor="middle" font-size="58">NULL SIGNAL</text>
+          <text class="echo e2" x="320" y="226" text-anchor="middle" font-size="58">NULL SIGNAL</text>
+          <text x="320" y="226" text-anchor="middle" font-size="58" fill="#fff">NULL SIGNAL</text>
+          <text class="ns-sub" x="320" y="272" text-anchor="middle">DIGITAL FORENSICS GAME · AR / EN</text>
+        </svg>
+      </div>
+      <div class="devwrap">
+        <div class="device tilt"><div class="bar"><i></i><i></i><i></i><span>nullsignal.al-hassan.dev</span></div>
+          <div class="screen"><video muted loop playsinline disableremoteplayback disablepictureinpicture controlslist="nodownload" preload="none" poster="assets/img/nullsignal-poster.jpg" data-src="assets/video/nullsignal.mp4"></video></div></div>
       </div>
     </div>
   </article>
